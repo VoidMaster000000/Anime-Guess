@@ -27,6 +27,103 @@ interface MenuItem {
   highlight?: boolean;
 }
 
+// Animated menu item with hover effects
+function AnimatedMenuItem({
+  item,
+  onClick,
+}: {
+  item: MenuItem;
+  onClick: () => void;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const iconRef = useRef<HTMLSpanElement>(null);
+
+  const handleMouseEnter = () => {
+    if (item.disabled || !ref.current) return;
+
+    animate(ref.current, {
+      scale: 1.02,
+      translateX: 4,
+      duration: 100,
+      ease: 'outQuad',
+    });
+
+    if (iconRef.current) {
+      animate(iconRef.current, {
+        scale: 1.2,
+        rotate: item.highlight ? 15 : 0,
+        duration: 150,
+        ease: 'outBack',
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!ref.current) return;
+
+    animate(ref.current, {
+      scale: 1,
+      translateX: 0,
+      duration: 100,
+      ease: 'outQuad',
+    });
+
+    if (iconRef.current) {
+      animate(iconRef.current, {
+        scale: 1,
+        rotate: 0,
+        duration: 100,
+        ease: 'outQuad',
+      });
+    }
+  };
+
+  const handleMouseDown = () => {
+    if (item.disabled || !ref.current) return;
+
+    animate(ref.current, {
+      scale: 0.98,
+      duration: 50,
+      ease: 'outQuad',
+    });
+  };
+
+  const handleMouseUp = () => {
+    if (item.disabled || !ref.current) return;
+
+    animate(ref.current, {
+      scale: 1.02,
+      duration: 50,
+      ease: 'outQuad',
+    });
+  };
+
+  return (
+    <button
+      ref={ref}
+      onClick={onClick}
+      disabled={item.disabled}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors rounded-lg mx-1 ${
+        item.disabled
+          ? 'text-zinc-600 cursor-not-allowed'
+          : item.highlight
+          ? 'text-purple-400 hover:bg-purple-500/20'
+          : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+      }`}
+      style={{ width: 'calc(100% - 8px)' }}
+    >
+      <span ref={iconRef} className={item.disabled ? 'opacity-50' : ''}>
+        {item.icon}
+      </span>
+      <span className="text-sm">{item.label}</span>
+    </button>
+  );
+}
+
 export default function CustomContextMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -231,22 +328,10 @@ export default function CustomContextMenu() {
             {item.divider && index > 0 && (
               <div className="my-1 border-t border-zinc-700/50" />
             )}
-            <button
+            <AnimatedMenuItem
+              item={item}
               onClick={() => !item.disabled && handleMenuClick(item.onClick)}
-              disabled={item.disabled}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${
-                item.disabled
-                  ? 'text-zinc-600 cursor-not-allowed'
-                  : item.highlight
-                  ? 'text-purple-400 hover:bg-purple-500/20'
-                  : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
-              }`}
-            >
-              <span className={item.disabled ? 'opacity-50' : ''}>
-                {item.icon}
-              </span>
-              <span className="text-sm">{item.label}</span>
-            </button>
+            />
           </div>
         ))}
       </div>
