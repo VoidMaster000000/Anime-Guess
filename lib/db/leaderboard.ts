@@ -27,7 +27,7 @@ export interface LeaderboardFilters {
 }
 
 /**
- * Add a new leaderboard entry
+ * Add or update leaderboard entry (keeps only the best score per player)
  */
 export async function addLeaderboardEntry(
   entry: LeaderboardEntryInput
@@ -35,7 +35,10 @@ export async function addLeaderboardEntry(
   const db = await getDatabase();
   const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
 
-  const newEntry: DBLeaderboardEntry = {
+  // Check if player already has an entry
+  const existingEntry = await leaderboard.findOne({ odId: entry.odId });
+
+  const newEntryData: DBLeaderboardEntry = {
     odId: entry.odId,
     username: entry.username,
     avatar: entry.avatar,
@@ -49,8 +52,40 @@ export async function addLeaderboardEntry(
     tabSwitches: entry.tabSwitches || 0,
   };
 
-  const result = await leaderboard.insertOne(newEntry);
-  return { ...newEntry, _id: result.insertedId };
+  if (existingEntry) {
+    // Only update if new score is better (higher streak, or same streak with higher points)
+    const isBetterScore =
+      entry.streak > existingEntry.streak ||
+      (entry.streak === existingEntry.streak && entry.points > existingEntry.points);
+
+    if (isBetterScore) {
+      await leaderboard.updateOne(
+        { _id: existingEntry._id },
+        {
+          $set: {
+            username: entry.username,
+            avatar: entry.avatar,
+            streak: entry.streak,
+            points: entry.points,
+            difficulty: entry.difficulty,
+            level: entry.level,
+            accuracy: entry.accuracy,
+            createdAt: new Date(),
+            isSuspicious: entry.isSuspicious || false,
+            tabSwitches: entry.tabSwitches || 0,
+          },
+        }
+      );
+      return { ...newEntryData, _id: existingEntry._id };
+    }
+
+    // Return existing entry if new score is not better
+    return existingEntry;
+  }
+
+  // Create new entry if player doesn't exist
+  const result = await leaderboard.insertOne(newEntryData);
+  return { ...newEntryData, _id: result.insertedId };
 }
 
 /**
