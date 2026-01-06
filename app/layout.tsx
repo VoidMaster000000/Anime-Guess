@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CustomContextMenu from "@/components/layout/CustomContextMenu";
+import CustomCursor from "@/components/layout/CustomCursor";
 import Providers from "@/components/Providers";
 
 const inter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased min-h-screen bg-bg-primary text-text-primary`}
       >
         <Providers>
+          <CustomCursor />
           <CustomContextMenu />
           <div className="flex flex-col min-h-screen">
             <Header />
