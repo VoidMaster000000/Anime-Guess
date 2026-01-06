@@ -40,6 +40,7 @@ export default function GamePage() {
     saveToLeaderboard,
     resetGame,
     setDifficulty,
+    loseLife,
   } = useGameStore();
 
   // Auth hook integration (MongoDB)
@@ -65,8 +66,9 @@ export default function GamePage() {
     }, []),
     onSuspiciousActivity: useCallback((type: string, count: number) => {
       setShowAntiCheatWarning(true);
-      // Don't auto-hide suspicious activity warnings
-    }, []),
+      // Lose a life as punishment for cheating
+      loseLife(`Cheating detected: ${type} (${count} times)`);
+    }, [loseLife]),
   });
 
   // Reset anti-cheat when game ends or restarts

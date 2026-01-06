@@ -181,6 +181,7 @@ export interface GameState {
   revealHint: () => void;
   submitGuess: (guess: string) => boolean;
   skipCharacter: () => Promise<void>;
+  loseLife: (reason?: string) => void;
   purchaseUpgrade: (item: ShopItem) => boolean;
   resetGame: () => void;
   saveToLeaderboard: (username: string) => Promise<void>;

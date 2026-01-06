@@ -258,6 +258,29 @@ export const useGameStore = create<GameState>()(
       },
 
       /**
+       * Lose a life (e.g., from anti-cheat detection)
+       */
+      loseLife: (reason?: string) => {
+        const { lives } = get();
+        const newLives = lives - 1;
+
+        if (newLives <= 0) {
+          // Game over
+          set({
+            lives: 0,
+            gameStatus: 'gameover',
+            timeRemaining: null,
+          });
+        } else {
+          set({ lives: newLives });
+        }
+
+        if (reason) {
+          console.log(`Life lost: ${reason}`);
+        }
+      },
+
+      /**
        * Purchase an upgrade from the shop
        * Returns true if purchase successful, false otherwise
        */
