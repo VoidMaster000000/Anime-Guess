@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { animate } from '@/lib/animejs';
 import {
   ArrowLeft,
@@ -14,8 +14,9 @@ import {
   User,
   Shield,
   Trash2,
-  Save,
   Check,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, updateSettings as updateUserSettings } from '@/hooks/useAuth';
@@ -46,14 +47,22 @@ function AnimatedSection({ children, delay = 0, className }: { children: React.R
 // Animated toggle switch
 function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => void }) {
   const knobRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     if (knobRef.current) {
-      animate(knobRef.current, {
-        translateX: value ? 24 : 0,
-        duration: 120,
-        ease: 'outQuad',
-      });
+      if (isFirstRender.current) {
+        // Set initial position without animation
+        knobRef.current.style.transform = `translateX(${value ? 24 : 0}px)`;
+        isFirstRender.current = false;
+      } else {
+        // Animate subsequent changes
+        animate(knobRef.current, {
+          translateX: value ? 24 : 0,
+          duration: 120,
+          ease: 'outQuad',
+        });
+      }
     }
   }, [value]);
 
@@ -68,7 +77,7 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
     >
       <div
         ref={knobRef}
-        className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md"
+        className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform"
       />
     </button>
   );
@@ -84,7 +93,10 @@ export default function SettingsPage() {
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('dark');
   const [saveMessage, setSaveMessage] = useState('');
+  const [isError, setIsError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load settings from MongoDB user data
   useEffect(() => {
@@ -93,39 +105,65 @@ export default function SettingsPage() {
       setMusicEnabled(user.settings.musicEnabled ?? true);
       setAnimationsEnabled(user.settings.animationsEnabled ?? true);
       setTheme(user.settings.theme ?? 'dark');
+      setHasLoaded(true);
     }
   }, [user]);
 
-  const handleSaveSettings = async () => {
+  // Auto-save function
+  const saveSettings = useCallback(async (settings: {
+    soundEnabled: boolean;
+    musicEnabled: boolean;
+    animationsEnabled: boolean;
+    theme: 'dark' | 'light' | 'system';
+  }) => {
     if (!isAuthenticated || !user) {
       setSaveMessage('Please login to save settings.');
+      setIsError(true);
       setTimeout(() => setSaveMessage(''), 3000);
       return;
     }
 
     setIsSaving(true);
     try {
-      // Save to MongoDB via API
-      const result = await updateUserSettings({
-        soundEnabled,
-        musicEnabled,
-        animationsEnabled,
-        theme,
-      });
+      const result = await updateUserSettings(settings);
 
       if (result.success) {
         await refreshUser();
-        setSaveMessage('Settings saved successfully!');
+        setSaveMessage('Settings saved!');
+        setIsError(false);
       } else {
         setSaveMessage(result.error || 'Failed to save settings.');
+        setIsError(true);
       }
     } catch {
       setSaveMessage('Network error. Please try again.');
+      setIsError(true);
     } finally {
       setIsSaving(false);
-      setTimeout(() => setSaveMessage(''), 3000);
+      setTimeout(() => setSaveMessage(''), 2000);
     }
-  };
+  }, [isAuthenticated, user, refreshUser]);
+
+  // Debounced auto-save when settings change
+  useEffect(() => {
+    if (!hasLoaded) return; // Don't save on initial load
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Debounce save by 500ms
+    saveTimeoutRef.current = setTimeout(() => {
+      saveSettings({ soundEnabled, musicEnabled, animationsEnabled, theme });
+    }, 500);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [soundEnabled, musicEnabled, animationsEnabled, theme, hasLoaded, saveSettings]);
 
   const settingsSections = [
     {
@@ -210,12 +248,28 @@ export default function SettingsPage() {
           </div>
         </AnimatedSection>
 
-        {/* Success Message */}
-        {saveMessage && (
-          <AnimatedSection className="mb-4 sm:mb-6 p-3 sm:p-4 stat-green flex items-center gap-2 sm:gap-3">
-            <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-            <span className="text-sm sm:text-base text-green-400">{saveMessage}</span>
-          </AnimatedSection>
+        {/* Status Message */}
+        {(saveMessage || isSaving) && (
+          <div className={`mb-4 sm:mb-6 p-3 sm:p-4 flex items-center gap-2 sm:gap-3 rounded-lg border ${
+            isSaving
+              ? 'stat-purple border-purple-500/30'
+              : isError
+                ? 'stat-red border-red-500/30'
+                : 'stat-green border-green-500/30'
+          }`}>
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500 animate-spin" />
+            ) : isError ? (
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+            ) : (
+              <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+            )}
+            <span className={`text-sm sm:text-base ${
+              isSaving ? 'text-purple-400' : isError ? 'text-red-400' : 'text-green-400'
+            }`}>
+              {isSaving ? 'Saving...' : saveMessage}
+            </span>
+          </div>
         )}
 
         {/* Settings Sections */}
@@ -330,16 +384,11 @@ export default function SettingsPage() {
           </AnimatedSection>
         </div>
 
-        {/* Save Button */}
-        <AnimatedSection delay={500} className="mt-6 sm:mt-8 flex justify-end">
-          <button
-            onClick={handleSaveSettings}
-            disabled={isSaving || !isAuthenticated}
-            className="btn btn-gradient px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base"
-          >
-            <Save className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaving ? 'animate-spin' : ''}`} />
-            <span>Save Settings</span>
-          </button>
+        {/* Auto-save indicator */}
+        <AnimatedSection delay={500} className="mt-6 sm:mt-8">
+          <p className="text-xs sm:text-sm text-zinc-500 text-center">
+            Settings are saved automatically when you make changes
+          </p>
         </AnimatedSection>
       </div>
     </div>
