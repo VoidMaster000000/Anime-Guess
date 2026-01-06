@@ -416,7 +416,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
+      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
         {/* Header */}
         <AnimatedSection className="mb-8">
           <button
@@ -428,10 +428,10 @@ export default function ProfilePage() {
           </button>
 
           {/* Profile Header Card */}
-          <ScaleCard className="card-glass p-8 mb-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <ScaleCard className="card-glass p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6">
               {/* Avatar */}
-              <HoverAvatar className="w-24 h-24 stat-purple flex-center text-5xl flex-shrink-0 overflow-hidden rounded-2xl">
+              <HoverAvatar className="w-20 h-20 sm:w-24 sm:h-24 stat-purple flex-center text-4xl sm:text-5xl flex-shrink-0 overflow-hidden rounded-xl sm:rounded-2xl">
                 {user?.avatarImage ? (
                   <img
                     src={user.avatarImage}
@@ -439,30 +439,30 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-12 h-12 text-purple-400" />
+                  <User className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400" />
                 )}
               </HoverAvatar>
 
               {/* User Info */}
-              <div className="flex-1 text-center md:text-left">
+              <div className="flex-1 text-center md:text-left w-full">
                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
-                  <h1 className="text-3xl font-bold text-white">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white">
                     {user?.username || 'Player'}
                   </h1>
                   <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="btn btn-secondary text-sm mx-auto md:mx-0"
+                    className="btn btn-secondary text-xs sm:text-sm mx-auto md:mx-0"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>Edit Profile</span>
                   </button>
                 </div>
-                <p className="text-zinc-400 mb-4">
+                <p className="text-sm sm:text-base text-zinc-400 mb-4">
                   Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString()}
                 </p>
 
                 {/* Level and Coins */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl">
                   <LevelProgress showDetails size="lg" />
                   <CoinDisplay showAddButton size="lg" />
                 </div>
@@ -472,46 +472,46 @@ export default function ProfilePage() {
         </AnimatedSection>
 
         {/* Stats Grid */}
-        <AnimatedSection delay={100} className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-purple-400" />
+        <AnimatedSection delay={100} className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 flex items-center gap-2">
+            <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
             Statistics
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
             {statsGrid.map((stat, index) => (
               <HoverCard
                 key={stat.label}
                 delay={100 + index * 50}
-                className={`bg-gradient-to-br ${stat.color} backdrop-blur-sm rounded-xl border ${stat.borderColor} p-6`}
+                className={`bg-gradient-to-br ${stat.color} backdrop-blur-sm rounded-lg sm:rounded-xl border ${stat.borderColor} p-3 sm:p-6`}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className={`p-3 bg-zinc-900/50 rounded-lg ${stat.iconColor}`}>
-                    <stat.icon className="w-6 h-6" />
+                <div className="flex items-start justify-between mb-2 sm:mb-3">
+                  <div className={`p-2 sm:p-3 bg-zinc-900/50 rounded-lg ${stat.iconColor}`}>
+                    <stat.icon className="w-4 h-4 sm:w-6 sm:h-6" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-1 tabular-nums">
+                <div className="text-xl sm:text-3xl font-bold text-white mb-0.5 sm:mb-1 tabular-nums">
                   {stat.format(stat.value)}
                 </div>
-                <div className="text-sm text-zinc-400">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-zinc-400">{stat.label}</div>
               </HoverCard>
             ))}
           </div>
         </AnimatedSection>
 
         {/* Achievements Section */}
-        <AnimatedSection delay={200} className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-            <Award className="w-6 h-6 text-purple-400" />
+        <AnimatedSection delay={200} className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 flex items-center gap-2">
+            <Award className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
             Recent Achievements
           </h2>
 
-          <div className="card-glass p-8 text-center">
-            <div className="text-6xl mb-4">🏆</div>
-            <p className="text-zinc-400 text-lg">
+          <div className="card-glass p-4 sm:p-8 text-center">
+            <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🏆</div>
+            <p className="text-zinc-400 text-base sm:text-lg">
               Achievements coming soon!
             </p>
-            <p className="text-zinc-500 text-sm mt-2">
+            <p className="text-zinc-500 text-xs sm:text-sm mt-2">
               Complete challenges to unlock special badges and rewards
             </p>
           </div>

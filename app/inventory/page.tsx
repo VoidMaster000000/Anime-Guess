@@ -332,15 +332,15 @@ export default function InventoryPage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl">
         {/* Header */}
-        <AnimatedSection className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <AnimatedSection className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
             <button
               onClick={() => router.back()}
-              className="btn btn-secondary"
+              className="btn btn-secondary text-sm sm:text-base"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="font-medium">Back</span>
             </button>
 
@@ -349,28 +349,29 @@ export default function InventoryPage() {
           </div>
 
           {/* Title */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 stat-purple">
-              <Package className="w-8 h-8 text-purple-400" />
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="p-2 sm:p-3 stat-purple">
+              <Package className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-white">Inventory</h1>
-              <p className="text-zinc-400 mt-1">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white">Inventory</h1>
+              <p className="text-xs sm:text-base text-zinc-400 mt-0.5 sm:mt-1">
                 Manage and use your collected items
               </p>
             </div>
           </div>
 
           {/* Category Filters */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {CATEGORIES.map((category) => (
               <HoverScaleButton
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`btn ${selectedCategory === category.id ? 'btn-gradient' : 'btn-secondary'}`}
+                className={`btn text-xs sm:text-sm px-2 sm:px-4 py-1.5 sm:py-2 ${selectedCategory === category.id ? 'btn-gradient' : 'btn-secondary'}`}
               >
-                <category.icon className="w-4 h-4" />
-                <span>{category.label}</span>
+                <category.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{category.label}</span>
+                <span className="sm:hidden">{category.id === 'all' ? 'All' : category.label.split(' ')[0]}</span>
               </HoverScaleButton>
             ))}
           </div>
@@ -378,7 +379,7 @@ export default function InventoryPage() {
 
         {/* Inventory Grid */}
         {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
             {filteredItems.map((item, index) => {
               const rarityStyle = RARITY_COLORS[item.rarity];
               const Icon = item.icon;
@@ -387,37 +388,37 @@ export default function InventoryPage() {
                 <HoverCard
                   key={item.id}
                   delay={index * 50}
-                  className={`group relative bg-gradient-to-br ${rarityStyle.gradient} backdrop-blur-sm rounded-xl border ${rarityStyle.border} p-6 hover:shadow-xl ${rarityStyle.glow} transition-all duration-300`}
+                  className={`group relative bg-gradient-to-br ${rarityStyle.gradient} backdrop-blur-sm rounded-xl border ${rarityStyle.border} p-4 sm:p-6 hover:shadow-xl ${rarityStyle.glow} transition-all duration-300`}
                 >
                   {/* Quantity Badge */}
-                  <div className={`absolute top-4 right-4 px-3 py-1 bg-zinc-900/80 backdrop-blur-sm rounded-full border ${rarityStyle.border}`}>
-                    <span className={`text-sm font-bold ${rarityStyle.text}`}>
+                  <div className={`absolute top-3 right-3 sm:top-4 sm:right-4 px-2 sm:px-3 py-0.5 sm:py-1 bg-zinc-900/80 backdrop-blur-sm rounded-full border ${rarityStyle.border}`}>
+                    <span className={`text-xs sm:text-sm font-bold ${rarityStyle.text}`}>
                       x{item.quantity}
                     </span>
                   </div>
 
                   {/* Icon */}
-                  <div className={`w-16 h-16 mb-4 bg-zinc-900/50 rounded-xl border ${rarityStyle.border} flex items-center justify-center`}>
-                    <Icon className={`w-8 h-8 ${rarityStyle.text}`} />
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-4 bg-zinc-900/50 rounded-xl border ${rarityStyle.border} flex items-center justify-center`}>
+                    <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${rarityStyle.text}`} />
                   </div>
 
                   {/* Item Info */}
-                  <h3 className="text-lg font-bold text-white mb-1">
+                  <h3 className="text-base sm:text-lg font-bold text-white mb-1 truncate">
                     {item.name}
                   </h3>
-                  <p className={`text-xs font-semibold uppercase mb-2 ${rarityStyle.text}`}>
+                  <p className={`text-[10px] sm:text-xs font-semibold uppercase mb-1.5 sm:mb-2 ${rarityStyle.text}`}>
                     {item.rarity}
                   </p>
-                  <p className="text-sm text-zinc-400 mb-4">
+                  <p className="text-xs sm:text-sm text-zinc-400 mb-3 sm:mb-4 line-clamp-2">
                     {item.description}
                   </p>
 
-                  {/* Effect on hover */}
+                  {/* Effect on hover - visible on mobile */}
                   {item.effect && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 mb-3">
-                      <div className="flex items-start gap-2 text-xs text-zinc-500">
+                    <div className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mb-2 sm:mb-3">
+                      <div className="flex items-start gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-zinc-500">
                         <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                        <span>{item.effect}</span>
+                        <span className="line-clamp-2">{item.effect}</span>
                       </div>
                     </div>
                   )}
@@ -426,7 +427,7 @@ export default function InventoryPage() {
                   {item.isUsable && (
                     <HoverScaleButton
                       onClick={() => handleUseItem(item)}
-                      className={`w-full px-4 py-2 bg-gradient-to-r ${rarityStyle.gradient} border ${rarityStyle.border} rounded-lg ${rarityStyle.text} font-medium hover:brightness-125 transition-all`}
+                      className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm bg-gradient-to-r ${rarityStyle.gradient} border ${rarityStyle.border} rounded-lg ${rarityStyle.text} font-medium hover:brightness-125 transition-all`}
                     >
                       Use Item
                     </HoverScaleButton>
@@ -437,17 +438,17 @@ export default function InventoryPage() {
           </div>
         ) : (
           /* Empty State */
-          <AnimatedSection className="card-glass p-12 text-center">
-            <div className="text-6xl mb-4">📦</div>
-            <h2 className="text-2xl font-bold text-white mb-2">No Items Found</h2>
-            <p className="text-zinc-400 mb-6">
+          <AnimatedSection className="card-glass p-6 sm:p-12 text-center">
+            <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">📦</div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">No Items Found</h2>
+            <p className="text-sm sm:text-base text-zinc-400 mb-4 sm:mb-6">
               {selectedCategory === 'all'
                 ? "Your inventory is empty. Visit the shop to purchase items!"
                 : `You don't have any ${selectedCategory} items yet.`}
             </p>
             <button
               onClick={() => router.push('/shop')}
-              className="btn btn-gradient px-6 py-3"
+              className="btn btn-gradient px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base"
             >
               Visit Shop
             </button>
@@ -458,63 +459,63 @@ export default function InventoryPage() {
       {/* Use Item Confirmation Modal */}
       {isUseModalOpen && selectedItem && (
         <ModalOverlay onClose={cancelUseItem}>
-          <div className={`bg-gradient-to-br ${RARITY_COLORS[selectedItem.rarity].gradient} border ${RARITY_COLORS[selectedItem.rarity].border} rounded-2xl p-8 max-w-md w-full`}>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className={`p-3 bg-zinc-900/50 rounded-lg border ${RARITY_COLORS[selectedItem.rarity].border}`}>
-                  <selectedItem.icon className={`w-6 h-6 ${RARITY_COLORS[selectedItem.rarity].text}`} />
+          <div className={`bg-gradient-to-br ${RARITY_COLORS[selectedItem.rarity].gradient} border ${RARITY_COLORS[selectedItem.rarity].border} rounded-xl sm:rounded-2xl p-4 sm:p-8 max-w-md w-full mx-4`}>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className={`p-2 sm:p-3 bg-zinc-900/50 rounded-lg border ${RARITY_COLORS[selectedItem.rarity].border}`}>
+                  <selectedItem.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${RARITY_COLORS[selectedItem.rarity].text}`} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">{selectedItem.name}</h2>
-                  <p className={`text-sm font-semibold uppercase ${RARITY_COLORS[selectedItem.rarity].text}`}>
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">{selectedItem.name}</h2>
+                  <p className={`text-xs sm:text-sm font-semibold uppercase ${RARITY_COLORS[selectedItem.rarity].text}`}>
                     {selectedItem.rarity}
                   </p>
                 </div>
               </div>
               <button
                 onClick={cancelUseItem}
-                className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+                className="p-1.5 sm:p-2 hover:bg-zinc-800 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-zinc-400" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
               </button>
             </div>
 
-            <div className="mb-6">
-              <p className="text-zinc-300 mb-4">{selectedItem.description}</p>
+            <div className="mb-4 sm:mb-6">
+              <p className="text-sm sm:text-base text-zinc-300 mb-3 sm:mb-4">{selectedItem.description}</p>
               {selectedItem.effect && (
-                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
-                  <p className="text-sm text-zinc-400">
+                <div className="p-3 sm:p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                  <p className="text-xs sm:text-sm text-zinc-400">
                     <span className="font-semibold text-white">Effect:</span> {selectedItem.effect}
                   </p>
                 </div>
               )}
-              <div className="mt-4 flex items-center gap-2 text-sm text-zinc-400">
-                <Package className="w-4 h-4" />
+              <div className="mt-3 sm:mt-4 flex items-center gap-2 text-xs sm:text-sm text-zinc-400">
+                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Quantity remaining: <span className="font-bold text-white">{selectedItem.quantity}</span></span>
               </div>
             </div>
 
-            <div className="stat-yellow p-4 mb-6">
+            <div className="stat-yellow p-3 sm:p-4 mb-4 sm:mb-6">
               <div className="flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-yellow-200">
+                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs sm:text-sm text-yellow-200">
                   This action will consume one {selectedItem.name}. Make sure you're in an active game to use it!
                 </p>
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={cancelUseItem}
-                className="flex-1 btn btn-secondary py-3"
+                className="flex-1 btn btn-secondary py-2 sm:py-3 text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmUseItem}
-                className="flex-1 btn btn-gradient py-3"
+                className="flex-1 btn btn-gradient py-2 sm:py-3 text-sm"
               >
-                <Check className="w-5 h-5" />
+                <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                 Use Item
               </button>
             </div>

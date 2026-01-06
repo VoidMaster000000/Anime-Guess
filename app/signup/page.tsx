@@ -145,29 +145,29 @@ export default function SignupPage() {
         <div className="bg-glow-cyan top-1/3 left-0 w-[400px] h-[400px] blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors group">
+      <div className="w-full max-w-md relative z-10 px-4 sm:px-0">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back to Home
         </Link>
 
-        <div ref={cardRef} className="card-dark p-8 opacity-0">
+        <div ref={cardRef} className="card-dark p-5 sm:p-8 opacity-0">
           {/* Logo */}
-          <div className="text-center mb-6">
-            <div ref={logoRef} className="inline-flex flex-center w-20 h-20 bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-500 rounded-2xl mb-4 shadow-lg shadow-pink-500/30">
-              <UserPlus className="w-10 h-10 text-white" />
+          <div className="text-center mb-4 sm:mb-6">
+            <div ref={logoRef} className="inline-flex flex-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-500 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-pink-500/30">
+              <UserPlus className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h1 ref={titleRef} className="text-3xl font-bold text-white mb-2 opacity-0">Create Account</h1>
-            <p className="text-gray-400 flex-center gap-2">
+            <h1 ref={titleRef} className="text-2xl sm:text-3xl font-bold text-white mb-2 opacity-0">Create Account</h1>
+            <p className="text-sm sm:text-base text-gray-400 flex-center gap-2">
               <Sparkles className="w-4 h-4 text-pink-400" />
               Join the ultimate anime guessing game
             </p>
           </div>
 
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {/* Username */}
             <div className="form-element opacity-0">
-              <label htmlFor="username" className="label">Username</label>
+              <label htmlFor="username" className="label text-sm sm:text-base">Username</label>
               <div className="relative group">
                 <User className="icon-input" />
                 <input
@@ -175,22 +175,22 @@ export default function SignupPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className={getInputClass(!!usernameError && !!username, !!usernameValid)}
+                  className={`${getInputClass(!!usernameError && !!username, !!usernameValid)} text-sm sm:text-base py-2.5 sm:py-3`}
                   placeholder="Choose a username"
                   disabled={isLoading}
                 />
                 {username && (
                   <div className="validation-icon">
-                    {usernameValid ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertCircle className="w-5 h-5 text-red-500" />}
+                    {usernameValid ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
                   </div>
                 )}
               </div>
-              {username && usernameError && <p className="error-text">{usernameError}</p>}
+              {username && usernameError && <p className="error-text text-xs sm:text-sm">{usernameError}</p>}
             </div>
 
             {/* Email */}
             <div className="form-element opacity-0">
-              <label htmlFor="email" className="label">Email</label>
+              <label htmlFor="email" className="label text-sm sm:text-base">Email</label>
               <div className="relative group">
                 <Mail className="icon-input" />
                 <input
@@ -198,23 +198,23 @@ export default function SignupPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={getInputClass(!!emailError && !!email, !!emailValid)}
+                  className={`${getInputClass(!!emailError && !!email, !!emailValid)} text-sm sm:text-base py-2.5 sm:py-3`}
                   placeholder="Enter your email"
                   disabled={isLoading}
                   required
                 />
                 {email && (
                   <div className="validation-icon">
-                    {emailValid ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertCircle className="w-5 h-5 text-red-500" />}
+                    {emailValid ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
                   </div>
                 )}
               </div>
-              {email && emailError && <p className="error-text">{emailError}</p>}
+              {email && emailError && <p className="error-text text-xs sm:text-sm">{emailError}</p>}
             </div>
 
             {/* Password */}
             <div className="form-element opacity-0">
-              <label htmlFor="password" className="label">Password</label>
+              <label htmlFor="password" className="label text-sm sm:text-base">Password</label>
               <div className="relative group">
                 <Lock className="icon-input" />
                 <input
@@ -222,20 +222,20 @@ export default function SignupPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={getInputClass(!!passwordError && !!password, !!passwordValid)}
+                  className={`${getInputClass(!!passwordError && !!password, !!passwordValid)} text-sm sm:text-base py-2.5 sm:py-3`}
                   placeholder="Create a password (min 6 chars)"
                   disabled={isLoading}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="validation-icon text-gray-500 hover:text-gray-300 transition-colors">
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
-              {password && passwordError && <p className="error-text">{passwordError}</p>}
+              {password && passwordError && <p className="error-text text-xs sm:text-sm">{passwordError}</p>}
             </div>
 
             {/* Confirm Password */}
             <div className="form-element opacity-0">
-              <label htmlFor="confirmPassword" className="label">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="label text-sm sm:text-base">Confirm Password</label>
               <div className="relative group">
                 <Lock className="icon-input" />
                 <input
@@ -243,23 +243,23 @@ export default function SignupPage() {
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={getInputClass(!!passwordsDontMatch, !!passwordsMatch)}
+                  className={`${getInputClass(!!passwordsDontMatch, !!passwordsMatch)} text-sm sm:text-base py-2.5 sm:py-3`}
                   placeholder="Confirm your password"
                   disabled={isLoading}
                 />
                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="validation-icon text-gray-500 hover:text-gray-300 transition-colors">
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
-              {passwordsDontMatch && <p className="error-text">Passwords do not match</p>}
-              {passwordsMatch && <p className="success-text flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Passwords match!</p>}
+              {passwordsDontMatch && <p className="error-text text-xs sm:text-sm">Passwords do not match</p>}
+              {passwordsMatch && <p className="success-text flex items-center gap-1 text-xs sm:text-sm"><CheckCircle2 className="w-3 h-3" /> Passwords match!</p>}
             </div>
 
             {/* Error */}
             {error && (
-              <div className="stat-red p-4">
-                <p className="text-sm text-red-400 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
+              <div className="stat-red p-3 sm:p-4">
+                <p className="text-xs sm:text-sm text-red-400 flex items-center gap-2">
+                  <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {error}
                 </p>
               </div>
@@ -271,23 +271,23 @@ export default function SignupPage() {
               disabled={isLoading || !!usernameError || !!emailError || !!passwordError || !passwordsMatch || !username || !email || !password}
               onMouseEnter={handleButtonHover}
               onMouseLeave={handleButtonLeave}
-              className="form-element opacity-0 w-full py-4 btn btn-gradient rounded-xl"
+              className="form-element opacity-0 w-full py-3 sm:py-4 btn btn-gradient rounded-xl text-sm sm:text-base"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Creating Account...</span>
                 </>
               ) : (
                 <>
-                  <UserPlus className="w-5 h-5" />
+                  <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Create Account</span>
                 </>
               )}
             </button>
           </form>
 
-          <p className="form-element opacity-0 mt-6 text-center text-gray-400">
+          <p className="form-element opacity-0 mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base">
             Already have an account?{' '}
             <Link href="/login" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Login</Link>
           </p>

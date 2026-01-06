@@ -199,10 +199,10 @@ export default function GamePage() {
                   animate={{ translateY: 0, opacity: 1 }}
                   transition={{ delay: 200 }}
                 >
-                  <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4 px-2">
                     Anime Guess Game
                   </h1>
-                  <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+                  <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto px-4">
                     Test your anime knowledge! Guess the anime from character images revealed quadrant by quadrant.
                   </p>
                 </Animated>
@@ -265,7 +265,7 @@ export default function GamePage() {
               )}
 
               {/* Main Game Area */}
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {/* Left Column - Character Image */}
                 <div className="space-y-4">
                   {currentCharacter ? (
@@ -332,12 +332,12 @@ export default function GamePage() {
                   <Animated
                     initial={{ opacity: 0, translateX: 20 }}
                     animate={{ opacity: 1, translateX: 0 }}
-                    className="card p-6 relative z-20"
+                    className="card p-4 sm:p-6 relative z-20"
                   >
-                    <h2 className="text-2xl font-bold mb-2 text-gradient">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gradient">
                       Guess the Anime!
                     </h2>
-                    <p className="text-zinc-400 mb-6">
+                    <p className="text-sm sm:text-base text-zinc-400 mb-4 sm:mb-6">
                       Type the anime title this character appears in. The more quadrants you reveal, the easier it gets!
                     </p>
 
@@ -357,18 +357,18 @@ export default function GamePage() {
                     <ItemUsagePanel />
                   </Animated>
 
-                  {/* Game Tips */}
+                  {/* Game Tips - Hidden on small mobile, visible on larger screens */}
                   <Animated
                     initial={{ opacity: 0, translateX: 20 }}
                     animate={{ opacity: 1, translateX: 0 }}
                     transition={{ delay: 200 }}
-                    className="stat-blue p-6 relative z-10"
+                    className="hidden sm:block stat-blue p-4 sm:p-6 relative z-10"
                   >
                     <div className="flex items-center gap-2 mb-3">
                       <Award className="w-5 h-5 text-blue-400" />
-                      <h3 className="text-lg font-semibold text-blue-300">Pro Tips</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-blue-300">Pro Tips</h3>
                     </div>
-                    <ul className="space-y-2 text-sm text-zinc-300">
+                    <ul className="space-y-2 text-xs sm:text-sm text-zinc-300">
                       <li className="flex items-start gap-2">
                         <span className="text-blue-400 mt-1">•</span>
                         <span>Fewer hints used = more points earned!</span>

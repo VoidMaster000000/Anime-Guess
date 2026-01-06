@@ -185,25 +185,25 @@ export default function SettingsPage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
+      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-4xl">
         {/* Header */}
-        <AnimatedSection className="mb-8">
+        <AnimatedSection className="mb-6 sm:mb-8">
           <button
             onClick={() => router.back()}
-            className="btn btn-secondary mb-6"
+            className="btn btn-secondary mb-4 sm:mb-6 text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium">Back</span>
           </button>
 
           {/* Title */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 stat-purple">
-              <Settings className="w-8 h-8 text-purple-400" />
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="p-2 sm:p-3 stat-purple">
+              <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-white">Settings</h1>
-              <p className="text-zinc-400 mt-1">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white">Settings</h1>
+              <p className="text-xs sm:text-base text-zinc-400 mt-0.5 sm:mt-1">
                 Customize your game experience
               </p>
             </div>
@@ -212,14 +212,14 @@ export default function SettingsPage() {
 
         {/* Success Message */}
         {saveMessage && (
-          <AnimatedSection className="mb-6 p-4 stat-green flex items-center gap-3">
-            <Check className="w-5 h-5 text-green-500" />
-            <span className="text-green-400">{saveMessage}</span>
+          <AnimatedSection className="mb-4 sm:mb-6 p-3 sm:p-4 stat-green flex items-center gap-2 sm:gap-3">
+            <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+            <span className="text-sm sm:text-base text-green-400">{saveMessage}</span>
           </AnimatedSection>
         )}
 
         {/* Settings Sections */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {settingsSections.map((section, sectionIndex) => (
             <AnimatedSection
               key={section.title}
@@ -227,21 +227,21 @@ export default function SettingsPage() {
               className="card-glass overflow-hidden"
             >
               {/* Section Header */}
-              <div className="px-6 py-4 border-b border-zinc-700 flex items-center gap-3">
-                <section.icon className="w-5 h-5 text-purple-400" />
-                <h2 className="text-lg font-semibold text-white">{section.title}</h2>
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-700 flex items-center gap-2 sm:gap-3">
+                <section.icon className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                <h2 className="text-base sm:text-lg font-semibold text-white">{section.title}</h2>
               </div>
 
               {/* Section Items */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                 {section.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between"
+                    className="flex items-center justify-between gap-3"
                   >
-                    <div>
-                      <p className="text-white font-medium">{item.label}</p>
-                      <p className="text-sm text-zinc-400">{item.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm sm:text-base text-white font-medium">{item.label}</p>
+                      <p className="text-xs sm:text-sm text-zinc-400">{item.description}</p>
                     </div>
                     <ToggleSwitch value={item.value} onChange={item.onChange} />
                   </div>
@@ -257,33 +257,33 @@ export default function SettingsPage() {
               className="card-glass overflow-hidden"
             >
               {/* Section Header */}
-              <div className="px-6 py-4 border-b border-zinc-700 flex items-center gap-3">
-                <User className="w-5 h-5 text-purple-400" />
-                <h2 className="text-lg font-semibold text-white">Account</h2>
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-700 flex items-center gap-2 sm:gap-3">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                <h2 className="text-base sm:text-lg font-semibold text-white">Account</h2>
               </div>
 
               {/* Account Info */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white font-medium">Username</p>
-                    <p className="text-sm text-zinc-400">{user.username}</p>
+                    <p className="text-sm sm:text-base text-white font-medium">Username</p>
+                    <p className="text-xs sm:text-sm text-zinc-400">{user.username}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white font-medium">Member Since</p>
-                    <p className="text-sm text-zinc-400">
+                    <p className="text-sm sm:text-base text-white font-medium">Member Since</p>
+                    <p className="text-xs sm:text-sm text-zinc-400">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-zinc-700">
+                <div className="pt-3 sm:pt-4 border-t border-zinc-700">
                   <button
                     onClick={() => router.push('/profile')}
-                    className="btn btn-secondary"
+                    className="btn btn-secondary text-sm sm:text-base"
                   >
                     <User className="w-4 h-4" />
                     <span>View Profile</span>
@@ -299,17 +299,17 @@ export default function SettingsPage() {
             className="card-glass overflow-hidden"
           >
             {/* Section Header */}
-            <div className="px-6 py-4 border-b border-zinc-700 flex items-center gap-3">
-              <Shield className="w-5 h-5 text-purple-400" />
-              <h2 className="text-lg font-semibold text-white">Data & Privacy</h2>
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-700 flex items-center gap-2 sm:gap-3">
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+              <h2 className="text-base sm:text-lg font-semibold text-white">Data & Privacy</h2>
             </div>
 
             {/* Privacy Options */}
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white font-medium">Clear Cache</p>
-                  <p className="text-sm text-zinc-400">
+            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm sm:text-base text-white font-medium">Clear Cache</p>
+                  <p className="text-xs sm:text-sm text-zinc-400">
                     Clear locally cached game data. Your account data is stored securely on our servers.
                   </p>
                 </div>
@@ -320,9 +320,9 @@ export default function SettingsPage() {
                       window.location.reload();
                     }
                   }}
-                  className="btn stat-red text-red-400 hover:text-red-300"
+                  className="btn stat-red text-red-400 hover:text-red-300 text-sm sm:text-base flex-shrink-0"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Clear Cache</span>
                 </button>
               </div>
@@ -331,13 +331,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Save Button */}
-        <AnimatedSection delay={500} className="mt-8 flex justify-end">
+        <AnimatedSection delay={500} className="mt-6 sm:mt-8 flex justify-end">
           <button
             onClick={handleSaveSettings}
             disabled={isSaving || !isAuthenticated}
-            className="btn btn-gradient px-6 py-3"
+            className="btn btn-gradient px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base"
           >
-            <Save className={`w-5 h-5 ${isSaving ? 'animate-spin' : ''}`} />
+            <Save className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaving ? 'animate-spin' : ''}`} />
             <span>Save Settings</span>
           </button>
         </AnimatedSection>

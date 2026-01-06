@@ -177,12 +177,12 @@ export default function LeaderboardPage() {
           </div>
 
           <div className="text-center mb-6">
-            <div className="flex-center gap-3 mb-2">
-              <Trophy className="w-10 h-10 text-yellow-500" />
-              <h1 className="text-4xl md:text-5xl font-bold text-gradient">Leaderboard</h1>
-              <Trophy className="w-10 h-10 text-yellow-500" />
+            <div className="flex-center gap-2 sm:gap-3 mb-2">
+              <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500" />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gradient">Leaderboard</h1>
+              <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500" />
             </div>
-            <p className="text-gray-400">Top players and their epic achievements</p>
+            <p className="text-sm sm:text-base text-gray-400">Top players and their epic achievements</p>
 
             {globalUserRank && isAuthenticated && (
               <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 stat-yellow">
@@ -193,29 +193,29 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <StatCard delay={100} className="stat-purple p-4">
-              <div className="flex items-center gap-3">
-                <Users className="w-8 h-8 text-purple-400" />
-                <div><p className="text-sm text-gray-400">Players</p><p className="text-2xl font-bold text-purple-400">{stats.totalEntries}</p></div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6">
+            <StatCard delay={100} className="stat-purple p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 flex-shrink-0" />
+                <div className="min-w-0"><p className="text-xs sm:text-sm text-gray-400">Players</p><p className="text-lg sm:text-2xl font-bold text-purple-400">{stats.totalEntries}</p></div>
               </div>
             </StatCard>
-            <StatCard delay={200} className="stat-orange p-4">
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-8 h-8 text-orange-400" />
-                <div><p className="text-sm text-gray-400">Best Streak</p><p className="text-2xl font-bold text-orange-400">{stats.highestStreak}</p></div>
+            <StatCard delay={200} className="stat-orange p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-orange-400 flex-shrink-0" />
+                <div className="min-w-0"><p className="text-xs sm:text-sm text-gray-400">Best Streak</p><p className="text-lg sm:text-2xl font-bold text-orange-400">{stats.highestStreak}</p></div>
               </div>
             </StatCard>
-            <StatCard delay={300} className="stat-yellow p-4">
-              <div className="flex items-center gap-3">
-                <Trophy className="w-8 h-8 text-yellow-400" />
-                <div><p className="text-sm text-gray-400">Total Points</p><p className="text-2xl font-bold text-yellow-400">{stats.totalPoints.toLocaleString()}</p></div>
+            <StatCard delay={300} className="stat-yellow p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400 flex-shrink-0" />
+                <div className="min-w-0"><p className="text-xs sm:text-sm text-gray-400">Total Points</p><p className="text-lg sm:text-2xl font-bold text-yellow-400 truncate">{stats.totalPoints.toLocaleString()}</p></div>
               </div>
             </StatCard>
-            <StatCard delay={400} className="stat-green p-4">
-              <div className="flex items-center gap-3">
-                <Target className="w-8 h-8 text-green-400" />
-                <div><p className="text-sm text-gray-400">Avg Accuracy</p><p className="text-2xl font-bold text-green-400">{stats.avgAccuracy}%</p></div>
+            <StatCard delay={400} className="stat-green p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Target className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 flex-shrink-0" />
+                <div className="min-w-0"><p className="text-xs sm:text-sm text-gray-400">Avg Accuracy</p><p className="text-lg sm:text-2xl font-bold text-green-400">{stats.avgAccuracy}%</p></div>
               </div>
             </StatCard>
           </div>
@@ -256,12 +256,14 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Sort & Difficulty */}
-          <div className="card p-4">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="w-5 h-5 text-gray-400" />
-                <span className="text-gray-400 text-sm font-medium">Sort by:</span>
-                <div className="flex flex-wrap gap-2">
+          <div className="card p-3 sm:p-4">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                  <span className="text-gray-400 text-xs sm:text-sm font-medium">Sort by:</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {(['streak', 'points', 'level', 'accuracy'] as SortMode[]).map((mode) => (
                     <FilterBtn key={mode} active={sortMode === mode} onClick={() => setSortMode(mode)} color="orange">
                       {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -269,10 +271,12 @@ export default function LeaderboardPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-gray-400" />
-                <span className="text-gray-400 text-sm font-medium">Difficulty:</span>
-                <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Award className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                  <span className="text-gray-400 text-xs sm:text-sm font-medium">Difficulty:</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   <FilterBtn active={difficultyFilter === 'all'} onClick={() => setDifficultyFilter('all')}>All</FilterBtn>
                   {Object.values(GameDifficulty).map((d) => (
                     <FilterBtn

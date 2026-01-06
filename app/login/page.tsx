@@ -171,34 +171,34 @@ export default function LoginPage() {
         <div className="bg-glow-blue top-1/2 right-0 w-[500px] h-[500px] blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 px-4 sm:px-0">
         {/* Back Button */}
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors group">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back to Home
         </Link>
 
         {/* Card */}
-        <div ref={cardRef} className="card-dark p-8 opacity-0">
+        <div ref={cardRef} className="card-dark p-5 sm:p-8 opacity-0">
           {/* Logo */}
-          <div className="text-center mb-8">
-            <div ref={logoRef} className="inline-flex flex-center w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-purple-500/30">
-              <Gamepad2 className="w-10 h-10 text-white" />
+          <div className="text-center mb-6 sm:mb-8">
+            <div ref={logoRef} className="inline-flex flex-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-purple-500/30">
+              <Gamepad2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h1 ref={titleRef} className="text-3xl font-bold text-white mb-2 opacity-0">
+            <h1 ref={titleRef} className="text-2xl sm:text-3xl font-bold text-white mb-2 opacity-0">
               Welcome Back!
             </h1>
-            <p className="text-gray-400 flex-center gap-2">
+            <p className="text-sm sm:text-base text-gray-400 flex-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-400" />
               Login to continue your anime journey
             </p>
           </div>
 
           {/* Form */}
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* Email */}
             <div className="form-element opacity-0">
-              <label htmlFor="email" className="label">Email</label>
+              <label htmlFor="email" className="label text-sm sm:text-base">Email</label>
               <div className="relative group">
                 <Mail className="icon-input" />
                 <input
@@ -206,7 +206,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-base pr-4"
+                  className="input-base pr-4 text-sm sm:text-base py-3 sm:py-3.5"
                   placeholder="Enter your email"
                   disabled={isLoading}
                 />
@@ -215,7 +215,7 @@ export default function LoginPage() {
 
             {/* Password */}
             <div className="form-element opacity-0">
-              <label htmlFor="password" className="label">Password</label>
+              <label htmlFor="password" className="label text-sm sm:text-base">Password</label>
               <div className="relative group">
                 <Lock className="icon-input" />
                 <input
@@ -223,7 +223,7 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-base"
+                  className="input-base text-sm sm:text-base py-3 sm:py-3.5"
                   placeholder="Enter your password"
                   disabled={isLoading}
                 />
@@ -232,15 +232,15 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="validation-icon text-gray-500 hover:text-gray-300 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="stat-red p-4 animate-pulse">
-                <p className="text-sm text-red-400">{error}</p>
+              <div className="stat-red p-3 sm:p-4 animate-pulse">
+                <p className="text-xs sm:text-sm text-red-400">{error}</p>
               </div>
             )}
 
@@ -250,16 +250,16 @@ export default function LoginPage() {
               disabled={isLoading}
               onMouseEnter={handleButtonHover}
               onMouseLeave={handleButtonLeave}
-              className="form-element opacity-0 w-full py-4 btn btn-gradient rounded-xl"
+              className="form-element opacity-0 w-full py-3 sm:py-4 btn btn-gradient rounded-xl text-sm sm:text-base"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Logging in...</span>
                 </>
               ) : (
                 <>
-                  <LogIn className="w-5 h-5" />
+                  <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Login</span>
                 </>
               )}
@@ -267,19 +267,19 @@ export default function LoginPage() {
           </form>
 
           {/* Divider */}
-          <div className="form-element opacity-0 my-6 flex items-center gap-4">
+          <div className="form-element opacity-0 my-4 sm:my-6 flex items-center gap-4">
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-            <span className="text-sm text-gray-500">or</span>
+            <span className="text-xs sm:text-sm text-gray-500">or</span>
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
           </div>
 
           {/* Guest Button */}
-          <Link href="/" className="form-element opacity-0 w-full py-3 btn btn-secondary rounded-xl">
+          <Link href="/" className="form-element opacity-0 w-full py-2.5 sm:py-3 btn btn-secondary rounded-xl text-sm sm:text-base">
             Continue as Guest
           </Link>
 
           {/* Sign Up Link */}
-          <p className="form-element opacity-0 mt-6 text-center text-gray-400">
+          <p className="form-element opacity-0 mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base">
             Don't have an account?{' '}
             <Link href="/signup" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
               Sign Up

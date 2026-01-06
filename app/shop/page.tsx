@@ -165,28 +165,29 @@ export default function ShopPage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl">
         {/* Header */}
         <Animated
           initial={{ opacity: 0, translateY: -20 }}
           animate={{ opacity: 1, translateY: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
             <button
               onClick={() => router.back()}
-              className="btn btn-secondary"
+              className="btn btn-secondary text-sm sm:text-base"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Game</span>
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-medium hidden sm:inline">Back to Game</span>
+              <span className="font-medium sm:hidden">Back</span>
             </button>
 
             {/* Coins Display */}
-            <div className="flex items-center gap-3 px-6 py-3 stat-yellow">
-              <Coins className="w-6 h-6 text-yellow-500" />
+            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 stat-yellow">
+              <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
               <div className="flex flex-col">
-                <span className="text-xs text-zinc-400">Your Coins</span>
-                <span className="text-2xl font-bold text-yellow-500 tabular-nums">
+                <span className="text-[10px] sm:text-xs text-zinc-400">Your Coins</span>
+                <span className="text-lg sm:text-2xl font-bold text-yellow-500 tabular-nums">
                   {Math.round(animatedCoins)}
                 </span>
               </div>
@@ -194,13 +195,13 @@ export default function ShopPage() {
           </div>
 
           {/* Title */}
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 stat-purple">
-              <ShoppingBag className="w-8 h-8 text-purple-400" />
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <div className="p-2 sm:p-3 stat-purple">
+              <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-white">Shop</h1>
-              <p className="text-zinc-400 mt-1">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white">Shop</h1>
+              <p className="text-xs sm:text-base text-zinc-400 mt-0.5 sm:mt-1">
                 Purchase upgrades and power-ups to enhance your gameplay
               </p>
             </div>
@@ -224,7 +225,7 @@ export default function ShopPage() {
         </Animated>
 
         {/* Shop Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {SHOP_ITEMS.map((item, index) => (
             <Animated
               key={item.id}
@@ -247,10 +248,10 @@ export default function ShopPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 400 }}
-          className="card p-6"
+          className="card p-4 sm:p-6"
         >
-          <h2 className="text-xl font-bold text-white mb-3">How to Earn Coins</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-zinc-400">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">How to Earn Coins</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm text-zinc-400">
             <div>
               <div className="font-semibold text-purple-400 mb-1">Correct Guesses</div>
               <p>Earn coins by correctly guessing characters. Use fewer hints for more coins!</p>
