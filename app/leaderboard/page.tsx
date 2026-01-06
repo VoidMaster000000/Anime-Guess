@@ -286,7 +286,7 @@ export default function LeaderboardPage() {
             </div>
           ) : (
             filteredEntries.map((entry, index) => (
-              <LeaderboardRow key={entry.id} entry={entry} rank={entry.rank || index + 1} isCurrentUser={user?.id === entry.userId} />
+              <LeaderboardRow key={entry.id} entry={entry} rank={index + 1} isCurrentUser={user?.id === entry.userId} />
             ))
           )}
         </AnimatedSection>
