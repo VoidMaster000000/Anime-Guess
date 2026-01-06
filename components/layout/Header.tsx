@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gamepad2, Trophy, ShoppingBag, Menu, X, Coins, Zap, LogIn, UserPlus } from "lucide-react";
+import { Gamepad2, Trophy, ShoppingBag, Menu, X, Coins, Zap, LogIn, UserPlus, User, Package, Settings, LogOut } from "lucide-react";
 import { animate } from "@/lib/animejs";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
@@ -120,7 +120,7 @@ export default function Header() {
   const indicatorRef = useRef<HTMLDivElement>(null);
 
   // Get auth state and user data from useAuth hook
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const coins = user?.profile?.coins ?? 0;
   const level = user?.profile?.level ?? 1;
 
@@ -330,6 +330,59 @@ export default function Header() {
               </Link>
             );
           })}
+
+          {/* Mobile Profile Links (Authenticated Users) */}
+          {isAuthenticated && (
+            <>
+              <div className="border-t border-bg-card/50 my-2" />
+              <Link
+                href="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                  pathname === "/profile"
+                    ? "bg-accent/10 text-accent border border-accent/20"
+                    : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
+                }`}
+              >
+                <User className="h-5 w-5" />
+                <span className="font-nav tracking-wide">Profile</span>
+              </Link>
+              <Link
+                href="/inventory"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                  pathname === "/inventory"
+                    ? "bg-accent/10 text-accent border border-accent/20"
+                    : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
+                }`}
+              >
+                <Package className="h-5 w-5" />
+                <span className="font-nav tracking-wide">Inventory</span>
+              </Link>
+              <Link
+                href="/settings"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                  pathname === "/settings"
+                    ? "bg-accent/10 text-accent border border-accent/20"
+                    : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
+                }`}
+              >
+                <Settings className="h-5 w-5" />
+                <span className="font-nav tracking-wide">Settings</span>
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  logout();
+                }}
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-red-400 hover:bg-red-500/10"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="font-nav tracking-wide">Logout</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
