@@ -18,8 +18,8 @@ function AnimatedPanel({ children, className }: { children: React.ReactNode; cla
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 400,
+        translateY: [10, 0],
+        duration: 200,
         ease: 'outQuad',
       });
     }
@@ -48,25 +48,25 @@ function HoverButton({
 
   const handleMouseEnter = () => {
     if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 150, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.02, duration: 80, ease: 'outQuad' });
     }
   };
 
   const handleMouseLeave = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' });
+      animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' });
     }
   };
 
   const handleMouseDown = () => {
     if (!disabled && ref.current) {
-      animate(ref.current, { scale: 0.98, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 0.98, duration: 50, ease: 'outQuad' });
     }
   };
 
   const handleMouseUp = () => {
     if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.02, duration: 50, ease: 'outQuad' });
     }
   };
 
@@ -94,8 +94,8 @@ function UsedOverlay({ show }: { show: boolean }) {
     if (ref.current && show) {
       animate(ref.current, {
         opacity: [0, 1, 0],
-        scale: [0.5, 1, 1.5],
-        duration: 1000,
+        scale: [0.8, 1, 1.2],
+        duration: 500,
         ease: 'outQuad',
       });
     }

@@ -190,7 +190,7 @@ export default function GamePage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.1 }}
-              transition={{ duration: 300 }}
+              transition={{ duration: 150 }}
               className="flex items-center justify-center min-h-[calc(100vh-4rem)]"
             >
               <div className="text-center space-y-8">
@@ -219,7 +219,7 @@ export default function GamePage() {
               initial={{ opacity: 0, translateY: 20 }}
               animate={{ opacity: 1, translateY: 0 }}
               exit={{ opacity: 0, translateY: -20 }}
-              transition={{ duration: 300 }}
+              transition={{ duration: 150 }}
               className="space-y-6"
             >
               {/* Game Stats Bar */}
@@ -447,8 +447,8 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
     if (containerRef.current) {
       animate(containerRef.current, {
         opacity: [0, 1],
-        scale: [0.8, 1],
-        duration: 300,
+        scale: [0.9, 1],
+        duration: 150,
         ease: 'outQuad',
       });
     }
@@ -456,7 +456,7 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
     if (flashRef.current) {
       animate(flashRef.current, {
         opacity: [0, 0.3, 0],
-        duration: 1000,
+        duration: 400,
         ease: 'inOutQuad',
       });
     }
@@ -464,9 +464,9 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
     if (messageRef.current) {
       animate(messageRef.current, {
         opacity: [0, 1],
-        scale: [0, 1],
-        rotate: [-10, 0],
-        duration: 500,
+        scale: [0.8, 1],
+        rotate: [-5, 0],
+        duration: 200,
         ease: 'outBack',
       });
     }
@@ -475,7 +475,7 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
       animate(emojiRef.current, {
         scale: [1, 1.2, 1],
         rotate: [0, 5, -5, 0],
-        duration: 500,
+        duration: 400,
         loop: true,
         ease: 'inOutQuad',
       });

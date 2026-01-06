@@ -286,8 +286,8 @@ function NotificationToast({ notification }: { notification: { type: 'success' |
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [-50, 0],
-        duration: 300,
+        translateY: [-20, 0],
+        duration: 150,
         ease: 'outQuad',
       });
     }

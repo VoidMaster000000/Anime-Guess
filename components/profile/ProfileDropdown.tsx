@@ -29,9 +29,9 @@ function DropdownPanel({ children, onClose }: { children: React.ReactNode; onClo
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [-10, 0],
-        scale: [0.95, 1],
-        duration: 150,
+        translateY: [-5, 0],
+        scale: [0.97, 1],
+        duration: 100,
         ease: 'outQuad',
       });
     }
@@ -56,7 +56,7 @@ function AnimatedProgress({ progress }: { progress: number }) {
     if (ref.current) {
       animate(ref.current, {
         width: [0, `${progress}%`],
-        duration: 500,
+        duration: 250,
         ease: 'outQuad',
       });
     }

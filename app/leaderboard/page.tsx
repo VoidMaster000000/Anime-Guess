@@ -17,7 +17,7 @@ type DifficultyFilter = 'all' | GameDifficulty;
 function AnimatedSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (ref.current) animate(ref.current, { opacity: [0, 1], translateY: [20, 0], duration: 400, delay, ease: 'outQuad' });
+    if (ref.current) animate(ref.current, { opacity: [0, 1], translateY: [10, 0], duration: 200, delay: delay * 0.5, ease: 'outQuad' });
   }, [delay]);
   return <div ref={ref} className={className} style={{ opacity: 0 }}>{children}</div>;
 }
@@ -29,8 +29,8 @@ function HoverButton({ children, onClick, className }: { children: React.ReactNo
       ref={ref}
       onClick={onClick}
       className={className}
-      onMouseEnter={() => ref.current && animate(ref.current, { scale: 1.05, duration: 150, ease: 'outQuad' })}
-      onMouseLeave={() => ref.current && animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' })}
+      onMouseEnter={() => ref.current && animate(ref.current, { scale: 1.05, duration: 80, ease: 'outQuad' })}
+      onMouseLeave={() => ref.current && animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' })}
     >
       {children}
     </button>
@@ -40,7 +40,7 @@ function HoverButton({ children, onClick, className }: { children: React.ReactNo
 function StatCard({ children, delay, className }: { children: React.ReactNode; delay: number; className: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (ref.current) animate(ref.current, { opacity: [0, 1], translateY: [20, 0], duration: 400, delay, ease: 'outQuad' });
+    if (ref.current) animate(ref.current, { opacity: [0, 1], translateY: [10, 0], duration: 200, delay: delay * 0.5, ease: 'outQuad' });
   }, [delay]);
   return <div ref={ref} className={className} style={{ opacity: 0 }}>{children}</div>;
 }

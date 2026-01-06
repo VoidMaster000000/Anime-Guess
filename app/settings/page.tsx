@@ -28,9 +28,9 @@ function AnimatedSection({ children, delay = 0, className }: { children: React.R
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 400,
-        delay: delay,
+        translateY: [10, 0],
+        duration: 200,
+        delay: delay * 0.5,
         ease: 'outQuad',
       });
     }
@@ -51,7 +51,7 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
     if (knobRef.current) {
       animate(knobRef.current, {
         translateX: value ? 24 : 0,
-        duration: 200,
+        duration: 120,
         ease: 'outQuad',
       });
     }

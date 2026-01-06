@@ -130,9 +130,9 @@ function AnimatedRow({
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 300,
-        delay: rank * 30,
+        translateY: [10, 0],
+        duration: 150,
+        delay: rank * 15,
         ease: 'outQuad',
       });
     }

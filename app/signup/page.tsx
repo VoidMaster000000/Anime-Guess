@@ -54,17 +54,17 @@ export default function SignupPage() {
     }
 
     if (cardRef.current) {
-      animate(cardRef.current, { translateY: [80, 0], opacity: [0, 1], duration: 1000, ease: 'outElastic(1, 0.8)' });
+      animate(cardRef.current, { translateY: [30, 0], opacity: [0, 1], duration: 300, ease: 'outQuad' });
     }
     if (logoRef.current) {
-      animate(logoRef.current, { scale: [0, 1.1, 1], rotate: [270, 0], duration: 1200, delay: 300, ease: 'outElastic(1, 0.6)' });
+      animate(logoRef.current, { scale: [0, 1], rotate: [90, 0], duration: 400, delay: 50, ease: 'outQuad' });
     }
     if (titleRef.current) {
-      animate(titleRef.current, { translateY: [30, 0], opacity: [0, 1], duration: 700, delay: 500, ease: 'outQuart' });
+      animate(titleRef.current, { translateY: [10, 0], opacity: [0, 1], duration: 250, delay: 100, ease: 'outQuad' });
     }
     if (formRef.current) {
       animate(formRef.current.querySelectorAll('.form-element'), {
-        translateX: [-50, 0], opacity: [0, 1], duration: 600, delay: stagger(80, { start: 600 }), ease: 'outQuart',
+        translateX: [-20, 0], opacity: [0, 1], duration: 200, delay: stagger(30, { start: 150 }), ease: 'outQuad',
       });
     }
 
@@ -95,10 +95,10 @@ export default function SignupPage() {
   const emailValid = email && !emailError;
 
   const shakeError = () => {
-    if (cardRef.current) animate(cardRef.current, { translateX: [-12, 12, -12, 12, -6, 6, 0], duration: 500, ease: 'inOutQuad' });
+    if (cardRef.current) animate(cardRef.current, { translateX: [-10, 10, -10, 10, 0], duration: 250, ease: 'inOutQuad' });
   };
-  const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => animate(e.currentTarget, { scale: 1.03, duration: 200, ease: 'outQuad' });
-  const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => animate(e.currentTarget, { scale: 1, duration: 200, ease: 'outQuad' });
+  const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => animate(e.currentTarget, { scale: 1.03, duration: 100, ease: 'outQuad' });
+  const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => animate(e.currentTarget, { scale: 1, duration: 100, ease: 'outQuad' });
 
   const getInputClass = (hasError: boolean, isValid: boolean) => {
     if (hasError) return 'input-base input-error';
@@ -121,7 +121,7 @@ export default function SignupPage() {
       const result = await signup(username, email, password);
       if (result.success) {
         if (cardRef.current) {
-          animate(cardRef.current, { scale: [1, 1.05, 0.95], opacity: [1, 1, 0], duration: 500, ease: 'inOutQuad', onComplete: () => router.push('/') });
+          animate(cardRef.current, { scale: [1, 1.02, 0.98], opacity: [1, 1, 0], duration: 200, ease: 'inOutQuad', onComplete: () => router.push('/') });
         } else router.push('/');
       } else {
         setError(result.error || 'Registration failed. Please try again.');

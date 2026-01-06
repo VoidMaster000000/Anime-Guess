@@ -27,7 +27,7 @@ function AnimatedBackdrop({ onClick }: { onClick?: () => void }) {
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        duration: 300,
+        duration: 150,
         ease: 'outQuad',
       });
     }
@@ -58,9 +58,9 @@ function AnimatedModal({
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        scale: [0.8, 1],
-        translateY: [50, 0],
-        duration: 400,
+        scale: [0.9, 1],
+        translateY: [20, 0],
+        duration: 200,
         ease: 'outBack',
       });
     }
@@ -79,9 +79,9 @@ function AnimatedTrophy() {
   useEffect(() => {
     if (ref.current) {
       animate(ref.current, {
-        scale: [0, 1.2, 1],
-        duration: 500,
-        delay: 200,
+        scale: [0, 1.1, 1],
+        duration: 250,
+        delay: 100,
         ease: 'outBack',
       });
     }
@@ -101,9 +101,9 @@ function AnimatedStat({ children, className, delay }: { children: React.ReactNod
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateX: delay === 300 ? [-20, 0] : [20, 0],
-        duration: 300,
-        delay,
+        translateX: delay === 150 ? [-10, 0] : [10, 0],
+        duration: 150,
+        delay: delay * 0.5,
         ease: 'outQuad',
       });
     }
@@ -123,9 +123,9 @@ function AnimatedElement({ children, className, delay }: { children: React.React
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 300,
-        delay,
+        translateY: [5, 0],
+        duration: 150,
+        delay: delay * 0.5,
         ease: 'outQuad',
       });
     }
@@ -157,9 +157,9 @@ function HoverButton({
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 300,
-        delay,
+        translateY: [5, 0],
+        duration: 150,
+        delay: delay * 0.5,
         ease: 'outQuad',
       });
     }
@@ -167,25 +167,25 @@ function HoverButton({
 
   const handleMouseEnter = () => {
     if (ref.current && !disabled) {
-      animate(ref.current, { scale: 1.02, duration: 150, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.02, duration: 80, ease: 'outQuad' });
     }
   };
 
   const handleMouseLeave = () => {
     if (ref.current && !disabled) {
-      animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' });
+      animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' });
     }
   };
 
   const handleMouseDown = () => {
     if (ref.current && !disabled) {
-      animate(ref.current, { scale: 0.98, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 0.98, duration: 50, ease: 'outQuad' });
     }
   };
 
   const handleMouseUp = () => {
     if (ref.current && !disabled) {
-      animate(ref.current, { scale: 1.02, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.02, duration: 50, ease: 'outQuad' });
     }
   };
 
@@ -221,8 +221,8 @@ function ConfettiParticle({ index, isNewRecord }: { index: number; isNewRecord: 
       translateX: [0, randomX],
       translateY: [0, randomY],
       scale: [0, 1],
-      duration: 1500,
-      delay: index * 50,
+      duration: 800,
+      delay: index * 25,
       ease: 'outQuad',
     });
   }, [index, isNewRecord]);
@@ -323,7 +323,7 @@ export default function GameOver({
                 {/* Final Streak */}
                 <AnimatedStat
                   className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 text-center"
-                  delay={300}
+                  delay={150}
                 >
                   <Flame className="w-8 h-8 text-orange-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-orange-500">{finalStreak}</div>
@@ -333,7 +333,7 @@ export default function GameOver({
                 {/* Final Points */}
                 <AnimatedStat
                   className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-center"
-                  delay={400}
+                  delay={200}
                 >
                   <Star className="w-8 h-8 text-yellow-500 fill-yellow-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-yellow-500">{finalPoints}</div>
@@ -345,7 +345,7 @@ export default function GameOver({
               {highStreak > 0 && (
                 <AnimatedElement
                   className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 mb-6 text-center"
-                  delay={500}
+                  delay={250}
                 >
                   <div className="text-sm text-gray-400">
                     Your Best Streak: <span className="text-purple-400 font-bold">{highStreak}</span>
@@ -355,7 +355,7 @@ export default function GameOver({
 
               {/* Username Input - Only for guests */}
               {!isSaved && !isAuthenticated && (
-                <AnimatedElement className="mb-6" delay={600}>
+                <AnimatedElement className="mb-6" delay={300}>
                   <label className="block text-sm text-gray-400 mb-2">
                     Save your score to the leaderboard
                   </label>
@@ -388,7 +388,7 @@ export default function GameOver({
                     onClick={handleSave}
                     disabled={!guestUsername.trim()}
                     className="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
-                    delay={700}
+                    delay={350}
                   >
                     <Save className="w-5 h-5" />
                     Save Score
@@ -398,7 +398,7 @@ export default function GameOver({
                 <HoverButton
                   onClick={handlePlayAgain}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
-                  delay={800}
+                  delay={400}
                 >
                   <Play className="w-5 h-5" />
                   Play Again

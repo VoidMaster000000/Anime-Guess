@@ -58,9 +58,9 @@ export default function LoginPage() {
     // Card entrance animation
     if (cardRef.current) {
       animate(cardRef.current, {
-        translateY: [50, 0],
+        translateY: [30, 0],
         opacity: [0, 1],
-        duration: 800,
+        duration: 300,
         ease: 'outExpo',
       });
     }
@@ -69,20 +69,20 @@ export default function LoginPage() {
     if (logoRef.current) {
       animate(logoRef.current, {
         scale: [0, 1],
-        rotate: [180, 0],
-        duration: 1000,
-        delay: 200,
-        ease: 'outElastic(1, 0.5)',
+        rotate: [90, 0],
+        duration: 400,
+        delay: 50,
+        ease: 'outQuad',
       });
     }
 
     // Title animation
     if (titleRef.current) {
       animate(titleRef.current, {
-        translateY: [20, 0],
+        translateY: [10, 0],
         opacity: [0, 1],
-        duration: 600,
-        delay: 400,
+        duration: 250,
+        delay: 100,
         ease: 'outQuad',
       });
     }
@@ -90,10 +90,10 @@ export default function LoginPage() {
     // Form elements stagger animation
     if (formRef.current) {
       animate(formRef.current.querySelectorAll('.form-element'), {
-        translateY: [30, 0],
+        translateY: [15, 0],
         opacity: [0, 1],
-        duration: 500,
-        delay: stagger(100, { start: 500 }),
+        duration: 200,
+        delay: stagger(40, { start: 150 }),
         ease: 'outQuad',
       });
     }
@@ -106,18 +106,18 @@ export default function LoginPage() {
   }, []);
 
   const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(e.currentTarget, { scale: 1.02, duration: 200, ease: 'outQuad' });
+    animate(e.currentTarget, { scale: 1.02, duration: 100, ease: 'outQuad' });
   };
 
   const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(e.currentTarget, { scale: 1, duration: 200, ease: 'outQuad' });
+    animate(e.currentTarget, { scale: 1, duration: 100, ease: 'outQuad' });
   };
 
   const shakeError = () => {
     if (cardRef.current) {
       animate(cardRef.current, {
         translateX: [-10, 10, -10, 10, 0],
-        duration: 400,
+        duration: 250,
         ease: 'inOutQuad',
       });
     }
@@ -142,7 +142,7 @@ export default function LoginPage() {
         if (cardRef.current) {
           animate(cardRef.current, {
             scale: [1, 0.95, 1.02],
-            duration: 300,
+            duration: 150,
             ease: 'outQuad',
             onComplete: () => router.push('/'),
           });

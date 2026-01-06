@@ -21,8 +21,8 @@ function AnimatedCard({ children, className }: { children: React.ReactNode; clas
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 500,
+        translateY: [10, 0],
+        duration: 200,
         ease: 'outQuad',
       });
     }
@@ -50,25 +50,25 @@ function HoverScaleElement({
 
   const handleMouseEnter = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1.05, duration: 150, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.03, duration: 80, ease: 'outQuad' });
     }
   };
 
   const handleMouseLeave = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' });
+      animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' });
     }
   };
 
   const handleMouseDown = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 0.98, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 0.98, duration: 50, ease: 'outQuad' });
     }
   };
 
   const handleMouseUp = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1.05, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.03, duration: 50, ease: 'outQuad' });
     }
   };
 
@@ -107,8 +107,8 @@ function AnimatedLevelBadge({ level }: { level: number }) {
     if (ref.current) {
       animate(ref.current, {
         scale: [0, 1.1, 1],
-        duration: 400,
-        delay: 200,
+        duration: 200,
+        delay: 100,
         ease: 'outBack',
       });
     }
@@ -135,7 +135,7 @@ function AnimatedProgressBar({ progress }: { progress: number }) {
     if (ref.current) {
       animate(ref.current, {
         width: [0, `${progress}%`],
-        duration: 1000,
+        duration: 400,
         ease: 'outQuad',
       });
     }

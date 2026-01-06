@@ -20,13 +20,13 @@ function HoverScale({ children, className }: { children: React.ReactNode; classN
 
   const handleMouseEnter = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1.05, duration: 200, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.03, duration: 100, ease: 'outQuad' });
     }
   };
 
   const handleMouseLeave = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 200, ease: 'outQuad' });
+      animate(ref.current, { scale: 1, duration: 100, ease: 'outQuad' });
     }
   };
 
@@ -48,25 +48,25 @@ function HoverScaleTap({ children, className }: { children: React.ReactNode; cla
 
   const handleMouseEnter = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1.05, duration: 200, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.03, duration: 100, ease: 'outQuad' });
     }
   };
 
   const handleMouseLeave = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 200, ease: 'outQuad' });
+      animate(ref.current, { scale: 1, duration: 100, ease: 'outQuad' });
     }
   };
 
   const handleMouseDown = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 0.95, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 0.97, duration: 50, ease: 'outQuad' });
     }
   };
 
   const handleMouseUp = () => {
     if (ref.current) {
-      animate(ref.current, { scale: 1.05, duration: 100, ease: 'outQuad' });
+      animate(ref.current, { scale: 1.03, duration: 50, ease: 'outQuad' });
     }
   };
 
@@ -90,7 +90,7 @@ function SpinOnHover({ children, className }: { children: React.ReactNode; class
 
   const handleMouseEnter = () => {
     if (ref.current) {
-      animate(ref.current, { rotate: 360, duration: 600, ease: 'inOutQuad' });
+      animate(ref.current, { rotate: 360, duration: 300, ease: 'inOutQuad' });
     }
   };
 
@@ -136,14 +136,14 @@ export default function Header() {
         animate(mobileMenuRef.current, {
           opacity: [0, 1],
           height: [0, mobileMenuRef.current.scrollHeight],
-          duration: 200,
+          duration: 120,
           ease: 'outQuad',
         });
       } else {
         animate(mobileMenuRef.current, {
           opacity: [1, 0],
           height: [mobileMenuRef.current.scrollHeight, 0],
-          duration: 200,
+          duration: 120,
           ease: 'inQuad',
           onComplete: () => {
             if (mobileMenuRef.current) {
