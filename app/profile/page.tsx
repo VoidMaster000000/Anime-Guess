@@ -224,6 +224,8 @@ export default function ProfilePage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editUsername, setEditUsername] = useState(user?.username || 'Player');
   const [editAvatarImage, setEditAvatarImage] = useState<string | undefined>(user?.avatarImage);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Animated counters
@@ -284,6 +286,9 @@ export default function ProfilePage() {
   }, [profileStats, totalPoints, highStreak, accuracy, perfectGames]);
 
   const handleSaveProfile = async () => {
+    setEditError(null);
+    setIsSaving(true);
+
     try {
       const res = await fetch('/api/profile/update', {
         method: 'POST',
@@ -293,18 +298,27 @@ export default function ProfilePage() {
           avatarImage: editAvatarImage,
         }),
       });
+
+      const data = await res.json();
+
       if (res.ok) {
         await refreshUser();
         setIsEditModalOpen(false);
+      } else {
+        setEditError(data.error || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
+      setEditError('Network error. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleCancelEdit = () => {
     setEditUsername(user?.username || 'Player');
     setEditAvatarImage(user?.avatarImage);
+    setEditError(null);
     setIsEditModalOpen(false);
   };
 
@@ -587,20 +601,35 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Error Message */}
+            {editError && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p className="text-red-400 text-sm">{editError}</p>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-3">
               <button
                 onClick={handleCancelEdit}
+                disabled={isSaving}
                 className="flex-1 btn btn-secondary py-3"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveProfile}
-                className="flex-1 btn btn-gradient py-3"
+                disabled={isSaving}
+                className="flex-1 btn btn-gradient py-3 disabled:opacity-50"
               >
-                <Check className="w-5 h-5" />
-                Save Changes
+                {isSaving ? (
+                  <span>Saving...</span>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Save Changes
+                  </>
+                )}
               </button>
             </div>
           </div>
