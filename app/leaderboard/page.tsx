@@ -47,15 +47,26 @@ function StatCard({ children, delay, className }: { children: React.ReactNode; d
 
 // Filter Button Component
 function FilterBtn({ active, onClick, children, color = 'blue' }: { active: boolean; onClick: () => void; children: React.ReactNode; color?: string }) {
-  const colorClasses: Record<string, string> = {
-    blue: active ? 'btn-active' : 'btn-inactive',
-    orange: active ? 'stat-orange text-orange-400' : 'btn-inactive',
-    green: active ? 'stat-green text-green-400' : 'btn-inactive',
-    yellow: active ? 'stat-yellow text-yellow-400' : 'btn-inactive',
-    red: active ? 'stat-red text-red-400' : 'btn-inactive',
-    purple: active ? 'stat-purple text-purple-400' : 'btn-inactive',
+  const baseClasses = 'px-3 py-1.5 rounded-md text-sm font-medium transition-all border';
+  const inactiveClasses = 'bg-gray-700/50 text-gray-400 border-gray-600 hover:bg-gray-600/50 hover:text-gray-300';
+
+  const activeClasses: Record<string, string> = {
+    blue: 'bg-purple-500/30 text-purple-300 border-purple-500/50 shadow-sm shadow-purple-500/20',
+    orange: 'bg-orange-500/30 text-orange-300 border-orange-500/50 shadow-sm shadow-orange-500/20',
+    green: 'bg-green-500/30 text-green-300 border-green-500/50 shadow-sm shadow-green-500/20',
+    yellow: 'bg-yellow-500/30 text-yellow-300 border-yellow-500/50 shadow-sm shadow-yellow-500/20',
+    red: 'bg-red-500/30 text-red-300 border-red-500/50 shadow-sm shadow-red-500/20',
+    purple: 'bg-purple-500/30 text-purple-300 border-purple-500/50 shadow-sm shadow-purple-500/20',
   };
-  return <button onClick={onClick} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${colorClasses[color]}`}>{children}</button>;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`${baseClasses} ${active ? activeClasses[color] : inactiveClasses}`}
+    >
+      {children}
+    </button>
+  );
 }
 
 export default function LeaderboardPage() {
