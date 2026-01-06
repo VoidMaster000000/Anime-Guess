@@ -1,0 +1,295 @@
+'use client';
+
+import { useRef, useEffect, useState } from 'react';
+import { animate } from '@/lib/animejs';
+import { Eye, Heart, SkipForward, HelpCircle, Package, Sparkles } from 'lucide-react';
+import { useProfileStore } from '@/store/profileStore';
+import { useGameStore } from '@/store/gameStore';
+
+interface ItemUsagePanelProps {
+  onItemUse?: (itemId: string) => void;
+}
+
+// Animated panel wrapper
+function AnimatedPanel({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      animate(ref.current, {
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 400,
+        ease: 'outQuad',
+      });
+    }
+  }, []);
+
+  return (
+    <div ref={ref} className={className} style={{ opacity: 0 }}>
+      {children}
+    </div>
+  );
+}
+
+// Hover scale button
+function HoverButton({
+  children,
+  onClick,
+  disabled,
+  className
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled: boolean;
+  className: string;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+
+  const handleMouseEnter = () => {
+    if (!disabled && ref.current) {
+      animate(ref.current, { scale: 1.02, duration: 150, ease: 'outQuad' });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (ref.current) {
+      animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' });
+    }
+  };
+
+  const handleMouseDown = () => {
+    if (!disabled && ref.current) {
+      animate(ref.current, { scale: 0.98, duration: 100, ease: 'outQuad' });
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (!disabled && ref.current) {
+      animate(ref.current, { scale: 1.02, duration: 100, ease: 'outQuad' });
+    }
+  };
+
+  return (
+    <button
+      ref={ref}
+      onClick={onClick}
+      disabled={disabled}
+      className={className}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Used animation overlay
+function UsedOverlay({ show }: { show: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current && show) {
+      animate(ref.current, {
+        opacity: [0, 1, 0],
+        scale: [0.5, 1, 1.5],
+        duration: 1000,
+        ease: 'outQuad',
+      });
+    }
+  }, [show]);
+
+  if (!show) return null;
+
+  return (
+    <div
+      ref={ref}
+      className="absolute inset-0 flex items-center justify-center rounded-lg bg-green-500/20 border border-green-500/50"
+      style={{ opacity: 0 }}
+    >
+      <span className="text-green-400 font-bold">Used!</span>
+    </div>
+  );
+}
+
+export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
+  const inventory = useProfileStore((state) => state.inventory);
+  const useItem = useProfileStore((state) => state.useItem);
+  const isAuthenticated = useProfileStore((state) => state.isAuthenticated);
+
+  const gameStatus = useGameStore((state) => state.gameStatus);
+  const revealHint = useGameStore((state) => state.revealHint);
+  const hintsRevealed = useGameStore((state) => state.hintsRevealed);
+  const lives = useGameStore((state) => state.lives);
+  const maxLives = useGameStore((state) => state.maxLives);
+  const fetchNewCharacter = useGameStore((state) => state.fetchNewCharacter);
+
+  const [usedItemAnimation, setUsedItemAnimation] = useState<string | null>(null);
+
+  // Filter items that can be used during gameplay
+  const usableItems = inventory.filter(
+    (item) => item.type === 'hint' || item.type === 'skip' || item.type === 'life'
+  );
+
+  const getItemIcon = (type: string) => {
+    switch (type) {
+      case 'hint':
+        return <Eye className="w-5 h-5" />;
+      case 'life':
+        return <Heart className="w-5 h-5" />;
+      case 'skip':
+        return <SkipForward className="w-5 h-5" />;
+      default:
+        return <HelpCircle className="w-5 h-5" />;
+    }
+  };
+
+  const getItemColor = (type: string) => {
+    switch (type) {
+      case 'hint':
+        return 'from-purple-500 to-pink-500';
+      case 'life':
+        return 'from-red-500 to-pink-500';
+      case 'skip':
+        return 'from-blue-500 to-cyan-500';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
+  };
+
+  const canUseItem = (item: { id: string; type: string }) => {
+    if (gameStatus !== 'playing') return false;
+
+    switch (item.type) {
+      case 'hint':
+        return hintsRevealed < 4;
+      case 'life':
+        return lives < maxLives;
+      case 'skip':
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const handleUseItem = async (item: { id: string; type: string; name: string }) => {
+    if (!canUseItem(item)) return;
+
+    // Use the item from inventory
+    const success = useItem(item.id);
+
+    if (success) {
+      // Trigger animation
+      setUsedItemAnimation(item.id);
+      setTimeout(() => setUsedItemAnimation(null), 1000);
+
+      // Apply the item effect
+      switch (item.type) {
+        case 'hint':
+          revealHint();
+          break;
+        case 'life':
+          // Directly increment lives in game store
+          useGameStore.setState((state) => ({
+            lives: Math.min(state.lives + 1, state.maxLives),
+          }));
+          break;
+        case 'skip':
+          await fetchNewCharacter();
+          break;
+      }
+
+      // Callback for parent component
+      if (onItemUse) {
+        onItemUse(item.id);
+      }
+    }
+  };
+
+  // Don't show if not authenticated or not playing
+  if (!isAuthenticated || gameStatus !== 'playing') {
+    return null;
+  }
+
+  // Don't show if no usable items
+  if (usableItems.length === 0) {
+    return (
+      <AnimatedPanel className="bg-zinc-800/30 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/30">
+        <div className="flex items-center gap-2 text-zinc-500">
+          <Package className="w-5 h-5" />
+          <span className="text-sm">No items in inventory</span>
+        </div>
+        <p className="text-xs text-zinc-600 mt-1">
+          Purchase items from the shop to use during gameplay
+        </p>
+      </AnimatedPanel>
+    );
+  }
+
+  return (
+    <AnimatedPanel className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/50">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles className="w-5 h-5 text-purple-400" />
+        <h3 className="text-sm font-semibold text-white">Quick Use Items</h3>
+      </div>
+
+      {/* Items Grid */}
+      <div className="grid grid-cols-1 gap-2">
+        {usableItems.map((item) => {
+          const isDisabled = !canUseItem(item);
+          const isAnimating = usedItemAnimation === item.id;
+
+          return (
+            <HoverButton
+              key={item.id}
+              onClick={() => handleUseItem(item)}
+              disabled={isDisabled}
+              className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                isDisabled
+                  ? 'bg-zinc-800/30 border-zinc-700/30 cursor-not-allowed opacity-50'
+                  : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-700/50 cursor-pointer'
+              }`}
+            >
+              {/* Item Icon */}
+              <div
+                className={`p-2 rounded-lg bg-gradient-to-br ${getItemColor(item.type)} ${
+                  isDisabled ? 'opacity-50' : ''
+                }`}
+              >
+                {getItemIcon(item.type)}
+              </div>
+
+              {/* Item Info */}
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-white">{item.name}</p>
+                <p className="text-xs text-zinc-400">
+                  {item.type === 'hint' && `Reveal hint (${hintsRevealed}/4 revealed)`}
+                  {item.type === 'life' && `Add life (${lives}/${maxLives} lives)`}
+                  {item.type === 'skip' && 'Skip character'}
+                </p>
+              </div>
+
+              {/* Quantity Badge */}
+              <div className="flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full bg-zinc-700 text-white text-sm font-bold">
+                {item.quantity}
+              </div>
+
+              {/* Used Animation */}
+              <UsedOverlay show={isAnimating} />
+            </HoverButton>
+          );
+        })}
+      </div>
+
+      {/* Disabled Info */}
+      {usableItems.some((item) => !canUseItem(item)) && (
+        <p className="text-xs text-zinc-500 mt-3">
+          Some items cannot be used (hints maxed or lives full)
+        </p>
+      )}
+    </AnimatedPanel>
+  );
+}
