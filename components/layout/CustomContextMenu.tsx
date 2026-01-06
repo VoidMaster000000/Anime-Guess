@@ -13,12 +13,9 @@ import {
   Settings,
   LogIn,
   LogOut,
-  Eye,
-  SkipForward,
   Home,
   Package,
   RefreshCw,
-  HelpCircle,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -39,9 +36,6 @@ export default function CustomContextMenu() {
 
   const { isAuthenticated, user, logout } = useAuth();
   const gameStatus = useGameStore((state) => state.gameStatus);
-  const hintsRevealed = useGameStore((state) => state.hintsRevealed);
-  const revealHint = useGameStore((state) => state.revealHint);
-  const fetchNewCharacter = useGameStore((state) => state.fetchNewCharacter);
   const resetGame = useGameStore((state) => state.resetGame);
 
   const closeMenu = useCallback(() => {
@@ -138,17 +132,6 @@ export default function CustomContextMenu() {
 
   // Game actions (only when playing)
   if (gameStatus === 'playing' && pathname === '/') {
-    menuItems.push({
-      label: `Reveal Hint (${hintsRevealed}/4)`,
-      icon: <Eye className="w-4 h-4" />,
-      onClick: () => revealHint(),
-      disabled: hintsRevealed >= 4,
-    });
-    menuItems.push({
-      label: 'Skip Character',
-      icon: <SkipForward className="w-4 h-4" />,
-      onClick: () => fetchNewCharacter(),
-    });
     menuItems.push({
       label: 'Quit Game',
       icon: <Home className="w-4 h-4" />,
