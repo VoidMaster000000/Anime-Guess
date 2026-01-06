@@ -25,20 +25,20 @@ export default function BackgroundVisuals() {
 
     const container = containerRef.current;
     const particles: Particle[] = [];
-    const PARTICLE_COUNT = 30;
+    const PARTICLE_COUNT = 12; // Reduced from 30 for performance
 
     // Create particles
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const element = document.createElement('div');
-      const size = Math.random() * 4 + 2;
+      const size = Math.random() * 3 + 2; // Slightly smaller
       const hue = Math.random() > 0.5 ? 270 : 330; // Purple or Pink
 
       element.className = 'absolute rounded-full pointer-events-none';
       element.style.width = `${size}px`;
       element.style.height = `${size}px`;
-      element.style.background = `hsla(${hue}, 70%, 60%, 0.6)`;
-      element.style.boxShadow = `0 0 ${size * 2}px hsla(${hue}, 70%, 60%, 0.4)`;
-      element.style.filter = 'blur(1px)';
+      element.style.background = `hsla(${hue}, 70%, 60%, 0.5)`;
+      // Removed blur filter for performance - use simple glow instead
+      element.style.boxShadow = `0 0 ${size}px hsla(${hue}, 70%, 60%, 0.3)`;
 
       container.appendChild(element);
 
@@ -69,15 +69,16 @@ export default function BackgroundVisuals() {
         particle.x += particle.speedX;
         particle.y += particle.speedY;
 
-        // Mouse repulsion effect
+        // Mouse repulsion effect (reduced radius for performance)
         const dx = mouseRef.current.x - particle.x;
         const dy = mouseRef.current.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx * dx + dy * dy; // Avoid sqrt when possible
 
-        if (distance < 150) {
-          const force = (150 - distance) / 150;
-          particle.x -= (dx / distance) * force * 2;
-          particle.y -= (dy / distance) * force * 2;
+        if (distSq < 10000) { // 100px radius (100^2 = 10000)
+          const distance = Math.sqrt(distSq);
+          const force = (100 - distance) / 100;
+          particle.x -= (dx / distance) * force * 1.5;
+          particle.y -= (dy / distance) * force * 1.5;
         }
 
         // Wrap around screen
@@ -114,34 +115,27 @@ export default function BackgroundVisuals() {
         className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
       />
 
-      {/* Gradient orbs */}
+      {/* Gradient orbs - reduced blur for performance */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <FloatingOrb
-          className="absolute -top-32 -left-32 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"
-          duration={20000}
-          rangeX={100}
-          rangeY={80}
-        />
-        <FloatingOrb
-          className="absolute top-1/3 -right-32 w-80 h-80 bg-pink-600/20 rounded-full blur-3xl"
+          className="absolute -top-32 -left-32 w-96 h-96 bg-purple-600/15 rounded-full blur-2xl"
           duration={25000}
           rangeX={80}
-          rangeY={100}
+          rangeY={60}
+        />
+        <FloatingOrb
+          className="absolute top-1/3 -right-32 w-80 h-80 bg-pink-600/15 rounded-full blur-2xl"
+          duration={30000}
+          rangeX={60}
+          rangeY={80}
           delay={5000}
         />
         <FloatingOrb
-          className="absolute -bottom-32 left-1/3 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl"
-          duration={22000}
-          rangeX={120}
-          rangeY={60}
+          className="absolute -bottom-32 left-1/3 w-72 h-72 bg-indigo-600/15 rounded-full blur-2xl"
+          duration={28000}
+          rangeX={100}
+          rangeY={50}
           delay={10000}
-        />
-        <FloatingOrb
-          className="absolute top-1/2 left-1/4 w-64 h-64 bg-violet-600/15 rounded-full blur-3xl"
-          duration={18000}
-          rangeX={60}
-          rangeY={90}
-          delay={7000}
         />
       </div>
 
