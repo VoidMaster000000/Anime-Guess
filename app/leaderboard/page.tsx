@@ -47,22 +47,31 @@ function StatCard({ children, delay, className }: { children: React.ReactNode; d
 
 // Filter Button Component
 function FilterBtn({ active, onClick, children, color = 'blue' }: { active: boolean; onClick: () => void; children: React.ReactNode; color?: string }) {
-  const baseClasses = 'px-3 py-1.5 rounded-md text-sm font-medium transition-all border';
-  const inactiveClasses = 'bg-gray-700/50 text-gray-400 border-gray-600 hover:bg-gray-600/50 hover:text-gray-300';
-
-  const activeClasses: Record<string, string> = {
-    blue: 'bg-purple-500/30 text-purple-300 border-purple-500/50 shadow-sm shadow-purple-500/20',
-    orange: 'bg-orange-500/30 text-orange-300 border-orange-500/50 shadow-sm shadow-orange-500/20',
-    green: 'bg-green-500/30 text-green-300 border-green-500/50 shadow-sm shadow-green-500/20',
-    yellow: 'bg-yellow-500/30 text-yellow-300 border-yellow-500/50 shadow-sm shadow-yellow-500/20',
-    red: 'bg-red-500/30 text-red-300 border-red-500/50 shadow-sm shadow-red-500/20',
-    purple: 'bg-purple-500/30 text-purple-300 border-purple-500/50 shadow-sm shadow-purple-500/20',
+  const activeColors: Record<string, { bg: string; text: string; border: string }> = {
+    blue: { bg: 'rgba(168, 85, 247, 0.3)', text: '#c4b5fd', border: 'rgba(168, 85, 247, 0.5)' },
+    orange: { bg: 'rgba(249, 115, 22, 0.3)', text: '#fdba74', border: 'rgba(249, 115, 22, 0.5)' },
+    green: { bg: 'rgba(34, 197, 94, 0.3)', text: '#86efac', border: 'rgba(34, 197, 94, 0.5)' },
+    yellow: { bg: 'rgba(234, 179, 8, 0.3)', text: '#fde047', border: 'rgba(234, 179, 8, 0.5)' },
+    red: { bg: 'rgba(239, 68, 68, 0.3)', text: '#fca5a5', border: 'rgba(239, 68, 68, 0.5)' },
+    purple: { bg: 'rgba(168, 85, 247, 0.3)', text: '#c4b5fd', border: 'rgba(168, 85, 247, 0.5)' },
   };
+
+  const colorSet = activeColors[color] || activeColors.blue;
 
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`${baseClasses} ${active ? activeClasses[color] : inactiveClasses}`}
+      style={active ? {
+        backgroundColor: colorSet.bg,
+        color: colorSet.text,
+        borderColor: colorSet.border,
+      } : {
+        backgroundColor: 'rgba(55, 65, 81, 0.5)',
+        color: '#9ca3af',
+        borderColor: '#4b5563',
+      }}
+      className="px-3 py-1.5 rounded-md text-sm font-medium transition-all border cursor-pointer"
     >
       {children}
     </button>
