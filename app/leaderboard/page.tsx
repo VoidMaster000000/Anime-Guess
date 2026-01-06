@@ -89,7 +89,8 @@ export default function LeaderboardPage() {
       const transformedEntries: LeaderboardEntry[] = data.entries.map((entry, index) => ({
         id: entry.id, username: entry.username, streak: entry.streak, points: entry.points,
         difficulty: entry.difficulty as GameDifficulty, date: entry.date, timestamp: new Date(entry.date).getTime(),
-        avatar: entry.avatar, level: { current: entry.level, xp: 0, xpToNextLevel: 100, totalXp: 0, mode: 'infinite' as const },
+        avatar: entry.avatar, avatarImage: entry.avatarImage,
+        level: { current: entry.level, xp: 0, xpToNextLevel: 100, totalXp: 0, mode: 'infinite' as const },
         accuracy: entry.accuracy, userId: entry.odId, rank: entry.rank || index + 1,
       }));
       setGlobalEntries(transformedEntries);
