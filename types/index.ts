@@ -175,7 +175,7 @@ export interface GameState {
 
   // Actions
   setDifficulty: (difficulty: GameDifficulty) => void;
-  startGame: () => Promise<void>;
+  startGame: (isAuthenticated?: boolean) => Promise<void>;
   fetchNewCharacter: () => Promise<void>;
   revealHint: () => void;
   submitGuess: (guess: string) => boolean;

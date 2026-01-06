@@ -269,6 +269,50 @@ export async function updateUserAvatar(
   return getUserById(userId);
 }
 
+/**
+ * Update user profile (username, avatar, avatarImage)
+ */
+export async function updateUserProfile(
+  userId: string,
+  updates: {
+    username?: string;
+    avatar?: string;
+    avatarImage?: string;
+  }
+): Promise<SafeUser | null> {
+  const db = await getDatabase();
+  const users = db.collection<DBUser>(COLLECTIONS.USERS);
+
+  const setFields: Record<string, unknown> = { updatedAt: new Date() };
+
+  if (updates.username) {
+    // Check if username is already taken by another user
+    const existingUser = await users.findOne({
+      username: updates.username.toLowerCase(),
+      _id: { $ne: new ObjectId(userId) },
+    });
+    if (existingUser) {
+      throw new Error('Username already taken');
+    }
+    setFields.username = updates.username;
+  }
+
+  if (updates.avatar !== undefined) {
+    setFields.avatar = updates.avatar;
+  }
+
+  if (updates.avatarImage !== undefined) {
+    setFields.avatarImage = updates.avatarImage;
+  }
+
+  await users.updateOne(
+    { _id: new ObjectId(userId) },
+    { $set: setFields }
+  );
+
+  return getUserById(userId);
+}
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================

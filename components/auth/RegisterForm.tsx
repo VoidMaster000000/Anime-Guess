@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { animate } from '@/lib/animejs';
-import { User, Lock, UserPlus, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
-import { useProfileStore } from '@/store/profileStore';
+import { User, Lock, Mail, UserPlus, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -163,6 +163,7 @@ function SpinningLoader() {
 
 export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -171,7 +172,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const register = useProfileStore((state) => state.register);
+  const { signup } = useAuth();
 
   // Username validation
   const validateUsername = (value: string): string | null => {
@@ -183,6 +184,14 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
     }
     if (!/^[a-zA-Z0-9_]+$/.test(value)) {
       return 'Username can only contain letters, numbers, and underscores';
+    }
+    return null;
+  };
+
+  // Email validation
+  const validateEmail = (value: string): string | null => {
+    if (!value.includes('@') || !value.includes('.')) {
+      return 'Please enter a valid email address';
     }
     return null;
   };
@@ -210,6 +219,14 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
         return;
       }
 
+      // Validate email
+      const emailError = validateEmail(email);
+      if (emailError) {
+        setError(emailError);
+        setIsLoading(false);
+        return;
+      }
+
       // Validate password
       const passwordError = validatePassword(password);
       if (passwordError) {
@@ -225,10 +242,10 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
         return;
       }
 
-      // Attempt registration using profileStore
-      const success = await register(username, password);
+      // Attempt registration using useAuth hook (MongoDB)
+      const result = await signup(username, email, password);
 
-      if (success) {
+      if (result.success) {
         setSuccess('Account created successfully! Redirecting...');
 
         // Redirect after success
@@ -236,11 +253,10 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           onSuccess();
         }, 1000);
       } else {
-        const storeError = useProfileStore.getState().error;
-        setError(storeError || 'Registration failed. Please try again.');
+        setError(result.error || 'Registration failed. Please try again.');
         setIsLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('Registration failed. Please try again.');
       setIsLoading(false);
     }
@@ -301,6 +317,46 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           )}
           {usernameValid && (
             <p className="text-xs text-green-400 mt-1">Username is available!</p>
+          )}
+        </div>
+
+        {/* Email Input */}
+        <div className="space-y-2">
+          <label htmlFor="register-email" className="block text-sm font-medium text-purple-200">
+            Email
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Mail className="w-5 h-5 text-purple-400" />
+            </div>
+            <input
+              id="register-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full pl-10 pr-10 py-3 bg-gray-800/50 border-2 rounded-lg
+                       text-white placeholder-gray-500
+                       focus:outline-none focus:ring-2 focus:ring-purple-500/20
+                       transition-all duration-300 backdrop-blur-sm
+                       ${email && validateEmail(email) ? 'border-red-500/50 hover:border-red-500/70' :
+                         email && !validateEmail(email) ? 'border-green-500/50 hover:border-green-500/70' :
+                         'border-purple-500/30 hover:border-purple-500/50'}
+                       ${email && !validateEmail(email) ? 'focus:border-green-500' : 'focus:border-purple-500'}`}
+              placeholder="Enter your email"
+              disabled={isLoading}
+            />
+            {email && (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                {!validateEmail(email) ? (
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                )}
+              </div>
+            )}
+          </div>
+          {email && validateEmail(email) && (
+            <p className="text-xs text-red-400 mt-1">{validateEmail(email)}</p>
           )}
         </div>
 
@@ -396,7 +452,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
         {/* Register Button */}
         <HoverButton
           type="submit"
-          disabled={isLoading || !!usernameError || !!passwordError || !passwordsMatch || !username || !password}
+          disabled={isLoading || !!usernameError || !!passwordError || !passwordsMatch || !username || !email || !!validateEmail(email) || !password}
           className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600
                    text-white font-semibold rounded-lg shadow-lg
                    hover:from-purple-700 hover:to-pink-700

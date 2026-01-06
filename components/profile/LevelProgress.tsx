@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { animate } from '@/lib/animejs';
 import { Infinity as InfinityIcon, TrendingUp, Crown, Star, Zap, Flame, Diamond, Sparkles } from 'lucide-react';
-import { useProfileStore, useXpProgress } from '@/store/profileStore';
+import { useAuth } from '@/hooks/useAuth';
 
 // ============================================================================
 // TYPES
@@ -852,9 +852,26 @@ export default function LevelProgress({
   showDetails = true,
   size = 'md',
 }: LevelProgressProps) {
-  const level = useProfileStore((state) => state.level);
-  const xp = useProfileStore((state) => state.xp);
-  const { currentXp, requiredXp, progress } = useXpProgress();
+  const { user } = useAuth();
+  const level = user?.profile?.level ?? 1;
+  const totalXp = user?.profile?.totalXp ?? 0;
+
+  // Calculate XP progress locally
+  const BASE_XP = 100;
+  const XP_MULTIPLIER = 1.5;
+
+  const getRequiredXpForLevel = useCallback((lvl: number) => {
+    return Math.floor(BASE_XP * Math.pow(XP_MULTIPLIER, lvl - 1));
+  }, []);
+
+  // Calculate current XP within level and required XP
+  let accumulatedXp = 0;
+  for (let i = 1; i < level; i++) {
+    accumulatedXp += getRequiredXpForLevel(i);
+  }
+  const currentXp = totalXp - accumulatedXp;
+  const requiredXp = getRequiredXpForLevel(level);
+  const progress = requiredXp > 0 ? (currentXp / requiredXp) * 100 : 0;
 
   const config = SIZE_CONFIG[size];
   const isMaxLevel = level >= 50; // Max level for infinite mode

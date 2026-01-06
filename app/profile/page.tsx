@@ -18,7 +18,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useProfileStore, useUserStats } from '@/store/profileStore';
+import { useAuth } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
 import LevelProgress from '@/components/profile/LevelProgress';
 import CoinDisplay from '@/components/profile/CoinDisplay';
@@ -204,11 +204,17 @@ function ModalOverlay({
 export default function ProfilePage() {
   const router = useRouter();
 
-  // Profile store
-  const user = useProfileStore((state) => state.user);
-  const level = useProfileStore((state) => state.level);
-  const profileStats = useUserStats();
-  const updateProfile = useProfileStore((state) => state.updateProfile);
+  // Auth hook for user data
+  const { user, refreshUser } = useAuth();
+  const level = user?.profile?.level ?? 1;
+  const profileStats = {
+    gamesPlayed: user?.profile?.gamesPlayed ?? 0,
+    correctGuesses: user?.profile?.correctGuesses ?? 0,
+    wrongGuesses: (user?.profile?.totalGuesses ?? 0) - (user?.profile?.correctGuesses ?? 0),
+    highestStreak: user?.profile?.highestStreak ?? 0,
+    totalPoints: user?.profile?.coins ?? 0,
+    perfectGames: 0,
+  };
 
   // Game store (for total points and high streak)
   const totalPoints = useGameStore((state) => state.totalPoints);
@@ -218,7 +224,7 @@ export default function ProfilePage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editUsername, setEditUsername] = useState(user?.username || 'Player');
   const [editAvatar, setEditAvatar] = useState(user?.avatar || '🎮');
-  const [editAvatarImage, setEditAvatarImage] = useState<string | undefined>(user?.avatarImage);
+  const [editAvatarImage, setEditAvatarImage] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Animated counters
@@ -278,19 +284,30 @@ export default function ProfilePage() {
     return () => clearInterval(interval);
   }, [profileStats, totalPoints, highStreak, accuracy, perfectGames]);
 
-  const handleSaveProfile = () => {
-    updateProfile({
-      username: editUsername,
-      avatar: editAvatar,
-      avatarImage: editAvatarImage,
-    });
-    setIsEditModalOpen(false);
+  const handleSaveProfile = async () => {
+    try {
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: editUsername,
+          avatar: editAvatar,
+          avatarImage: editAvatarImage,
+        }),
+      });
+      if (res.ok) {
+        await refreshUser();
+        setIsEditModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+    }
   };
 
   const handleCancelEdit = () => {
     setEditUsername(user?.username || 'Player');
     setEditAvatar(user?.avatar || '🎮');
-    setEditAvatarImage(user?.avatarImage);
+    setEditAvatarImage(undefined);
     setIsEditModalOpen(false);
   };
 
@@ -404,15 +421,7 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <HoverAvatar className="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border-2 border-purple-500/30 flex items-center justify-center text-5xl flex-shrink-0 overflow-hidden">
-                {user?.avatarImage ? (
-                  <img
-                    src={user.avatarImage}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  user?.avatar || '🎮'
-                )}
+                {user?.avatar || '🎮'}
               </HoverAvatar>
 
               {/* User Info */}

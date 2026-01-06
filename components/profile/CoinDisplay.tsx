@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { animate } from '@/lib/animejs';
 import { Coins, Plus, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useProfileStore } from '@/store/profileStore';
+import { useAuth } from '@/hooks/useAuth';
 
 // ============================================================================
 // TYPES
@@ -140,7 +140,8 @@ export default function CoinDisplay({
   animated = true,
 }: CoinDisplayProps) {
   const router = useRouter();
-  const storeCoins = useProfileStore((state) => state.coins);
+  const { user } = useAuth();
+  const storeCoins = user?.profile?.coins ?? 0;
   const coins = propAmount !== undefined ? propAmount : storeCoins;
 
   const [displayCoins, setDisplayCoins] = useState(coins);

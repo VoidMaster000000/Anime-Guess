@@ -4,12 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { animate, stagger, utils } from '@/lib/animejs/anime.esm.js';
-import { LogIn, User, Lock, Eye, EyeOff, Gamepad2, ArrowLeft, Sparkles } from 'lucide-react';
-import { useProfileStore } from '@/store/profileStore';
+import { LogIn, User, Lock, Eye, EyeOff, Gamepad2, ArrowLeft, Sparkles, Mail } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -22,8 +22,7 @@ export default function LoginPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
 
-  const login = useProfileStore((state) => state.login);
-  const isAuthenticated = useProfileStore((state) => state.isAuthenticated);
+  const { login, isAuthenticated } = useAuth();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -140,16 +139,16 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (!username.trim() || !password.trim()) {
+      if (!email.trim() || !password.trim()) {
         setError('Please fill in all fields');
         shakeError();
         setIsLoading(false);
         return;
       }
 
-      const success = await login(username, password);
+      const result = await login(email, password);
 
-      if (success) {
+      if (result.success) {
         // Success animation before redirect
         if (cardRef.current) {
           animate(cardRef.current, {
@@ -162,8 +161,7 @@ export default function LoginPage() {
           router.push('/');
         }
       } else {
-        const storeError = useProfileStore.getState().error;
-        setError(storeError || 'Invalid credentials');
+        setError(result.error || 'Invalid credentials');
         shakeError();
       }
     } catch (err) {
@@ -218,20 +216,20 @@ export default function LoginPage() {
 
           {/* Form */}
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
-            {/* Username */}
+            {/* Email */}
             <div className="form-element opacity-0">
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                Email
               </label>
               <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-purple-400 transition-colors" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-purple-400 transition-colors" />
                 <input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                  placeholder="Enter your username"
+                  placeholder="Enter your email"
                   disabled={isLoading}
                 />
               </div>

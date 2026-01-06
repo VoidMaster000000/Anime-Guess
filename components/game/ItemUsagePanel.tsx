@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { animate } from '@/lib/animejs';
 import { Eye, Heart, SkipForward, HelpCircle, Package, Sparkles } from 'lucide-react';
-import { useProfileStore } from '@/store/profileStore';
+import { useAuth, fetchInventory, useInventoryItem, InventoryItem } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
 
 interface ItemUsagePanelProps {
@@ -115,9 +115,8 @@ function UsedOverlay({ show }: { show: boolean }) {
 }
 
 export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
-  const inventory = useProfileStore((state) => state.inventory);
-  const useItem = useProfileStore((state) => state.useItem);
-  const isAuthenticated = useProfileStore((state) => state.isAuthenticated);
+  const { isAuthenticated } = useAuth();
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
   const gameStatus = useGameStore((state) => state.gameStatus);
   const revealHint = useGameStore((state) => state.revealHint);
@@ -127,6 +126,13 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
   const fetchNewCharacter = useGameStore((state) => state.fetchNewCharacter);
 
   const [usedItemAnimation, setUsedItemAnimation] = useState<string | null>(null);
+
+  // Fetch inventory from MongoDB API
+  useEffect(() => {
+    if (isAuthenticated && gameStatus === 'playing') {
+      fetchInventory().then(setInventory);
+    }
+  }, [isAuthenticated, gameStatus]);
 
   // Filter items that can be used during gameplay
   const usableItems = inventory.filter(
@@ -174,13 +180,20 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
     }
   };
 
-  const handleUseItem = async (item: { id: string; type: string; name: string }) => {
+  const handleUseItem = async (item: { id: string; itemId: string; type: string; name: string }) => {
     if (!canUseItem(item)) return;
 
-    // Use the item from inventory
-    const success = useItem(item.id);
+    // Use the item via MongoDB API
+    const result = await useInventoryItem(item.itemId, 1);
 
-    if (success) {
+    if (result.success) {
+      // Update local inventory state
+      setInventory(prev => prev.map(i =>
+        i.itemId === item.itemId
+          ? { ...i, quantity: result.remainingQuantity ?? i.quantity - 1 }
+          : i
+      ).filter(i => i.quantity > 0));
+
       // Trigger animation
       setUsedItemAnimation(item.id);
       setTimeout(() => setUsedItemAnimation(null), 1000);

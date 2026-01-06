@@ -14,7 +14,7 @@ import {
   Package,
   BarChart3,
 } from "lucide-react";
-import { useProfileStore } from "@/store/profileStore";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ProfileDropdownProps {
   onNavigate?: (page: 'profile' | 'inventory' | 'settings') => void;
@@ -76,12 +76,16 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const user = useProfileStore((state) => state.user);
-  const level = useProfileStore((state) => state.level);
-  const xp = useProfileStore((state) => state.xp);
-  const coins = useProfileStore((state) => state.coins);
-  const stats = useProfileStore((state) => state.stats);
-  const logout = useProfileStore((state) => state.logout);
+  const { user, logout } = useAuth();
+  const level = user?.profile?.level ?? 1;
+  const xp = user?.profile?.xp ?? 0;
+  const coins = user?.profile?.coins ?? 0;
+  const stats = {
+    highestStreak: user?.profile?.highestStreak ?? 0,
+    gamesPlayed: user?.profile?.gamesPlayed ?? 0,
+    correctGuesses: user?.profile?.correctGuesses ?? 0,
+    wrongGuesses: (user?.profile?.totalGuesses ?? 0) - (user?.profile?.correctGuesses ?? 0),
+  };
 
   // Calculate XP progress
   const BASE_XP = 100;

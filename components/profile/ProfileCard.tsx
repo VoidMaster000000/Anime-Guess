@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import { animate } from '@/lib/animejs';
 import { User, Edit, LogOut, Trophy, Flame, Target, Coins } from 'lucide-react';
-import { useProfileStore, useXpProgress } from '@/store/profileStore';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProfileCardProps {
   onEditProfile?: () => void;
@@ -190,12 +190,34 @@ function AnimatedBackground() {
 // ============================================================================
 
 export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProps) {
-  const user = useProfileStore((state) => state.user);
-  const level = useProfileStore((state) => state.level);
-  const coins = useProfileStore((state) => state.coins);
-  const stats = useProfileStore((state) => state.stats);
-  const logout = useProfileStore((state) => state.logout);
-  const { currentXp, requiredXp, progress } = useXpProgress();
+  const { user, logout } = useAuth();
+  const level = user?.profile?.level ?? 1;
+  const coins = user?.profile?.coins ?? 0;
+  const stats = {
+    gamesPlayed: user?.profile?.gamesPlayed ?? 0,
+    correctGuesses: user?.profile?.correctGuesses ?? 0,
+    wrongGuesses: (user?.profile?.totalGuesses ?? 0) - (user?.profile?.correctGuesses ?? 0),
+    highestStreak: user?.profile?.highestStreak ?? 0,
+    totalPoints: user?.profile?.coins ?? 0,
+    perfectGames: 0,
+  };
+
+  // Calculate XP progress
+  const xp = user?.profile?.xp ?? 0;
+  const BASE_XP = 100;
+  const XP_MULTIPLIER = 1.5;
+  const getXpForCurrentLevel = (lvl: number): number => {
+    if (lvl <= 1) return 0;
+    return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl - 1));
+  };
+  const calculateXpForNextLevel = (lvl: number): number => {
+    return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl));
+  };
+  const currentLevelXp = getXpForCurrentLevel(level);
+  const nextLevelXp = calculateXpForNextLevel(level);
+  const currentXp = xp - currentLevelXp;
+  const requiredXp = nextLevelXp - currentLevelXp;
+  const progress = requiredXp > 0 ? (currentXp / requiredXp) * 100 : 0;
 
   if (!user) {
     return null;

@@ -11,6 +11,7 @@ export interface AuthUser {
   username: string;
   email: string;
   avatar: string;
+  avatarImage?: string;
   createdAt: string;
   profile: {
     level: number;
@@ -371,6 +372,35 @@ export async function useInventoryItem(itemId: string, quantity = 1): Promise<{
     }
 
     return { success: true, remainingQuantity: data.remainingQuantity };
+  } catch {
+    return { success: false, error: 'Network error' };
+  }
+}
+
+// ============================================================================
+// SETTINGS API
+// ============================================================================
+
+export async function updateSettings(settings: {
+  soundEnabled?: boolean;
+  musicEnabled?: boolean;
+  animationsEnabled?: boolean;
+  theme?: 'dark' | 'light' | 'system';
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch('/api/profile/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { success: false, error: data.error || 'Failed to update settings' };
+    }
+
+    return { success: true };
   } catch {
     return { success: false, error: 'Network error' };
   }

@@ -18,7 +18,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useProfileStore } from '@/store/profileStore';
+import { useAuth, updateSettings as updateUserSettings } from '@/hooks/useAuth';
 
 // Animated section wrapper
 function AnimatedSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -76,48 +76,53 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
 
 export default function SettingsPage() {
   const router = useRouter();
-  const user = useProfileStore((state) => state.user);
-  const isAuthenticated = useProfileStore((state) => state.isAuthenticated);
+  const { isAuthenticated, user, refreshUser } = useAuth();
 
   // Local state for settings
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [musicEnabled, setMusicEnabled] = useState(true);
+  const [animationsEnabled, setAnimationsEnabled] = useState(true);
+  const [theme, setTheme] = useState<'dark' | 'light' | 'system'>('dark');
   const [saveMessage, setSaveMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Load settings from user preferences
+  // Load settings from MongoDB user data
   useEffect(() => {
-    if (user?.preferences) {
-      setSoundEnabled(user.preferences.soundEnabled ?? true);
-      setNotificationsEnabled(user.preferences.notificationsEnabled ?? true);
-      setTheme(user.preferences.theme ?? 'dark');
+    if (user?.settings) {
+      setSoundEnabled(user.settings.soundEnabled ?? true);
+      setMusicEnabled(user.settings.musicEnabled ?? true);
+      setAnimationsEnabled(user.settings.animationsEnabled ?? true);
+      setTheme(user.settings.theme ?? 'dark');
     }
   }, [user]);
 
-  const handleSaveSettings = () => {
-    if (user) {
-      // Update profile with new preferences
-      const updatedUser = {
-        ...user,
-        preferences: {
-          ...user.preferences,
-          soundEnabled,
-          notificationsEnabled,
-          theme,
-        },
-      };
+  const handleSaveSettings = async () => {
+    if (!isAuthenticated || !user) {
+      setSaveMessage('Please login to save settings.');
+      setTimeout(() => setSaveMessage(''), 3000);
+      return;
+    }
 
-      // Save to localStorage
-      const storedUsers = localStorage.getItem('anime-game-users');
-      if (storedUsers) {
-        const users = JSON.parse(storedUsers);
-        if (users[user.username.toLowerCase()]) {
-          users[user.username.toLowerCase()].profile = updatedUser;
-          localStorage.setItem('anime-game-users', JSON.stringify(users));
-        }
+    setIsSaving(true);
+    try {
+      // Save to MongoDB via API
+      const result = await updateUserSettings({
+        soundEnabled,
+        musicEnabled,
+        animationsEnabled,
+        theme,
+      });
+
+      if (result.success) {
+        await refreshUser();
+        setSaveMessage('Settings saved successfully!');
+      } else {
+        setSaveMessage(result.error || 'Failed to save settings.');
       }
-
-      setSaveMessage('Settings saved successfully!');
+    } catch {
+      setSaveMessage('Network error. Please try again.');
+    } finally {
+      setIsSaving(false);
       setTimeout(() => setSaveMessage(''), 3000);
     }
   };
@@ -134,18 +139,25 @@ export default function SettingsPage() {
           value: soundEnabled,
           onChange: () => setSoundEnabled(!soundEnabled),
         },
+        {
+          id: 'music',
+          label: 'Background Music',
+          description: 'Enable or disable background music',
+          value: musicEnabled,
+          onChange: () => setMusicEnabled(!musicEnabled),
+        },
       ],
     },
     {
-      title: 'Notifications',
-      icon: notificationsEnabled ? Bell : BellOff,
+      title: 'Display',
+      icon: animationsEnabled ? Bell : BellOff,
       items: [
         {
-          id: 'notifications',
-          label: 'Push Notifications',
-          description: 'Receive notifications about game updates and rewards',
-          value: notificationsEnabled,
-          onChange: () => setNotificationsEnabled(!notificationsEnabled),
+          id: 'animations',
+          label: 'Animations',
+          description: 'Enable or disable UI animations',
+          value: animationsEnabled,
+          onChange: () => setAnimationsEnabled(!animationsEnabled),
         },
       ],
     },
@@ -296,14 +308,14 @@ export default function SettingsPage() {
             <div className="p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white font-medium">Clear Local Data</p>
+                  <p className="text-white font-medium">Clear Cache</p>
                   <p className="text-sm text-zinc-400">
-                    Remove all locally stored game data (this cannot be undone)
+                    Clear locally cached game data. Your account data is stored securely on our servers.
                   </p>
                 </div>
                 <button
                   onClick={() => {
-                    if (confirm('Are you sure you want to clear all local data? This action cannot be undone.')) {
+                    if (confirm('Clear local cache? This will reset any cached game state.')) {
                       localStorage.clear();
                       window.location.reload();
                     }
@@ -311,7 +323,7 @@ export default function SettingsPage() {
                   className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span>Clear Data</span>
+                  <span>Clear Cache</span>
                 </button>
               </div>
             </div>
@@ -322,9 +334,10 @@ export default function SettingsPage() {
         <AnimatedSection delay={500} className="mt-8 flex justify-end">
           <button
             onClick={handleSaveSettings}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl text-white font-medium transition-all shadow-lg shadow-purple-500/25"
+            disabled={isSaving || !isAuthenticated}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-all shadow-lg shadow-purple-500/25"
           >
-            <Save className="w-5 h-5" />
+            <Save className={`w-5 h-5 ${isSaving ? 'animate-spin' : ''}`} />
             <span>Save Settings</span>
           </button>
         </AnimatedSection>

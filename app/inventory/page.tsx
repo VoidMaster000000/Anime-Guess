@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useProfileStore } from '@/store/profileStore';
+import { fetchInventory, InventoryItem } from '@/hooks/useAuth';
 import CoinDisplay from '@/components/profile/CoinDisplay';
 
 // ============================================================================
@@ -261,13 +261,18 @@ const RARITY_COLORS = {
 
 export default function InventoryPage() {
   const router = useRouter();
-  const inventory = useProfileStore((state) => state.inventory);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory>('all');
   const [selectedItem, setSelectedItem] = useState<InventoryItemDisplay | null>(null);
   const [isUseModalOpen, setIsUseModalOpen] = useState(false);
 
-  // Convert profile store inventory to display format
+  // Fetch inventory from MongoDB API
+  useEffect(() => {
+    fetchInventory().then(setInventory);
+  }, []);
+
+  // Convert API inventory to display format
   const displayInventory: InventoryItemDisplay[] = inventory.map((item) => {
     // Map to display format with icons
     const iconMap: Record<string, any> = {
@@ -280,14 +285,14 @@ export default function InventoryPage() {
 
     return {
       id: item.id,
-      name: item.name || item.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-      description: item.description || 'Item description',
+      name: item.name,
+      description: item.description,
       category: (item.type === 'hint' ? 'hints' : item.type === 'skip' ? 'skips' : item.type === 'life' ? 'lives' : item.type === 'booster' ? 'boosters' : 'cosmetics') as ItemCategory,
       rarity: 'common' as const,
       quantity: item.quantity,
-      icon: iconMap[item.icon || ''] || Package,
+      icon: iconMap[item.icon] || Package,
       isUsable: item.type !== 'cosmetic',
-      effect: 'Use this item in-game',
+      effect: item.effect ? `${item.effect.type}: ${item.effect.value}` : 'Use this item in-game',
     };
   });
 

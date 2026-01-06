@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { animate } from "@/lib/animejs";
 import { X, UserPlus, Loader2 } from "lucide-react";
-import { useProfileStore } from "@/store/profileStore";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -54,13 +54,18 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const register = useProfileStore((state) => state.register);
+  const { signup } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     // Validation
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -74,19 +79,17 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
     setIsLoading(true);
 
     try {
-      const success = await register(username, password);
-      if (success) {
+      const result = await signup(username, email, password);
+      if (result.success) {
         onClose();
         setUsername("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
       } else {
-        // Get error from store
-        const storeError = useProfileStore.getState().error;
-        setError(storeError || "Signup failed. Please try again.");
+        setError(result.error || "Signup failed. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("Signup failed. Please try again.");
     } finally {
       setIsLoading(false);

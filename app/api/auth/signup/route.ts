@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { username, email, password } = body;
 
-    // Validate input
+    // Validate input - all fields required
     if (!username || !email || !password) {
       return NextResponse.json(
         { error: 'Username, email, and password are required' },

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gamepad2, Trophy, ShoppingBag, Menu, X, Coins, Zap, LogIn, UserPlus } from "lucide-react";
 import { animate } from "@/lib/animejs";
-import { useProfileStore } from "@/store/profileStore";
+import { useAuth } from "@/hooks/useAuth";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
 
 const navLinks = [
@@ -119,10 +119,10 @@ export default function Header() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
 
-  // Get auth state and user data from profile store
-  const isAuthenticated = useProfileStore((state) => state.isAuthenticated);
-  const coins = useProfileStore((state) => state.coins);
-  const level = useProfileStore((state) => state.level);
+  // Get auth state and user data from useAuth hook
+  const { isAuthenticated, user } = useAuth();
+  const coins = user?.profile?.coins ?? 0;
+  const level = user?.profile?.level ?? 1;
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);

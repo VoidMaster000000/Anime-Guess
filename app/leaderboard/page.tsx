@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/store/gameStore';
-import { useProfileStore } from '@/store/profileStore';
 import { useAuth, fetchLeaderboard as fetchGlobalLeaderboard } from '@/hooks/useAuth';
 import LeaderboardRow from '@/components/leaderboard/LeaderboardRow';
 import type { LeaderboardEntry } from '@/types';
@@ -179,7 +178,6 @@ function ModalOverlay({
 export default function LeaderboardPage() {
   const router = useRouter();
   const leaderboard = useGameStore((state) => state.leaderboard);
-  const currentProfile = useProfileStore((state) => state.user);
   const { isAuthenticated, user } = useAuth();
 
   // View mode: local or global
@@ -350,12 +348,17 @@ export default function LeaderboardPage() {
   }, [enhancedEntries, timeFilter, difficultyFilter, searchQuery, sortMode]);
 
   const handleClearLeaderboard = () => {
+    // Clear local leaderboard cache
     if (typeof window !== 'undefined') {
-      const storage = localStorage.getItem('anime-guess-game-storage');
-      if (storage) {
-        const data = JSON.parse(storage);
-        data.state.leaderboard = [];
-        localStorage.setItem('anime-guess-game-storage', JSON.stringify(data));
+      try {
+        const storage = localStorage.getItem('anime-guess-game-storage');
+        if (storage) {
+          const data = JSON.parse(storage);
+          data.state.leaderboard = [];
+          localStorage.setItem('anime-guess-game-storage', JSON.stringify(data));
+        }
+      } catch {
+        // Ignore errors
       }
     }
     window.location.reload();
@@ -414,7 +417,7 @@ export default function LeaderboardPage() {
               className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-colors duration-200 text-red-400"
             >
               <Trash2 className="w-5 h-5" />
-              <span className="hidden sm:inline">Clear Leaderboard</span>
+              <span className="hidden sm:inline">Clear Local Cache</span>
             </HoverScaleButton>
           </div>
 
@@ -676,11 +679,7 @@ export default function LeaderboardPage() {
                 key={entry.id}
                 entry={entry}
                 rank={entry.rank || index + 1}
-                isCurrentUser={
-                  viewMode === 'global'
-                    ? user?.id === entry.userId
-                    : currentProfile?.id === entry.userId
-                }
+                isCurrentUser={user?.id === entry.userId}
               />
             ))
           )}
@@ -692,11 +691,10 @@ export default function LeaderboardPage() {
             <div className="bg-gray-900 border border-red-500/30 rounded-lg p-6 max-w-md w-full">
               <div className="flex items-center gap-3 mb-4">
                 <Trash2 className="w-8 h-8 text-red-500" />
-                <h2 className="text-2xl font-bold text-red-400">Clear Leaderboard?</h2>
+                <h2 className="text-2xl font-bold text-red-400">Clear Local Cache?</h2>
               </div>
               <p className="text-gray-300 mb-6">
-                Are you sure you want to clear all leaderboard entries? This action cannot be
-                undone.
+                This will clear locally cached leaderboard data. Global leaderboard entries are stored on our servers and will not be affected.
               </p>
               <div className="flex gap-3">
                 <button

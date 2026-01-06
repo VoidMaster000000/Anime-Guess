@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { animate } from '@/lib/animejs';
-import { User, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
-import { useProfileStore } from '@/store/profileStore';
+import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -154,14 +154,14 @@ function SpinningLoader() {
 // ============================================================================
 
 export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = useProfileStore((state) => state.login);
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,28 +170,28 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
 
     try {
       // Basic validation
-      if (!username || !password) {
+      if (!email || !password) {
         setError('Please fill in all fields');
         setIsLoading(false);
         return;
       }
 
-      if (username.length < 3) {
-        setError('Username must be at least 3 characters');
+      // Basic email validation
+      if (!email.includes('@')) {
+        setError('Please enter a valid email address');
         setIsLoading(false);
         return;
       }
 
-      // Attempt login using profileStore
-      const success = await login(username, password);
+      // Attempt login using useAuth hook (MongoDB)
+      const result = await login(email, password);
 
-      if (success) {
+      if (result.success) {
         onSuccess();
       } else {
-        const storeError = useProfileStore.getState().error;
-        setError(storeError || 'Login failed. Please try again.');
+        setError(result.error || 'Login failed. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
@@ -201,26 +201,26 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   return (
     <AnimatedFormContainer className="w-full max-w-md">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Username Input */}
+        {/* Email Input */}
         <div className="space-y-2">
-          <label htmlFor="username" className="block text-sm font-medium text-purple-200">
-            Username
+          <label htmlFor="email" className="block text-sm font-medium text-purple-200">
+            Email
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <User className="w-5 h-5 text-purple-400" />
+              <Mail className="w-5 h-5 text-purple-400" />
             </div>
             <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border-2 border-purple-500/30 rounded-lg
                        text-white placeholder-gray-500
                        focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20
                        transition-all duration-300 backdrop-blur-sm
                        hover:border-purple-500/50"
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               disabled={isLoading}
             />
           </div>

@@ -115,24 +115,11 @@ export const useGameStore = create<GameState>()(
 
       /**
        * Start a new game with the selected difficulty
+       * @param isAuthenticated - whether user is authenticated with MongoDB
        */
-      startGame: async () => {
+      startGame: async (isAuthenticated = false) => {
         const { difficulty, extraHintsOwned, fetchNewCharacter } = get();
         const config = DIFFICULTY_CONFIGS[difficulty];
-
-        // Check if user is authenticated (from profileStore)
-        // We can't directly import profileStore here to avoid circular dependencies
-        // So we'll check localStorage for authentication state
-        let isAuthenticatedUser = false;
-        try {
-          const profileStorage = localStorage.getItem('anime-game-profile');
-          if (profileStorage) {
-            const profileData = JSON.parse(profileStorage);
-            isAuthenticatedUser = profileData.state?.isAuthenticated ?? false;
-          }
-        } catch (e) {
-          // Ignore errors
-        }
 
         set({
           gameStatus: 'playing',
@@ -143,7 +130,7 @@ export const useGameStore = create<GameState>()(
           hintsRevealed: config.initialHints,
           maxHints: 4 + extraHintsOwned,
           timeRemaining: config.timeLimit ?? null,
-          isGuest: !isAuthenticatedUser,
+          isGuest: !isAuthenticated,
         });
 
         // Fetch the first character

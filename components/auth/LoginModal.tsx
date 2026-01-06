@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { animate } from "@/lib/animejs";
-import { X, LogIn, Loader2 } from "lucide-react";
-import { useProfileStore } from "@/store/profileStore";
+import { X, LogIn, Loader2, Mail } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -47,30 +47,34 @@ function AnimatedModal({
 // ============================================================================
 
 export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProps) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const login = useProfileStore((state) => state.login);
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!email || !email.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const success = await login(username, password);
-      if (success) {
+      const result = await login(email, password);
+      if (result.success) {
         onClose();
-        setUsername("");
+        setEmail("");
         setPassword("");
       } else {
-        // Get error from store
-        const storeError = useProfileStore.getState().error;
-        setError(storeError || "Invalid credentials");
+        setError(result.error || "Invalid credentials");
       }
-    } catch (err) {
+    } catch {
       setError("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -116,14 +120,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
 
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
-              Username
+              Email
             </label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg bg-bg-primary border border-accent/20 text-text-primary focus:border-accent focus:outline-none transition-colors"
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               required
             />
           </div>

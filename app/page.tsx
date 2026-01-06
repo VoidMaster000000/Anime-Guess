@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Animated, AnimatePresence, Transition, AnimatedSplitText } from '@/lib/animejs';
 import { animate, useAnimeOnMount } from '@/lib/animejs';
 import { useGameStore } from '@/store/gameStore';
-import { useProfileStore } from '@/store/profileStore';
+import { useAuth } from '@/hooks/useAuth';
 import { useAntiCheat } from '@/hooks/useAntiCheat';
 import {
   CharacterImage,
@@ -42,13 +42,8 @@ export default function GamePage() {
     setDifficulty,
   } = useGameStore();
 
-  // Profile store integration
-  const isAuthenticated = useProfileStore((state) => state.isAuthenticated);
-  const addXp = useProfileStore((state) => state.addXp);
-  const addCoins = useProfileStore((state) => state.addCoins);
-  const recordGuess = useProfileStore((state) => state.recordGuess);
-  const updateHighestStreak = useProfileStore((state) => state.updateHighestStreak);
-  const incrementGamesPlayed = useProfileStore((state) => state.incrementGamesPlayed);
+  // Auth hook integration (MongoDB)
+  const { user, isAuthenticated, updateUserStats } = useAuth();
 
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [showLevelUpNotification, setShowLevelUpNotification] = useState(false);
@@ -90,10 +85,10 @@ export default function GamePage() {
   }, [isTabVisible, tabSwitchCount, gameStatus]);
 
   // Handle guess with profile integration
-  const handleGuess = (guess: string) => {
+  const handleGuess = async (guess: string) => {
     const isCorrect = submitGuess(guess);
 
-    // Award XP and coins if authenticated
+    // Award XP and coins if authenticated (via MongoDB API)
     if (isAuthenticated) {
       if (isCorrect) {
         // Base rewards
@@ -108,16 +103,18 @@ export default function GamePage() {
         const hintBonus = Math.max(0, (4 - hintsRevealed) * 2); // +2 coins per unused hint
         const totalCoins = Math.floor((baseCoins + difficultyBonus + hintBonus) * antiCheatPenalty);
 
-        // Award rewards
-        addXp(totalXp);
-        addCoins(totalCoins);
-
-        // Update stats
-        recordGuess(true);
-        updateHighestStreak(streak + 1);
+        // Update stats via MongoDB API
+        await updateUserStats({
+          xpToAdd: totalXp,
+          coinsToAdd: totalCoins,
+          correctGuess: true,
+          newStreak: streak + 1,
+        });
       } else {
-        // Record wrong guess
-        recordGuess(false);
+        // Record wrong guess via MongoDB API
+        await updateUserStats({
+          correctGuess: false,
+        });
       }
     }
 
@@ -130,7 +127,8 @@ export default function GamePage() {
       // Increment games played when game starts
       const hasTrackedGame = sessionStorage.getItem('current-game-tracked');
       if (!hasTrackedGame) {
-        incrementGamesPlayed();
+        // Record game start via MongoDB API
+        updateUserStats({ gameWon: false }); // Just increments gamesPlayed
         sessionStorage.setItem('current-game-tracked', 'true');
       }
     }
@@ -139,7 +137,7 @@ export default function GamePage() {
       // Clear tracking flag when game ends
       sessionStorage.removeItem('current-game-tracked');
     }
-  }, [gameStatus, isAuthenticated, incrementGamesPlayed]);
+  }, [gameStatus, isAuthenticated, updateUserStats]);
 
   // Timer countdown for timed mode
   useEffect(() => {

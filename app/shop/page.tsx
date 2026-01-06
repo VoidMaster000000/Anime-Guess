@@ -6,7 +6,6 @@ import { animate } from '@/lib/animejs';
 import { ArrowLeft, ShoppingBag, Coins, CheckCircle2, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useGameStore, SHOP_ITEMS } from '@/store/gameStore';
-import { useProfileStore } from '@/store/profileStore';
 import { useAuth, purchaseItem as purchaseItemApi } from '@/hooks/useAuth';
 import { ShopItemType } from '@/types';
 import UpgradeCard from '@/components/shop/UpgradeCard';
@@ -24,22 +23,11 @@ export default function ShopPage() {
   // Use auth hook for MongoDB-backed authentication
   const { isAuthenticated, user, refreshUser } = useAuth();
 
-  // Use coins from profile store instead of points from game store
-  const localIsAuthenticated = useProfileStore((state) => state.isAuthenticated);
-  const coins = useProfileStore((state) => state.coins);
-  const spendCoins = useProfileStore((state) => state.spendCoins);
-  const addItem = useProfileStore((state) => state.addItem);
+  // Use MongoDB coins only
+  const displayCoins = user ? user.profile.coins : 0;
 
-  // Use MongoDB coins if authenticated, otherwise local coins
-  const displayCoins = isAuthenticated && user ? user.profile.coins : coins;
-
-  // Still need some game store values for item availability
+  // Game store values for item availability
   const extraHintsOwned = useGameStore((state) => state.extraHintsOwned);
-  const gameStatus = useGameStore((state) => state.gameStatus);
-  const purchaseUpgrade = useGameStore((state) => state.purchaseUpgrade);
-  const lives = useGameStore((state) => state.lives);
-  const maxLives = useGameStore((state) => state.maxLives);
-  const hintsRevealed = useGameStore((state) => state.hintsRevealed);
 
   const [notification, setNotification] = useState<Notification | null>(null);
   const [animatedCoins, setAnimatedCoins] = useState(displayCoins);
@@ -75,10 +63,8 @@ export default function ShopPage() {
   }, [notification]);
 
   const handlePurchase = async (item: typeof SHOP_ITEMS[0]) => {
-    // Check if user is authenticated (either MongoDB or local)
-    const effectivelyAuthenticated = isAuthenticated || localIsAuthenticated;
-
-    if (!effectivelyAuthenticated) {
+    // Check if user is authenticated with MongoDB
+    if (!isAuthenticated || !user) {
       setNotification({
         type: 'error',
         message: 'Please login to purchase items.',
@@ -114,97 +100,22 @@ export default function ShopPage() {
     setIsPurchasing(true);
 
     try {
-      // If authenticated with MongoDB, use the API
-      if (isAuthenticated) {
-        const result = await purchaseItemApi(item.id, 1);
+      // Use MongoDB API for purchase
+      const result = await purchaseItemApi(item.id, 1);
 
-        if (result.success) {
-          // Also add to local inventory for immediate use
-          addItem({
-            id: item.id,
-            name: item.name,
-            description: item.description,
-            type: getInventoryType(item.type),
-            icon: item.icon,
-          }, 1);
+      if (result.success) {
+        // Refresh user data to get updated coins
+        await refreshUser();
 
-          // Refresh user data to get updated coins
-          await refreshUser();
-
-          setNotification({
-            type: 'success',
-            message: `${item.name} added to inventory! Use it during gameplay.`,
-          });
-        } else {
-          setNotification({
-            type: 'error',
-            message: result.error || 'Purchase failed. Please try again.',
-          });
-        }
+        setNotification({
+          type: 'success',
+          message: `${item.name} added to inventory! Use it during gameplay.`,
+        });
       } else {
-        // Fall back to local purchase for non-MongoDB users
-        // For consumables, add directly to inventory (can be used during gameplay)
-        if (item.type === ShopItemType.HINT_REVEAL ||
-            item.type === ShopItemType.SKIP ||
-            item.type === ShopItemType.EXTRA_LIFE ||
-            item.type === ShopItemType.TEXT_HINT) {
-
-          // Deduct coins
-          const coinsSpent = spendCoins(item.cost);
-
-          if (coinsSpent) {
-            // Add to inventory for later use
-            addItem({
-              id: item.id,
-              name: item.name,
-              description: item.description,
-              type: getInventoryType(item.type),
-              icon: item.icon,
-            }, 1);
-
-            setNotification({
-              type: 'success',
-              message: `${item.name} added to inventory! Use it during gameplay.`,
-            });
-          } else {
-            setNotification({
-              type: 'error',
-              message: 'Failed to deduct coins. Please try again.',
-            });
-          }
-        } else {
-          // For permanent upgrades (like extra hint slots), use game store
-          const success = purchaseUpgrade(item);
-
-          if (success) {
-            const coinsSpent = spendCoins(item.cost);
-
-            if (coinsSpent) {
-              setNotification({
-                type: 'success',
-                message: `Successfully purchased ${item.name}!`,
-              });
-            } else {
-              setNotification({
-                type: 'error',
-                message: 'Failed to deduct coins. Please try again.',
-              });
-            }
-          } else {
-            let errorMessage = 'Purchase failed. ';
-
-            if (item.type === ShopItemType.EXTRA_HINT && extraHintsOwned >= MAX_EXTRA_HINTS) {
-              errorMessage += 'Maximum hint slots owned.';
-            } else {
-              errorMessage += 'Unknown error.';
-            }
-
-            setNotification({
-              type: 'error',
-              message: errorMessage,
-            });
-          }
-        }
+        setNotification({
+          type: 'error',
+          message: result.error || 'Purchase failed. Please try again.',
+        });
       }
     } catch (error) {
       console.error('Purchase error:', error);
@@ -218,9 +129,8 @@ export default function ShopPage() {
   };
 
   const isItemDisabled = (item: typeof SHOP_ITEMS[0]): boolean => {
-    // Check if user is authenticated (either MongoDB or local)
-    const effectivelyAuthenticated = isAuthenticated || localIsAuthenticated;
-    if (!effectivelyAuthenticated) return true;
+    // Check if user is authenticated with MongoDB
+    if (!isAuthenticated || !user) return true;
 
     // Check if currently purchasing
     if (isPurchasing) return true;
@@ -296,20 +206,18 @@ export default function ShopPage() {
             </div>
           </div>
 
-          {/* Auth and game status indicators */}
-          {!(isAuthenticated || localIsAuthenticated) && (
+          {/* Auth status indicator */}
+          {!isAuthenticated && (
             <div className="mt-4 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-lg">
               <p className="text-orange-400 text-sm">
                 Please login to purchase items from the shop.
               </p>
             </div>
           )}
-          {(isAuthenticated || localIsAuthenticated) && (
+          {isAuthenticated && (
             <div className="mt-4 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg">
               <p className="text-purple-400 text-sm">
-                {isAuthenticated
-                  ? 'Items are synced to your account! Use them during gameplay from the Quick Use panel.'
-                  : 'Items are added to your inventory. Use them during gameplay from the Quick Use panel!'}
+                Items are synced to your account! Use them during gameplay from the Quick Use panel.
               </p>
             </div>
           )}
