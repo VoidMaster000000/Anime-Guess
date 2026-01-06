@@ -1,18 +1,22 @@
 import { NextResponse } from 'next/server';
-import { cleanupDuplicateEntries, cleanupOrphanedEntries } from '@/lib/db/leaderboard';
+import { cleanupDuplicateEntries, cleanupOrphanedEntries, syncAllLeaderboardProfiles } from '@/lib/db/leaderboard';
 
-// Clean up leaderboard entries (orphaned + duplicates)
+// Clean up and sync leaderboard entries
 export async function POST() {
   try {
-    // First, remove orphaned entries (users that no longer exist)
+    // First, sync all profiles with current user data
+    const syncResult = await syncAllLeaderboardProfiles();
+
+    // Then, remove orphaned entries (users that no longer exist)
     const orphanedResult = await cleanupOrphanedEntries();
 
-    // Then, remove duplicates (keep only best score per player)
+    // Finally, remove duplicates (keep only best score per player)
     const duplicateResult = await cleanupDuplicateEntries();
 
     return NextResponse.json({
       success: true,
-      message: `Removed ${orphanedResult.removed} orphaned entries and ${duplicateResult.removed} duplicates from ${duplicateResult.playersProcessed} players`,
+      message: `Synced ${syncResult.synced} profiles, removed ${orphanedResult.removed} orphaned and ${duplicateResult.removed} duplicate entries`,
+      profilesSynced: syncResult.synced,
       orphanedRemoved: orphanedResult.removed,
       duplicatesRemoved: duplicateResult.removed,
       playersProcessed: duplicateResult.playersProcessed,

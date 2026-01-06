@@ -323,6 +323,43 @@ export async function deleteUserEntries(odId: string): Promise<number> {
 }
 
 /**
+ * Sync all leaderboard entries with current user data (username, avatar, avatarImage)
+ */
+export async function syncAllLeaderboardProfiles(): Promise<{ synced: number }> {
+  const db = await getDatabase();
+  const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
+  const users = db.collection(COLLECTIONS.USERS);
+
+  // Get all leaderboard entries
+  const entries = await leaderboard.find({}).toArray();
+  let synced = 0;
+
+  for (const entry of entries) {
+    try {
+      const user = await users.findOne({ _id: new ObjectId(entry.odId) });
+      if (user) {
+        // Update leaderboard entry with current user data
+        await leaderboard.updateOne(
+          { _id: entry._id },
+          {
+            $set: {
+              username: user.username,
+              avatar: user.avatar,
+              avatarImage: user.avatarImage,
+            },
+          }
+        );
+        synced++;
+      }
+    } catch {
+      // Skip invalid entries
+    }
+  }
+
+  return { synced };
+}
+
+/**
  * Clean up orphaned leaderboard entries - removes entries for users that no longer exist
  */
 export async function cleanupOrphanedEntries(): Promise<{ removed: number }> {
