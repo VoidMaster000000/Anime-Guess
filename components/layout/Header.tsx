@@ -208,13 +208,13 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 {/* Coins Display */}
-                <HoverScale className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-bg-card border border-yellow-500/20">
+                <HoverScale className="flex items-center space-x-2 px-4 py-2 stat-yellow">
                   <Coins className="h-5 w-5 text-yellow-500" />
                   <span className="font-bold text-yellow-500">{coins.toLocaleString()}</span>
                 </HoverScale>
 
                 {/* Level Display */}
-                <HoverScale className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-bg-card border border-accent/20">
+                <HoverScale className="flex items-center space-x-2 px-4 py-2 stat-purple">
                   <Zap className="h-5 w-5 text-accent" />
                   <span className="font-bold text-accent">Lv {level}</span>
                 </HoverScale>
@@ -226,7 +226,7 @@ export default function Header() {
               <>
                 {/* Login Button */}
                 <Link href="/login">
-                  <HoverScaleTap className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-bg-card border border-accent/20 hover:border-accent/40 transition-all duration-200 cursor-pointer">
+                  <HoverScaleTap className="btn btn-secondary cursor-pointer">
                     <LogIn className="h-4 w-4 text-accent" />
                     <span className="font-nav tracking-wide text-text-primary">Login</span>
                   </HoverScaleTap>
@@ -234,7 +234,7 @@ export default function Header() {
 
                 {/* Sign Up Button */}
                 <Link href="/signup">
-                  <HoverScaleTap className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-accent to-accent-purple hover:from-accent/90 hover:to-accent-purple/90 transition-all duration-200 cursor-pointer">
+                  <HoverScaleTap className="btn btn-gradient cursor-pointer">
                     <UserPlus className="h-4 w-4 text-white" />
                     <span className="font-nav tracking-wide text-white">Sign Up</span>
                   </HoverScaleTap>
@@ -269,14 +269,14 @@ export default function Header() {
             <>
               {/* Mobile User Info Display */}
               <div className="grid grid-cols-2 gap-2 mb-2">
-                <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-bg-card border border-yellow-500/20">
+                <div className="flex items-center justify-between px-4 py-3 stat-yellow">
                   <div className="flex items-center space-x-2">
                     <Coins className="h-5 w-5 text-yellow-500" />
                     <span className="text-text-secondary text-sm">Coins</span>
                   </div>
                   <span className="font-bold text-yellow-500">{coins.toLocaleString()}</span>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-bg-card border border-accent/20">
+                <div className="flex items-center justify-between px-4 py-3 stat-purple">
                   <div className="flex items-center space-x-2">
                     <Zap className="h-5 w-5 text-accent" />
                     <span className="text-text-secondary text-sm">Level</span>
@@ -292,7 +292,7 @@ export default function Header() {
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg bg-bg-card border border-accent/20 hover:border-accent/40 transition-colors"
+                  className="btn btn-secondary flex-center py-3"
                 >
                   <LogIn className="h-4 w-4 text-accent" />
                   <span className="font-nav tracking-wide text-text-primary">Login</span>
@@ -300,7 +300,7 @@ export default function Header() {
                 <Link
                   href="/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg bg-gradient-to-r from-accent to-accent-purple"
+                  className="btn btn-gradient flex-center py-3"
                 >
                   <UserPlus className="h-4 w-4 text-white" />
                   <span className="font-nav tracking-wide text-white">Sign Up</span>

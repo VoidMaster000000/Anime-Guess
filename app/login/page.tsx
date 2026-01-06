@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { animate, stagger, utils } from '@/lib/animejs/anime.esm.js';
-import { LogIn, User, Lock, Eye, EyeOff, Gamepad2, ArrowLeft, Sparkles, Mail } from 'lucide-react';
+import { LogIn, Lock, Eye, EyeOff, Gamepad2, ArrowLeft, Sparkles, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
@@ -105,24 +105,14 @@ export default function LoginPage() {
     };
   }, []);
 
-  // Button hover animation
   const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(e.currentTarget, {
-      scale: 1.02,
-      duration: 200,
-      ease: 'outQuad',
-    });
+    animate(e.currentTarget, { scale: 1.02, duration: 200, ease: 'outQuad' });
   };
 
   const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(e.currentTarget, {
-      scale: 1,
-      duration: 200,
-      ease: 'outQuad',
-    });
+    animate(e.currentTarget, { scale: 1, duration: 200, ease: 'outQuad' });
   };
 
-  // Error shake animation
   const shakeError = () => {
     if (cardRef.current) {
       animate(cardRef.current, {
@@ -149,7 +139,6 @@ export default function LoginPage() {
       const result = await login(email, password);
 
       if (result.success) {
-        // Success animation before redirect
         if (cardRef.current) {
           animate(cardRef.current, {
             scale: [1, 0.95, 1.02],
@@ -173,42 +162,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-gray-950 flex items-center justify-center p-4 overflow-hidden relative">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+    <div ref={containerRef} className="page-container flex-center">
+      {/* Background */}
+      <div className="page-bg">
         <div ref={particlesRef} className="absolute inset-0" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-pink-600/10 rounded-full blur-[100px]" />
-        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px]" />
+        <div className="bg-glow-purple top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] blur-[120px]" />
+        <div className="bg-glow-pink bottom-0 left-0 w-[600px] h-[600px] blur-[100px]" />
+        <div className="bg-glow-blue top-1/2 right-0 w-[500px] h-[500px] blur-[100px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Back Button */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors group"
-        >
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back to Home
         </Link>
 
         {/* Card */}
-        <div
-          ref={cardRef}
-          className="bg-gray-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl opacity-0"
-        >
+        <div ref={cardRef} className="card-dark p-8 opacity-0">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div
-              ref={logoRef}
-              className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-purple-500/30"
-            >
+            <div ref={logoRef} className="inline-flex flex-center w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-purple-500/30">
               <Gamepad2 className="w-10 h-10 text-white" />
             </div>
             <h1 ref={titleRef} className="text-3xl font-bold text-white mb-2 opacity-0">
               Welcome Back!
             </h1>
-            <p className="text-gray-400 flex items-center justify-center gap-2">
+            <p className="text-gray-400 flex-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-400" />
               Login to continue your anime journey
             </p>
@@ -218,17 +198,15 @@ export default function LoginPage() {
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div className="form-element opacity-0">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email
-              </label>
+              <label htmlFor="email" className="label">Email</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-purple-400 transition-colors" />
+                <Mail className="icon-input" />
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  className="input-base pr-4"
                   placeholder="Enter your email"
                   disabled={isLoading}
                 />
@@ -237,44 +215,42 @@ export default function LoginPage() {
 
             {/* Password */}
             <div className="form-element opacity-0">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
+              <label htmlFor="password" className="label">Password</label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-purple-400 transition-colors" />
+                <Lock className="icon-input" />
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-4 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  className="input-base"
                   placeholder="Enter your password"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="validation-icon text-gray-500 hover:text-gray-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* Error */}
             {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl animate-pulse">
+              <div className="stat-red p-4 animate-pulse">
                 <p className="text-sm text-red-400">{error}</p>
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
               onMouseEnter={handleButtonHover}
               onMouseLeave={handleButtonLeave}
-              className="form-element opacity-0 w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-[length:200%_100%] hover:bg-right text-white font-semibold rounded-xl shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 flex items-center justify-center gap-2"
+              className="form-element opacity-0 w-full py-4 btn btn-gradient rounded-xl"
             >
               {isLoading ? (
                 <>
@@ -298,20 +274,14 @@ export default function LoginPage() {
           </div>
 
           {/* Guest Button */}
-          <Link
-            href="/"
-            className="form-element opacity-0 w-full py-3 bg-gray-800/50 hover:bg-gray-800 text-gray-300 hover:text-white font-medium rounded-xl border border-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-2"
-          >
+          <Link href="/" className="form-element opacity-0 w-full py-3 btn btn-secondary rounded-xl">
             Continue as Guest
           </Link>
 
           {/* Sign Up Link */}
           <p className="form-element opacity-0 mt-6 text-center text-gray-400">
             Don't have an account?{' '}
-            <Link
-              href="/signup"
-              className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
-            >
+            <Link href="/signup" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
               Sign Up
             </Link>
           </p>

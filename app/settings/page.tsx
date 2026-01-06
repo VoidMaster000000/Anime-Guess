@@ -179,9 +179,9 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
+      <div className="page-bg">
+        <div className="bg-glow-purple top-0 left-1/4" />
+        <div className="bg-glow-pink bottom-0 right-1/4" />
       </div>
 
       {/* Content */}
@@ -190,7 +190,7 @@ export default function SettingsPage() {
         <AnimatedSection className="mb-8">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all duration-200 border border-zinc-700 hover:border-zinc-600 mb-6"
+            className="btn btn-secondary mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back</span>
@@ -198,7 +198,7 @@ export default function SettingsPage() {
 
           {/* Title */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30">
+            <div className="p-3 stat-purple">
               <Settings className="w-8 h-8 text-purple-400" />
             </div>
             <div>
@@ -212,7 +212,7 @@ export default function SettingsPage() {
 
         {/* Success Message */}
         {saveMessage && (
-          <AnimatedSection className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center gap-3">
+          <AnimatedSection className="mb-6 p-4 stat-green flex items-center gap-3">
             <Check className="w-5 h-5 text-green-500" />
             <span className="text-green-400">{saveMessage}</span>
           </AnimatedSection>
@@ -224,7 +224,7 @@ export default function SettingsPage() {
             <AnimatedSection
               key={section.title}
               delay={sectionIndex * 100}
-              className="bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-700 overflow-hidden"
+              className="card-glass overflow-hidden"
             >
               {/* Section Header */}
               <div className="px-6 py-4 border-b border-zinc-700 flex items-center gap-3">
@@ -254,7 +254,7 @@ export default function SettingsPage() {
           {isAuthenticated && user && (
             <AnimatedSection
               delay={300}
-              className="bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-700 overflow-hidden"
+              className="card-glass overflow-hidden"
             >
               {/* Section Header */}
               <div className="px-6 py-4 border-b border-zinc-700 flex items-center gap-3">
@@ -283,7 +283,7 @@ export default function SettingsPage() {
                 <div className="pt-4 border-t border-zinc-700">
                   <button
                     onClick={() => router.push('/profile')}
-                    className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 hover:text-white transition-colors"
+                    className="btn btn-secondary"
                   >
                     <User className="w-4 h-4" />
                     <span>View Profile</span>
@@ -296,7 +296,7 @@ export default function SettingsPage() {
           {/* Privacy Section */}
           <AnimatedSection
             delay={400}
-            className="bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-700 overflow-hidden"
+            className="card-glass overflow-hidden"
           >
             {/* Section Header */}
             <div className="px-6 py-4 border-b border-zinc-700 flex items-center gap-3">
@@ -320,7 +320,7 @@ export default function SettingsPage() {
                       window.location.reload();
                     }
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+                  className="btn stat-red text-red-400 hover:text-red-300"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Clear Cache</span>
@@ -335,7 +335,7 @@ export default function SettingsPage() {
           <button
             onClick={handleSaveSettings}
             disabled={isSaving || !isAuthenticated}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-all shadow-lg shadow-purple-500/25"
+            className="btn btn-gradient px-6 py-3"
           >
             <Save className={`w-5 h-5 ${isSaving ? 'animate-spin' : ''}`} />
             <span>Save Settings</span>

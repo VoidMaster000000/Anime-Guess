@@ -326,9 +326,9 @@ export default function InventoryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
+      <div className="page-bg">
+        <div className="bg-glow-purple top-0 left-1/4" />
+        <div className="bg-glow-pink bottom-0 right-1/4" />
       </div>
 
       {/* Content */}
@@ -338,7 +338,7 @@ export default function InventoryPage() {
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all duration-200 border border-zinc-700 hover:border-zinc-600"
+              className="btn btn-secondary"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Back</span>
@@ -350,7 +350,7 @@ export default function InventoryPage() {
 
           {/* Title */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30">
+            <div className="p-3 stat-purple">
               <Package className="w-8 h-8 text-purple-400" />
             </div>
             <div>
@@ -367,11 +367,7 @@ export default function InventoryPage() {
               <HoverScaleButton
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  selectedCategory === category.id
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border border-purple-500'
-                    : 'bg-zinc-800/50 text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-600'
-                }`}
+                className={`btn ${selectedCategory === category.id ? 'btn-gradient' : 'btn-secondary'}`}
               >
                 <category.icon className="w-4 h-4" />
                 <span>{category.label}</span>
@@ -441,7 +437,7 @@ export default function InventoryPage() {
           </div>
         ) : (
           /* Empty State */
-          <AnimatedSection className="bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-700 p-12 text-center">
+          <AnimatedSection className="card-glass p-12 text-center">
             <div className="text-6xl mb-4">📦</div>
             <h2 className="text-2xl font-bold text-white mb-2">No Items Found</h2>
             <p className="text-zinc-400 mb-6">
@@ -451,7 +447,7 @@ export default function InventoryPage() {
             </p>
             <button
               onClick={() => router.push('/shop')}
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg text-white font-medium transition-all"
+              className="btn btn-gradient px-6 py-3"
             >
               Visit Shop
             </button>
@@ -498,7 +494,7 @@ export default function InventoryPage() {
               </div>
             </div>
 
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+            <div className="stat-yellow p-4 mb-6">
               <div className="flex items-start gap-2">
                 <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-yellow-200">
@@ -510,13 +506,13 @@ export default function InventoryPage() {
             <div className="flex gap-3">
               <button
                 onClick={cancelUseItem}
-                className="flex-1 px-4 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors border border-zinc-700"
+                className="flex-1 btn btn-secondary py-3"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmUseItem}
-                className={`flex-1 px-4 py-3 bg-gradient-to-r ${RARITY_COLORS[selectedItem.rarity].gradient} border ${RARITY_COLORS[selectedItem.rarity].border} hover:brightness-125 rounded-lg text-white font-medium transition-all flex items-center justify-center gap-2`}
+                className="flex-1 btn btn-gradient py-3"
               >
                 <Check className="w-5 h-5" />
                 Use Item

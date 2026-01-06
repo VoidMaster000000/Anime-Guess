@@ -159,9 +159,9 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
+      <div className="page-bg">
+        <div className="bg-glow-purple top-0 left-1/4" />
+        <div className="bg-glow-pink bottom-0 right-1/4" />
       </div>
 
       {/* Content */}
@@ -175,14 +175,14 @@ export default function ShopPage() {
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all duration-200 border border-zinc-700 hover:border-zinc-600"
+              className="btn btn-secondary"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Back to Game</span>
             </button>
 
             {/* Coins Display */}
-            <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-xl border border-yellow-500/20">
+            <div className="flex items-center gap-3 px-6 py-3 stat-yellow">
               <Coins className="w-6 h-6 text-yellow-500" />
               <div className="flex flex-col">
                 <span className="text-xs text-zinc-400">Your Coins</span>
@@ -195,7 +195,7 @@ export default function ShopPage() {
 
           {/* Title */}
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30">
+            <div className="p-3 stat-purple">
               <ShoppingBag className="w-8 h-8 text-purple-400" />
             </div>
             <div>
@@ -208,14 +208,14 @@ export default function ShopPage() {
 
           {/* Auth status indicator */}
           {!isAuthenticated && (
-            <div className="mt-4 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+            <div className="mt-4 px-4 py-2 stat-orange">
               <p className="text-orange-400 text-sm">
                 Please login to purchase items from the shop.
               </p>
             </div>
           )}
           {isAuthenticated && (
-            <div className="mt-4 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+            <div className="mt-4 px-4 py-2 stat-purple">
               <p className="text-purple-400 text-sm">
                 Items are synced to your account! Use them during gameplay from the Quick Use panel.
               </p>
@@ -247,7 +247,7 @@ export default function ShopPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 400 }}
-          className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6"
+          className="card p-6"
         >
           <h2 className="text-xl font-bold text-white mb-3">How to Earn Coins</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-zinc-400">

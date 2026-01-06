@@ -286,8 +286,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       {/* Coins Display */}
       <div className="px-6 pb-4 relative">
         <HoverScaleElement
-          className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20
-                   border border-yellow-500/50 rounded-lg p-3 flex items-center gap-3"
+          className="stat-yellow p-3 flex items-center gap-3"
         >
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500
                         flex items-center justify-center shadow-lg">
@@ -307,18 +306,14 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
         </h3>
         <div className="grid grid-cols-3 gap-3">
           {/* Games Played */}
-          <HoverScaleElement
-            className="bg-gray-800/50 border border-purple-500/30 rounded-lg p-3 text-center"
-          >
+          <HoverScaleElement className="stat-purple p-3 text-center">
             <Target className="w-6 h-6 text-purple-400 mx-auto mb-2" />
             <p className="text-xl font-bold text-white">{stats.gamesPlayed}</p>
             <p className="text-xs text-gray-400">Games</p>
           </HoverScaleElement>
 
           {/* Accuracy */}
-          <HoverScaleElement
-            className="bg-gray-800/50 border border-green-500/30 rounded-lg p-3 text-center"
-          >
+          <HoverScaleElement className="stat-green p-3 text-center">
             <Trophy className="w-6 h-6 text-green-400 mx-auto mb-2" />
             <p className="text-xl font-bold text-white">
               {stats.gamesPlayed > 0
@@ -329,9 +324,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
           </HoverScaleElement>
 
           {/* Streak */}
-          <HoverScaleElement
-            className="bg-gray-800/50 border border-orange-500/30 rounded-lg p-3 text-center"
-          >
+          <HoverScaleElement className="stat-orange p-3 text-center">
             <Flame className="w-6 h-6 text-orange-400 mx-auto mb-2" />
             <p className="text-xl font-bold text-white">{stats.highestStreak}</p>
             <p className="text-xs text-gray-400">Best Streak</p>

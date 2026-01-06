@@ -399,9 +399,9 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
+      <div className="page-bg">
+        <div className="bg-glow-purple top-0 left-1/4" />
+        <div className="bg-glow-pink bottom-0 right-1/4" />
       </div>
 
       {/* Content */}
@@ -410,17 +410,17 @@ export default function ProfilePage() {
         <AnimatedSection className="mb-8">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all duration-200 border border-zinc-700 hover:border-zinc-600 mb-6"
+            className="btn btn-secondary mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back</span>
           </button>
 
           {/* Profile Header Card */}
-          <ScaleCard className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/80 backdrop-blur-sm rounded-2xl border border-zinc-700 p-8 mb-8">
+          <ScaleCard className="card-glass p-8 mb-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
-              <HoverAvatar className="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border-2 border-purple-500/30 flex items-center justify-center text-5xl flex-shrink-0 overflow-hidden">
+              <HoverAvatar className="w-24 h-24 stat-purple flex-center text-5xl flex-shrink-0 overflow-hidden rounded-2xl">
                 {user?.avatar || '🎮'}
               </HoverAvatar>
 
@@ -432,7 +432,7 @@ export default function ProfilePage() {
                   </h1>
                   <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/50 hover:bg-zinc-800 rounded-lg text-sm text-zinc-400 hover:text-white transition-all border border-zinc-700 hover:border-zinc-600 mx-auto md:mx-0"
+                    className="btn btn-secondary text-sm mx-auto md:mx-0"
                   >
                     <Edit2 className="w-4 h-4" />
                     <span>Edit Profile</span>
@@ -487,7 +487,7 @@ export default function ProfilePage() {
             Recent Achievements
           </h2>
 
-          <div className="bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-700 p-8 text-center">
+          <div className="card-glass p-8 text-center">
             <div className="text-6xl mb-4">🏆</div>
             <p className="text-zinc-400 text-lg">
               Achievements coming soon!
@@ -502,7 +502,7 @@ export default function ProfilePage() {
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
         <ModalOverlay onClose={handleCancelEdit}>
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700 rounded-2xl p-8 max-w-md w-full">
+          <div className="card-glass p-8 max-w-md w-full">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <User className="w-6 h-6 text-purple-400" />
@@ -519,27 +519,23 @@ export default function ProfilePage() {
             <div className="space-y-4 mb-6">
               {/* Username */}
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">
-                  Username
-                </label>
+                <label className="label">Username</label>
                 <input
                   type="text"
                   value={editUsername}
                   onChange={(e) => setEditUsername(e.target.value)}
-                  className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  className="input-base pl-4"
                   placeholder="Enter username"
                 />
               </div>
 
               {/* Avatar Image Upload */}
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">
-                  Profile Picture
-                </label>
+                <label className="label">Profile Picture</label>
                 <div className="flex items-center gap-4">
                   {/* Preview */}
                   <div className="relative">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 flex items-center justify-center text-3xl overflow-hidden">
+                    <div className="w-20 h-20 stat-purple flex-center text-3xl overflow-hidden rounded-xl">
                       {editAvatarImage ? (
                         <img
                           src={editAvatarImage}
@@ -573,7 +569,7 @@ export default function ProfilePage() {
                     />
                     <label
                       htmlFor="avatar-upload"
-                      className="flex items-center justify-center gap-2 px-4 py-3 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700 hover:border-purple-500/50 rounded-lg text-zinc-300 hover:text-white cursor-pointer transition-all"
+                      className="btn btn-secondary cursor-pointer py-3"
                     >
                       <Camera className="w-5 h-5" />
                       <span>{editAvatarImage ? 'Change Image' : 'Upload Image'}</span>
@@ -587,18 +583,16 @@ export default function ProfilePage() {
 
               {/* Fallback Emoji Avatar */}
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">
-                  Fallback Avatar (emoji)
-                </label>
+                <label className="label">Fallback Avatar (emoji)</label>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 flex items-center justify-center text-2xl">
+                  <div className="w-12 h-12 stat-purple flex-center text-2xl rounded-xl">
                     {editAvatar}
                   </div>
                   <input
                     type="text"
                     value={editAvatar}
                     onChange={(e) => setEditAvatar(e.target.value)}
-                    className="flex-1 px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                    className="flex-1 input-base pl-4"
                     placeholder="🎮"
                     maxLength={2}
                   />
@@ -613,13 +607,13 @@ export default function ProfilePage() {
             <div className="flex gap-3">
               <button
                 onClick={handleCancelEdit}
-                className="flex-1 px-4 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors border border-zinc-700"
+                className="flex-1 btn btn-secondary py-3"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveProfile}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg text-white font-medium transition-all flex items-center justify-center gap-2"
+                className="flex-1 btn btn-gradient py-3"
               >
                 <Check className="w-5 h-5" />
                 Save Changes

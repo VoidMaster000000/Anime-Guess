@@ -234,7 +234,7 @@ export default function GamePage() {
                 <Animated
                   initial={{ scale: [0, 1] }}
                   animate={{ scale: 1 }}
-                  className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/50"
+                  className="card p-4"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -277,7 +277,7 @@ export default function GamePage() {
                       <Animated
                         initial={{ opacity: 0, translateY: 10 }}
                         animate={{ opacity: 1, translateY: 0 }}
-                        className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/50"
+                        className="card p-4"
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <Sparkles className="w-4 h-4 text-purple-400" />
@@ -316,7 +316,7 @@ export default function GamePage() {
                       />
                     </>
                   ) : (
-                    <div className="flex items-center justify-center h-96 bg-zinc-800/50 rounded-xl border border-zinc-700/50">
+                    <div className="flex-center h-96 card">
                       <div className="text-center space-y-4">
                         <Loader2 className="w-12 h-12 text-purple-400 animate-spin mx-auto" />
                         <p className="text-zinc-400">Loading character...</p>
@@ -330,9 +330,9 @@ export default function GamePage() {
                   <Animated
                     initial={{ opacity: 0, translateX: 20 }}
                     animate={{ opacity: 1, translateX: 0 }}
-                    className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-6 border border-zinc-700/50 relative z-20"
+                    className="card p-6 relative z-20"
                   >
-                    <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    <h2 className="text-2xl font-bold mb-2 text-gradient">
                       Guess the Anime!
                     </h2>
                     <p className="text-zinc-400 mb-6">
@@ -360,7 +360,7 @@ export default function GamePage() {
                     initial={{ opacity: 0, translateX: 20 }}
                     animate={{ opacity: 1, translateX: 0 }}
                     transition={{ delay: 200 }}
-                    className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm rounded-xl p-6 border border-blue-700/30 relative z-10"
+                    className="stat-blue p-6 relative z-10"
                   >
                     <div className="flex items-center gap-2 mb-3">
                       <Award className="w-5 h-5 text-blue-400" />

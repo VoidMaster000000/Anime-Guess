@@ -202,6 +202,158 @@
   font-family: 'Nasalization', system-ui, sans-serif !important;
 }
 
+/* ============================================================================
+   REUSABLE COMPONENT CLASSES
+   ============================================================================ */
+
+/* ---------- Card Styles ---------- */
+.card {
+  @apply bg-zinc-800/50 backdrop-blur-sm rounded-xl border border-zinc-700/50;
+}
+
+.card-dark {
+  @apply bg-gray-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl;
+}
+
+.card-glass {
+  @apply bg-zinc-900/80 backdrop-blur-sm rounded-2xl border border-zinc-700;
+}
+
+/* ---------- Input Styles ---------- */
+.input-base {
+  @apply w-full pl-12 pr-12 py-3.5 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-purple-500 focus:ring-purple-500/20 transition-all;
+}
+
+.input-valid {
+  @apply border-green-500/50 focus:border-green-500 focus:ring-green-500/20;
+}
+
+.input-error {
+  @apply border-red-500/50 focus:border-red-500 focus:ring-red-500/20;
+}
+
+/* ---------- Button Styles ---------- */
+.btn {
+  @apply px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-gradient {
+  @apply bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 bg-[length:200%_100%] hover:bg-right text-white font-semibold shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500;
+}
+
+.btn-secondary {
+  @apply bg-gray-700/50 text-gray-400 border border-gray-600 hover:bg-gray-700 hover:text-white;
+}
+
+.btn-active {
+  @apply bg-purple-500/20 text-purple-400 border border-purple-500/30;
+}
+
+.btn-inactive {
+  @apply bg-gray-700/50 text-gray-400 border border-gray-600 hover:bg-gray-700;
+}
+
+/* ---------- Stat Card Colors ---------- */
+.stat-purple {
+  @apply bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/30 rounded-lg;
+}
+
+.stat-pink {
+  @apply bg-gradient-to-br from-pink-500/10 to-pink-600/10 border border-pink-500/30 rounded-lg;
+}
+
+.stat-blue {
+  @apply bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 rounded-lg;
+}
+
+.stat-cyan {
+  @apply bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 border border-cyan-500/30 rounded-lg;
+}
+
+.stat-orange {
+  @apply bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/30 rounded-lg;
+}
+
+.stat-yellow {
+  @apply bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30 rounded-lg;
+}
+
+.stat-green {
+  @apply bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/30 rounded-lg;
+}
+
+.stat-red {
+  @apply bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/30 rounded-lg;
+}
+
+/* ---------- Background Glow Effects ---------- */
+.bg-glow-purple {
+  @apply absolute w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none;
+}
+
+.bg-glow-pink {
+  @apply absolute w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none;
+}
+
+.bg-glow-blue {
+  @apply absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none;
+}
+
+.bg-glow-cyan {
+  @apply absolute w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none;
+}
+
+/* ---------- Common Utilities ---------- */
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent;
+}
+
+.icon-input {
+  @apply absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-purple-400 transition-colors;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-300 mb-2;
+}
+
+.error-text {
+  @apply text-xs text-red-400 mt-1.5;
+}
+
+.success-text {
+  @apply text-xs text-green-400 mt-1.5;
+}
+
+/* ---------- Form Elements ---------- */
+.form-group {
+  @apply relative;
+}
+
+.validation-icon {
+  @apply absolute right-4 top-1/2 -translate-y-1/2;
+}
+
+/* ---------- Page Layout ---------- */
+.page-container {
+  @apply min-h-screen bg-gray-950 p-4 overflow-hidden relative;
+}
+
+.page-bg {
+  @apply fixed inset-0 overflow-hidden pointer-events-none;
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
 /* Base Styles */
 body {
   background: var(--bg-primary);
