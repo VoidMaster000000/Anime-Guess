@@ -12,6 +12,8 @@ interface GameOverProps {
   onSaveScore: (username: string) => void;
   onPlayAgain: () => void;
   onClose?: () => void;
+  isAuthenticated?: boolean;
+  username?: string;
 }
 
 // ============================================================================
@@ -253,19 +255,29 @@ export default function GameOver({
   onSaveScore,
   onPlayAgain,
   onClose,
+  isAuthenticated = false,
+  username: authUsername,
 }: GameOverProps) {
-  const [username, setUsername] = useState('');
+  const [guestUsername, setGuestUsername] = useState('');
   const [isSaved, setIsSaved] = useState(false);
 
+  // Auto-save for authenticated users
+  useEffect(() => {
+    if (isOpen && isAuthenticated && authUsername && !isSaved && finalStreak > 0) {
+      onSaveScore(authUsername);
+      setIsSaved(true);
+    }
+  }, [isOpen, isAuthenticated, authUsername, isSaved, finalStreak, onSaveScore]);
+
   const handleSave = () => {
-    if (username.trim()) {
-      onSaveScore(username.trim());
+    if (guestUsername.trim()) {
+      onSaveScore(guestUsername.trim());
       setIsSaved(true);
     }
   };
 
   const handlePlayAgain = () => {
-    setUsername('');
+    setGuestUsername('');
     setIsSaved(false);
     onPlayAgain();
   };
@@ -341,16 +353,16 @@ export default function GameOver({
                 </AnimatedElement>
               )}
 
-              {/* Username Input */}
-              {!isSaved && (
+              {/* Username Input - Only for guests */}
+              {!isSaved && !isAuthenticated && (
                 <AnimatedElement className="mb-6" delay={600}>
                   <label className="block text-sm text-gray-400 mb-2">
                     Save your score to the leaderboard
                   </label>
                   <input
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={guestUsername}
+                    onChange={(e) => setGuestUsername(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                     placeholder="Enter your username..."
                     maxLength={20}
@@ -371,10 +383,10 @@ export default function GameOver({
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                {!isSaved && (
+                {!isSaved && !isAuthenticated && (
                   <HoverButton
                     onClick={handleSave}
-                    disabled={!username.trim()}
+                    disabled={!guestUsername.trim()}
                     className="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
                     delay={700}
                   >

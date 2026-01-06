@@ -411,6 +411,8 @@ export default function GamePage() {
                 highStreak={highStreak}
                 onSaveScore={saveToLeaderboard}
                 onPlayAgain={resetGame}
+                isAuthenticated={isAuthenticated}
+                username={user?.username}
               />
             </Animated>
           )}

@@ -2,9 +2,8 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { animate } from '@/lib/animejs';
-import { Trophy, ArrowLeft, Trash2, Filter, TrendingUp, Users, Search, Calendar, Award, Target, Clock, X, Globe, Home, RefreshCw } from 'lucide-react';
+import { Trophy, ArrowLeft, Filter, TrendingUp, Users, Search, Calendar, Award, Target, Clock, X, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useGameStore } from '@/store/gameStore';
 import { useAuth, fetchLeaderboard as fetchGlobalLeaderboard } from '@/hooks/useAuth';
 import LeaderboardRow from '@/components/leaderboard/LeaderboardRow';
 import type { LeaderboardEntry } from '@/types';
@@ -13,7 +12,6 @@ import { GameDifficulty } from '@/types';
 type TimeFilter = 'all' | 'today' | 'week' | 'month';
 type SortMode = 'streak' | 'points' | 'level' | 'accuracy';
 type DifficultyFilter = 'all' | GameDifficulty;
-type LeaderboardView = 'local' | 'global';
 
 // Animated Components
 function AnimatedSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -47,20 +45,6 @@ function StatCard({ children, delay, className }: { children: React.ReactNode; d
   return <div ref={ref} className={className} style={{ opacity: 0 }}>{children}</div>;
 }
 
-function Modal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (overlayRef.current) animate(overlayRef.current, { opacity: [0, 1], duration: 200, ease: 'outQuad' });
-    if (contentRef.current) animate(contentRef.current, { scale: [0.9, 1], opacity: [0, 1], duration: 200, ease: 'outQuad' });
-  }, []);
-  return (
-    <div ref={overlayRef} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex-center p-4" style={{ opacity: 0 }} onClick={onClose}>
-      <div ref={contentRef} style={{ opacity: 0 }} onClick={(e) => e.stopPropagation()}>{children}</div>
-    </div>
-  );
-}
-
 // Filter Button Component
 function FilterBtn({ active, onClick, children, color = 'blue' }: { active: boolean; onClick: () => void; children: React.ReactNode; color?: string }) {
   const colorClasses: Record<string, string> = {
@@ -76,22 +60,19 @@ function FilterBtn({ active, onClick, children, color = 'blue' }: { active: bool
 
 export default function LeaderboardPage() {
   const router = useRouter();
-  const leaderboard = useGameStore((state) => state.leaderboard);
   const { isAuthenticated, user } = useAuth();
 
-  const [viewMode, setViewMode] = useState<LeaderboardView>('global');
   const [globalEntries, setGlobalEntries] = useState<LeaderboardEntry[]>([]);
   const [globalStats, setGlobalStats] = useState({ totalEntries: 0, highestStreak: 0, highestPoints: 0, totalPlayers: 0 });
   const [globalUserRank, setGlobalUserRank] = useState<{ rank: number; totalPlayers: number } | null>(null);
-  const [isLoadingGlobal, setIsLoadingGlobal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const [sortMode, setSortMode] = useState<SortMode>('streak');
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  const loadGlobalLeaderboard = useCallback(async () => {
-    setIsLoadingGlobal(true);
+  const loadLeaderboard = useCallback(async () => {
+    setIsLoading(true);
     try {
       const data = await fetchGlobalLeaderboard({ timeFrame: timeFilter, difficulty: difficultyFilter, limit: 100 });
       const transformedEntries: LeaderboardEntry[] = data.entries.map((entry, index) => ({
@@ -104,28 +85,18 @@ export default function LeaderboardPage() {
       setGlobalStats(data.stats);
       setGlobalUserRank(data.userRank);
     } catch (error) {
-      console.error('Failed to fetch global leaderboard:', error);
+      console.error('Failed to fetch leaderboard:', error);
     } finally {
-      setIsLoadingGlobal(false);
+      setIsLoading(false);
     }
   }, [timeFilter, difficultyFilter]);
 
   useEffect(() => {
-    if (viewMode === 'global') loadGlobalLeaderboard();
-  }, [viewMode, loadGlobalLeaderboard]);
-
-  const enhancedLocalEntries = useMemo(() => leaderboard.map((entry) => ({
-    ...entry,
-    avatar: entry.avatar || ['😊', '😎', '🥳', '🤓', '😇'][Math.floor(Math.random() * 5)],
-    level: entry.level || { current: Math.floor(entry.streak / 3) + 1, xp: 0, xpToNextLevel: 100, totalXp: 0, mode: 'infinite' as const },
-    accuracy: entry.accuracy || Math.floor(Math.random() * 30) + 70,
-    totalGamesPlayed: entry.totalGamesPlayed || Math.floor(entry.streak * 1.5),
-  })), [leaderboard]);
-
-  const enhancedEntries = viewMode === 'global' ? globalEntries : enhancedLocalEntries;
+    loadLeaderboard();
+  }, [loadLeaderboard]);
 
   const filteredEntries = useMemo(() => {
-    let entries = [...enhancedEntries];
+    let entries = [...globalEntries];
     if (timeFilter !== 'all') {
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -149,32 +120,18 @@ export default function LeaderboardPage() {
       return 0;
     });
     return entries;
-  }, [enhancedEntries, timeFilter, difficultyFilter, searchQuery, sortMode]);
-
-  const handleClearLeaderboard = () => {
-    if (typeof window !== 'undefined') {
-      try {
-        const storage = localStorage.getItem('anime-guess-game-storage');
-        if (storage) {
-          const data = JSON.parse(storage);
-          data.state.leaderboard = [];
-          localStorage.setItem('anime-guess-game-storage', JSON.stringify(data));
-        }
-      } catch { /* ignore */ }
-    }
-    window.location.reload();
-  };
+  }, [globalEntries, timeFilter, difficultyFilter, searchQuery, sortMode]);
 
   const stats = useMemo(() => {
-    if (viewMode === 'global') return { totalEntries: globalStats.totalPlayers, highestStreak: globalStats.highestStreak, totalPoints: globalStats.highestPoints, avgAccuracy: 0 };
-    if (filteredEntries.length === 0) return { totalEntries: 0, highestStreak: 0, totalPoints: 0, avgAccuracy: 0 };
     return {
-      totalEntries: filteredEntries.length,
-      highestStreak: Math.max(...filteredEntries.map((e) => e.streak)),
-      totalPoints: filteredEntries.reduce((sum, e) => sum + e.points, 0),
-      avgAccuracy: Math.round(filteredEntries.reduce((sum, e) => sum + (e.accuracy || 0), 0) / filteredEntries.length),
+      totalEntries: globalStats.totalPlayers,
+      highestStreak: globalStats.highestStreak,
+      totalPoints: globalStats.highestPoints,
+      avgAccuracy: filteredEntries.length > 0
+        ? Math.round(filteredEntries.reduce((sum, e) => sum + (e.accuracy || 0), 0) / filteredEntries.length)
+        : 0,
     };
-  }, [filteredEntries, viewMode, globalStats]);
+  }, [filteredEntries, globalStats]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -192,10 +149,10 @@ export default function LeaderboardPage() {
               <ArrowLeft className="w-5 h-5" />
               <span className="text-gray-300">Back to Game</span>
             </button>
-            <HoverButton onClick={() => setShowClearConfirm(true)} className="btn stat-red text-red-400">
-              <Trash2 className="w-5 h-5" />
-              <span className="hidden sm:inline">Clear Local Cache</span>
-            </HoverButton>
+            <button onClick={loadLeaderboard} disabled={isLoading} className="btn btn-secondary">
+              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
           </div>
 
           <div className="text-center mb-6">
@@ -206,22 +163,7 @@ export default function LeaderboardPage() {
             </div>
             <p className="text-gray-400">Top players and their epic achievements</p>
 
-            {/* View Toggle */}
-            <div className="flex-center gap-2 mt-4">
-              <button onClick={() => setViewMode('global')} className={`btn ${viewMode === 'global' ? 'stat-blue text-blue-400' : 'btn-inactive'}`}>
-                <Globe className="w-4 h-4" /> Global
-              </button>
-              <button onClick={() => setViewMode('local')} className={`btn ${viewMode === 'local' ? 'stat-green text-green-400' : 'btn-inactive'}`}>
-                <Home className="w-4 h-4" /> Local
-              </button>
-              {viewMode === 'global' && (
-                <button onClick={loadGlobalLeaderboard} disabled={isLoadingGlobal} className="btn btn-inactive">
-                  <RefreshCw className={`w-4 h-4 ${isLoadingGlobal ? 'animate-spin' : ''}`} />
-                </button>
-              )}
-            </div>
-
-            {viewMode === 'global' && globalUserRank && isAuthenticated && (
+            {globalUserRank && isAuthenticated && (
               <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 stat-yellow">
                 <Award className="w-5 h-5 text-yellow-400" />
                 <span className="text-yellow-400 font-medium">Your Rank: #{globalUserRank.rank} of {globalUserRank.totalPlayers}</span>
@@ -329,17 +271,17 @@ export default function LeaderboardPage() {
 
         {/* List */}
         <AnimatedSection delay={200} className="space-y-3">
-          {isLoadingGlobal && viewMode === 'global' ? (
+          {isLoading ? (
             <div className="text-center py-16 card">
               <RefreshCw className="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" />
-              <p className="text-gray-400 text-lg">Loading global leaderboard...</p>
+              <p className="text-gray-400 text-lg">Loading leaderboard...</p>
             </div>
           ) : filteredEntries.length === 0 ? (
             <div className="text-center py-16 card">
               <Trophy className="w-16 h-16 text-gray-600 mx-auto mb-4" />
               <p className="text-gray-400 text-lg mb-2">No entries found</p>
               <p className="text-gray-500 text-sm">
-                {searchQuery ? 'Try adjusting your search or filters' : viewMode === 'global' ? 'Be the first to make it to the global leaderboard!' : 'Play the game and make it to the leaderboard!'}
+                {searchQuery ? 'Try adjusting your search or filters' : 'Be the first to make it to the leaderboard!'}
               </p>
             </div>
           ) : (
@@ -348,23 +290,6 @@ export default function LeaderboardPage() {
             ))
           )}
         </AnimatedSection>
-
-        {/* Clear Modal */}
-        {showClearConfirm && (
-          <Modal onClose={() => setShowClearConfirm(false)}>
-            <div className="card-dark p-6 max-w-md w-full border-red-500/30">
-              <div className="flex items-center gap-3 mb-4">
-                <Trash2 className="w-8 h-8 text-red-500" />
-                <h2 className="text-2xl font-bold text-red-400">Clear Local Cache?</h2>
-              </div>
-              <p className="text-gray-300 mb-6">This will clear locally cached leaderboard data. Global entries are not affected.</p>
-              <div className="flex gap-3">
-                <button onClick={() => setShowClearConfirm(false)} className="flex-1 btn btn-secondary py-2">Cancel</button>
-                <button onClick={() => { handleClearLeaderboard(); setShowClearConfirm(false); }} className="flex-1 btn bg-red-500 hover:bg-red-600 text-white py-2 font-semibold">Clear All</button>
-              </div>
-            </div>
-          </Modal>
-        )}
       </div>
     </div>
   );
