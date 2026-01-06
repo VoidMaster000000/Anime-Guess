@@ -223,8 +223,7 @@ export default function ProfilePage() {
   // Edit profile modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editUsername, setEditUsername] = useState(user?.username || 'Player');
-  const [editAvatar, setEditAvatar] = useState(user?.avatar || '🎮');
-  const [editAvatarImage, setEditAvatarImage] = useState<string | undefined>(undefined);
+  const [editAvatarImage, setEditAvatarImage] = useState<string | undefined>(user?.avatarImage);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Animated counters
@@ -291,7 +290,6 @@ export default function ProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: editUsername,
-          avatar: editAvatar,
           avatarImage: editAvatarImage,
         }),
       });
@@ -306,8 +304,7 @@ export default function ProfilePage() {
 
   const handleCancelEdit = () => {
     setEditUsername(user?.username || 'Player');
-    setEditAvatar(user?.avatar || '🎮');
-    setEditAvatarImage(undefined);
+    setEditAvatarImage(user?.avatarImage);
     setIsEditModalOpen(false);
   };
 
@@ -421,7 +418,15 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <HoverAvatar className="w-24 h-24 stat-purple flex-center text-5xl flex-shrink-0 overflow-hidden rounded-2xl">
-                {user?.avatar || '🎮'}
+                {user?.avatarImage ? (
+                  <img
+                    src={user.avatarImage}
+                    alt={user.username}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-purple-400" />
+                )}
               </HoverAvatar>
 
               {/* User Info */}
@@ -543,7 +548,7 @@ export default function ProfilePage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        editAvatar
+                        <User className="w-10 h-10 text-purple-400" />
                       )}
                     </div>
                     {editAvatarImage && (
@@ -579,27 +584,6 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 </div>
-              </div>
-
-              {/* Fallback Emoji Avatar */}
-              <div>
-                <label className="label">Fallback Avatar (emoji)</label>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 stat-purple flex-center text-2xl rounded-xl">
-                    {editAvatar}
-                  </div>
-                  <input
-                    type="text"
-                    value={editAvatar}
-                    onChange={(e) => setEditAvatar(e.target.value)}
-                    className="flex-1 input-base pl-4"
-                    placeholder="🎮"
-                    maxLength={2}
-                  />
-                </div>
-                <p className="text-xs text-zinc-500 mt-2">
-                  Used when no image is set
-                </p>
               </div>
             </div>
 

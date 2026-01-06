@@ -10,6 +10,7 @@ export interface DBUser {
   email: string;
   passwordHash: string;
   avatar: string;
+  avatarImage?: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -47,6 +48,7 @@ export interface SafeUser {
   username: string;
   email: string;
   avatar: string;
+  avatarImage?: string;
   createdAt: string;
   profile: DBUser['profile'];
   settings: DBUser['settings'];

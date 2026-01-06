@@ -326,6 +326,7 @@ function toSafeUser(user: DBUser): SafeUser {
     username: user.username,
     email: user.email,
     avatar: user.avatar,
+    avatarImage: user.avatarImage,
     createdAt: user.createdAt.toISOString(),
     profile: user.profile,
     settings: user.settings,

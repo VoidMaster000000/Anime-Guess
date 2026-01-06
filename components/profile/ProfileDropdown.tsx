@@ -157,8 +157,6 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
                 alt={user.username}
                 className="w-full h-full object-cover"
               />
-            ) : user.avatar ? (
-              <span className="text-lg">{user.avatar}</span>
             ) : (
               <User className="w-5 h-5 text-white" />
             )}
@@ -192,8 +190,6 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
                     alt={user.username}
                     className="w-full h-full object-cover"
                   />
-                ) : user.avatar ? (
-                  <span className="text-2xl">{user.avatar}</span>
                 ) : (
                   <User className="w-6 h-6 text-white" />
                 )}
