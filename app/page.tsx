@@ -166,9 +166,9 @@ export default function GamePage() {
 
   // Handle game start
   const handleDifficultySelect = async (selectedDifficulty: string) => {
-    // Set difficulty first, then start game
+    // Set difficulty first, then start game with auth status
     setDifficulty(selectedDifficulty as any);
-    await startGame();
+    await startGame(isAuthenticated);
   };
 
   return (
