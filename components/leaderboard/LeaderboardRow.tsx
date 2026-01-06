@@ -5,6 +5,7 @@ import { animate } from '@/lib/animejs';
 import { Crown, Medal, Flame, Star, TrendingUp, Infinity, User } from 'lucide-react';
 import type { LeaderboardEntry } from '@/types';
 import { GameDifficulty } from '@/types';
+import LazyImage from '@/components/ui/LazyImage';
 
 interface LeaderboardRowProps {
   entry: LeaderboardEntry;
@@ -188,7 +189,14 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
           <div className="flex-shrink-0">
             <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600 flex items-center justify-center text-xl sm:text-2xl md:text-3xl shadow-lg overflow-hidden">
               {avatarImage ? (
-                <img src={avatarImage} alt={entry.username} className="w-full h-full object-cover" />
+                <LazyImage
+                  src={avatarImage}
+                  alt={entry.username}
+                  fill
+                  containerClassName="w-full h-full"
+                  className="rounded-full"
+                  objectFit="cover"
+                />
               ) : avatarEmoji ? (
                 avatarEmoji
               ) : (

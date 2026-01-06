@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CustomContextMenu from "@/components/layout/CustomContextMenu";
 import CustomCursor from "@/components/layout/CustomCursor";
+import BackgroundVisuals from "@/components/effects/BackgroundVisuals";
 import Providers from "@/components/Providers";
 
 const inter = Inter({
@@ -36,9 +37,10 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased min-h-screen bg-bg-primary text-text-primary`}
       >
         <Providers>
+          <BackgroundVisuals />
           <CustomCursor />
           <CustomContextMenu />
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen relative z-10">
             <Header />
             <main className="flex-1">{children}</main>
             <Footer />

@@ -169,6 +169,21 @@
   }
 }
 
+@keyframes floatOrb {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(var(--range-x, 50px), calc(var(--range-y, 50px) * -0.5)) scale(1.1);
+  }
+  50% {
+    transform: translate(calc(var(--range-x, 50px) * -0.5), var(--range-y, 50px)) scale(0.95);
+  }
+  75% {
+    transform: translate(calc(var(--range-x, 50px) * -1), calc(var(--range-y, 50px) * -0.25)) scale(1.05);
+  }
+}
+
 /* Apply animations via utility classes */
 .animate-pulse-slow {
   animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;

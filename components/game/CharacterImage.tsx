@@ -10,6 +10,75 @@ interface CharacterImageProps {
 }
 
 // ============================================================================
+// LAZY LOADING - Preload image with blur-up effect
+// ============================================================================
+
+function useImagePreload(src: string) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(false);
+    setError(false);
+
+    const img = new Image();
+    img.src = src;
+
+    img.onload = () => setIsLoaded(true);
+    img.onerror = () => setError(true);
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [src]);
+
+  return { isLoaded, error };
+}
+
+function LoadingOverlay() {
+  const spinnerRef = useRef<HTMLDivElement>(null);
+  const pulseRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (spinnerRef.current) {
+      animate(spinnerRef.current, {
+        rotate: 360,
+        duration: 1000,
+        ease: 'linear',
+        loop: true,
+      });
+    }
+    if (pulseRef.current) {
+      animate(pulseRef.current, {
+        scale: [1, 1.2, 1],
+        opacity: [0.3, 0.6, 0.3],
+        duration: 1500,
+        ease: 'inOutSine',
+        loop: true,
+      });
+    }
+  }, []);
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm z-10">
+      <div className="relative">
+        <div
+          ref={pulseRef}
+          className="absolute inset-0 w-20 h-20 bg-purple-500/30 rounded-full blur-xl"
+          style={{ transform: 'translate(-50%, -50%)', left: '50%', top: '50%' }}
+        />
+        <div
+          ref={spinnerRef}
+          className="w-12 h-12 border-3 border-purple-500/30 border-t-purple-500 rounded-full"
+        />
+      </div>
+      <p className="absolute bottom-8 text-sm text-zinc-400">Loading character...</p>
+    </div>
+  );
+}
+
+// ============================================================================
 // IMAGE DISTORTION - Anti reverse image search
 // ============================================================================
 
@@ -212,9 +281,25 @@ export default function CharacterImage({
   antiCheatEnabled = true,
 }: CharacterImageProps) {
   const [revealed, setRevealed] = useState<boolean[]>([false, false, false, false]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Lazy load the image
+  const { isLoaded, error } = useImagePreload(imageUrl);
 
   // Generate distortion once per image URL to keep it consistent
   const distortion = useMemo(() => generateDistortion(), [imageUrl]);
+
+  // Animate container when image loads
+  useEffect(() => {
+    if (isLoaded && containerRef.current) {
+      animate(containerRef.current, {
+        opacity: [0, 1],
+        scale: [0.95, 1],
+        duration: 400,
+        ease: 'outQuad',
+      });
+    }
+  }, [isLoaded]);
 
   useEffect(() => {
     // Reveal quadrants based on the count (0-4+)
@@ -234,8 +319,27 @@ export default function CharacterImage({
 
   return (
     <div className="relative w-[400px] h-[400px] rounded-2xl overflow-hidden">
+      {/* Loading overlay */}
+      {!isLoaded && !error && <LoadingOverlay />}
+
+      {/* Error state */}
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 z-10">
+          <div className="text-zinc-500 text-center">
+            <svg className="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p className="text-sm">Failed to load image</p>
+          </div>
+        </div>
+      )}
+
       {/* Gradient glowing border */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 p-[2px]">
+      <div
+        ref={containerRef}
+        className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 p-[2px]"
+        style={{ opacity: isLoaded ? 1 : 0 }}
+      >
         <div className="w-full h-full bg-gray-900 rounded-2xl overflow-hidden">
           {/* Image grid */}
           <div
