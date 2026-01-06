@@ -58,16 +58,21 @@ function normalizeCharacterData(character: Character): NormalizedCharacter {
 /**
  * GET /api/character
  * Fetches a random anime character for the guessing game
+ * @query difficulty - Game difficulty (EASY, MEDIUM, HARD, TIMED)
  */
 export async function GET(request: NextRequest) {
   try {
-    // Fetch random character from AniList
-    const character = await fetchRandomCharacter();
+    // Get difficulty from query params (defaults to MEDIUM)
+    const { searchParams } = new URL(request.url);
+    const difficulty = searchParams.get('difficulty') || 'MEDIUM';
+
+    // Fetch random character from AniList based on difficulty
+    const character = await fetchRandomCharacter(difficulty);
 
     // Ensure character has at least one anime appearance
     if (!character.media?.nodes || character.media.nodes.length === 0) {
       // Retry once if no anime found
-      const retryCharacter = await fetchRandomCharacter();
+      const retryCharacter = await fetchRandomCharacter(difficulty);
       if (!retryCharacter.media?.nodes || retryCharacter.media.nodes.length === 0) {
         return NextResponse.json(
           { error: 'Character has no anime appearances' },

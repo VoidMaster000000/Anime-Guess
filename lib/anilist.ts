@@ -49,12 +49,30 @@ interface SearchResponse {
 }
 
 /**
- * Fetch a random popular anime character using GraphQL
+ * Difficulty-based page ranges for character popularity
+ * Easy: Very popular characters (high favorites)
+ * Medium: Moderately popular characters
+ * Hard: Obscure characters (low favorites)
+ * Timed: Same as Medium
+ */
+const DIFFICULTY_PAGE_RANGES: Record<string, { min: number; max: number }> = {
+  EASY: { min: 1, max: 100 },      // Top 100 most favorited characters
+  MEDIUM: { min: 100, max: 500 },  // Moderately popular
+  HARD: { min: 500, max: 2000 },   // Obscure characters
+  TIMED: { min: 100, max: 500 },   // Same as medium
+};
+
+/**
+ * Fetch a random anime character based on difficulty
+ * @param difficulty - Game difficulty (EASY, MEDIUM, HARD, TIMED)
  * @returns Promise containing a random character with their anime appearances
  */
-export async function fetchRandomCharacter(): Promise<Character> {
-  // Generate random page number (1-2000 for popular characters)
-  const randomPage = Math.floor(Math.random() * 2000) + 1;
+export async function fetchRandomCharacter(difficulty: string = 'MEDIUM'): Promise<Character> {
+  // Get page range based on difficulty
+  const range = DIFFICULTY_PAGE_RANGES[difficulty] || DIFFICULTY_PAGE_RANGES.MEDIUM;
+
+  // Generate random page number within the difficulty range
+  const randomPage = Math.floor(Math.random() * (range.max - range.min)) + range.min;
 
   const query = `
     query GetRandomCharacter($page: Int!) {

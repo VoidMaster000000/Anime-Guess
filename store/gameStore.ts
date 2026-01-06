@@ -144,7 +144,8 @@ export const useGameStore = create<GameState>()(
         set({ isLoading: true });
 
         try {
-          const response = await fetch('/api/character');
+          const { difficulty } = get();
+          const response = await fetch(`/api/character?difficulty=${difficulty}`);
           const data: FetchCharacterResponse = await response.json();
 
           if (data.success && data.character && data.correctAnime) {
