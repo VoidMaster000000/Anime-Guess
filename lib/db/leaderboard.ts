@@ -323,6 +323,42 @@ export async function deleteUserEntries(odId: string): Promise<number> {
 }
 
 /**
+ * Clean up orphaned leaderboard entries - removes entries for users that no longer exist
+ */
+export async function cleanupOrphanedEntries(): Promise<{ removed: number }> {
+  const db = await getDatabase();
+  const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
+  const users = db.collection(COLLECTIONS.USERS);
+
+  // Get all unique odIds from leaderboard
+  const leaderboardOdIds = await leaderboard.distinct('odId');
+
+  // Check which ones don't exist in users collection
+  const orphanedIds: string[] = [];
+
+  for (const odId of leaderboardOdIds) {
+    try {
+      const userExists = await users.findOne({ _id: new ObjectId(odId) });
+      if (!userExists) {
+        orphanedIds.push(odId);
+      }
+    } catch {
+      // Invalid ObjectId format - definitely orphaned
+      orphanedIds.push(odId);
+    }
+  }
+
+  // Delete orphaned entries
+  let removed = 0;
+  if (orphanedIds.length > 0) {
+    const result = await leaderboard.deleteMany({ odId: { $in: orphanedIds } });
+    removed = result.deletedCount;
+  }
+
+  return { removed };
+}
+
+/**
  * Clean up duplicate leaderboard entries - keeps only the best score per player
  * This should be run once to fix legacy data
  */
