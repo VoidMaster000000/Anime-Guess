@@ -10,6 +10,7 @@ export interface LeaderboardEntryInput {
   odId: string;
   username: string;
   avatar: string;
+  avatarImage?: string;
   streak: number;
   points: number;
   difficulty: 'easy' | 'medium' | 'hard' | 'timed';
@@ -42,6 +43,7 @@ export async function addLeaderboardEntry(
     odId: entry.odId,
     username: entry.username,
     avatar: entry.avatar,
+    avatarImage: entry.avatarImage,
     streak: entry.streak,
     points: entry.points,
     difficulty: entry.difficulty,
@@ -65,6 +67,7 @@ export async function addLeaderboardEntry(
           $set: {
             username: entry.username,
             avatar: entry.avatar,
+            avatarImage: entry.avatarImage,
             streak: entry.streak,
             points: entry.points,
             difficulty: entry.difficulty,
@@ -268,6 +271,44 @@ export async function getLeaderboardStats(): Promise<LeaderboardStats> {
     highestPoints: 0,
     totalPlayers: 0,
   };
+}
+
+/**
+ * Update user's profile data on leaderboard (sync username, avatar, avatarImage)
+ */
+export async function syncLeaderboardProfile(
+  odId: string,
+  updates: {
+    username?: string;
+    avatar?: string;
+    avatarImage?: string;
+  }
+): Promise<boolean> {
+  const db = await getDatabase();
+  const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
+
+  const setFields: Record<string, unknown> = {};
+
+  if (updates.username !== undefined) {
+    setFields.username = updates.username;
+  }
+  if (updates.avatar !== undefined) {
+    setFields.avatar = updates.avatar;
+  }
+  if (updates.avatarImage !== undefined) {
+    setFields.avatarImage = updates.avatarImage;
+  }
+
+  if (Object.keys(setFields).length === 0) {
+    return true;
+  }
+
+  const result = await leaderboard.updateOne(
+    { odId },
+    { $set: setFields }
+  );
+
+  return result.matchedCount > 0 || result.modifiedCount > 0;
 }
 
 /**

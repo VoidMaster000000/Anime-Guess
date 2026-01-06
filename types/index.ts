@@ -123,7 +123,8 @@ export interface LeaderboardEntry {
 
   // User profile data (optional for backward compatibility)
   userId?: string;           // Link to user profile
-  avatar?: string;           // User avatar
+  avatar?: string;           // User avatar (emoji)
+  avatarImage?: string;      // User avatar image (base64 or URL)
   level?: UserLevel;         // User level data
   accuracy?: number;         // Accuracy percentage
   totalGamesPlayed?: number; // Total games played

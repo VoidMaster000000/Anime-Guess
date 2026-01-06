@@ -63,6 +63,7 @@ export interface DBLeaderboardEntry {
   odId: string;
   username: string;
   avatar: string;
+  avatarImage?: string;
 
   // Score data
   streak: number;

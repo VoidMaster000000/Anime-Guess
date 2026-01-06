@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { animate } from '@/lib/animejs';
-import { Crown, Medal, Flame, Star, TrendingUp, Infinity } from 'lucide-react';
+import { Crown, Medal, Flame, Star, TrendingUp, Infinity, User } from 'lucide-react';
 import type { LeaderboardEntry } from '@/types';
 import { GameDifficulty } from '@/types';
 
@@ -149,7 +149,8 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
   const rankIcon = getRankIcon(rank);
   const level = entry.level?.current || 1;
   const isInfinite = entry.level?.mode === 'infinite';
-  const avatar = entry.avatar || '=d';
+  const avatarImage = entry.avatarImage;
+  const avatarEmoji = entry.avatar;
   const accuracy = entry.accuracy || 0;
 
   return (
@@ -185,8 +186,14 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
 
           {/* Avatar */}
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600 flex items-center justify-center text-2xl md:text-3xl shadow-lg">
-              {avatar}
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600 flex items-center justify-center text-2xl md:text-3xl shadow-lg overflow-hidden">
+              {avatarImage ? (
+                <img src={avatarImage} alt={entry.username} className="w-full h-full object-cover" />
+              ) : avatarEmoji ? (
+                avatarEmoji
+              ) : (
+                <User className="w-6 h-6 md:w-7 md:h-7 text-gray-400" />
+              )}
             </div>
           </div>
 

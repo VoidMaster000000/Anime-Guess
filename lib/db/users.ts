@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import { getDatabase, COLLECTIONS } from '../mongodb';
 import { DBUser, SafeUser, calculateLevel } from './models';
+import { syncLeaderboardProfile } from './leaderboard';
 
 // ============================================================================
 // USER SERVICE
@@ -309,6 +310,13 @@ export async function updateUserProfile(
     { _id: new ObjectId(userId) },
     { $set: setFields }
   );
+
+  // Sync profile changes to leaderboard
+  await syncLeaderboardProfile(userId, {
+    username: updates.username,
+    avatar: updates.avatar,
+    avatarImage: updates.avatarImage,
+  });
 
   return getUserById(userId);
 }

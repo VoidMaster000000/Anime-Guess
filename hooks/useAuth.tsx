@@ -230,6 +230,7 @@ export interface LeaderboardEntry {
   odId: string;
   username: string;
   avatar: string;
+  avatarImage?: string;
   streak: number;
   points: number;
   difficulty: string;
