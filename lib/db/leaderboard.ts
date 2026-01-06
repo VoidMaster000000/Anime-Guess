@@ -321,3 +321,47 @@ export async function deleteUserEntries(odId: string): Promise<number> {
   const result = await leaderboard.deleteMany({ odId });
   return result.deletedCount;
 }
+
+/**
+ * Clean up duplicate leaderboard entries - keeps only the best score per player
+ * This should be run once to fix legacy data
+ */
+export async function cleanupDuplicateEntries(): Promise<{ removed: number; playersProcessed: number }> {
+  const db = await getDatabase();
+  const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
+
+  // Find all unique odIds that have more than one entry
+  const duplicates = await leaderboard.aggregate([
+    { $group: { _id: '$odId', count: { $sum: 1 }, entries: { $push: '$$ROOT' } } },
+    { $match: { count: { $gt: 1 } } },
+  ]).toArray();
+
+  let removed = 0;
+
+  for (const dup of duplicates) {
+    const entries = dup.entries as DBLeaderboardEntry[];
+
+    // Sort by streak (desc), then points (desc) to find the best
+    entries.sort((a, b) => {
+      if (b.streak !== a.streak) return b.streak - a.streak;
+      return b.points - a.points;
+    });
+
+    // Keep the first (best) entry, delete the rest
+    const idsToDelete = entries.slice(1).map(e => e._id).filter((id): id is ObjectId => id !== undefined);
+
+    if (idsToDelete.length > 0) {
+      const result = await leaderboard.deleteMany({ _id: { $in: idsToDelete } });
+      removed += result.deletedCount;
+    }
+  }
+
+  // Create unique index on odId to prevent future duplicates
+  try {
+    await leaderboard.createIndex({ odId: 1 }, { unique: true });
+  } catch {
+    // Index may already exist
+  }
+
+  return { removed, playersProcessed: duplicates.length };
+}
