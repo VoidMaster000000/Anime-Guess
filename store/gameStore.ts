@@ -342,16 +342,16 @@ export const useGameStore = create<GameState>()(
             return false; // Can't buy if not playing or already at max lives
 
           case ShopItemType.HINT_REVEAL:
-            // Reveal one hint immediately
-            const { hintsRevealed } = get();
-            if (gameStatus === 'playing' && hintsRevealed < 4) {
+            // Reveal one hint immediately - respects maxHints (difficulty + extra hints)
+            const { hintsRevealed, maxHints: currentMaxHints } = get();
+            if (gameStatus === 'playing' && hintsRevealed < currentMaxHints) {
               set({
                 hintsRevealed: hintsRevealed + 1,
                 totalPoints: totalPoints - item.cost,
               });
               return true;
             }
-            return false; // Can't buy if not playing or all hints revealed
+            return false; // Can't buy if not playing or at max hints for current difficulty
 
           case ShopItemType.SKIP:
             // Skip character without losing life
@@ -569,9 +569,18 @@ export const useGameStore = create<GameState>()(
  */
 export const SHOP_ITEMS: ShopItem[] = [
   {
-    id: 'extra_hint',
-    name: 'Extra Hint',
-    description: 'Reveals additional quadrant (max 5)',
+    id: 'extra_hint_slot',
+    name: 'Extra Hint Slot',
+    description: 'Permanently unlock additional hint slot (max 5)',
+    cost: 500,
+    type: ShopItemType.EXTRA_HINT,
+    maxOwned: 5,
+    icon: 'eye',
+  },
+  {
+    id: 'reveal_hint',
+    name: 'Reveal Hint',
+    description: 'Instantly reveal one hint quadrant',
     cost: 50,
     type: ShopItemType.HINT_REVEAL,
     maxOwned: 10,
@@ -664,7 +673,7 @@ export const useCanAfford = (item: ShopItem): boolean => {
  * Check if player can purchase an item (checks both points and limits)
  */
 export const useCanPurchase = (item: ShopItem): boolean => {
-  const { totalPoints, extraHintsOwned, lives, maxLives, hintsRevealed } =
+  const { totalPoints, extraHintsOwned, lives, maxLives, hintsRevealed, maxHints } =
     useGameStore();
 
   // Check if player has enough points
@@ -679,7 +688,8 @@ export const useCanPurchase = (item: ShopItem): boolean => {
       return lives < maxLives;
 
     case ShopItemType.HINT_REVEAL:
-      return hintsRevealed < 4;
+      // Respect maxHints (which accounts for difficulty + extra hints)
+      return hintsRevealed < maxHints;
 
     default:
       return false;

@@ -121,6 +121,7 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
   const gameStatus = useGameStore((state) => state.gameStatus);
   const revealHint = useGameStore((state) => state.revealHint);
   const hintsRevealed = useGameStore((state) => state.hintsRevealed);
+  const maxHints = useGameStore((state) => state.maxHints);
   const lives = useGameStore((state) => state.lives);
   const maxLives = useGameStore((state) => state.maxLives);
   const fetchNewCharacter = useGameStore((state) => state.fetchNewCharacter);
@@ -170,7 +171,8 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
 
     switch (item.type) {
       case 'hint':
-        return hintsRevealed < 4;
+        // Respect maxHints (which accounts for difficulty + extra hints owned)
+        return hintsRevealed < maxHints;
       case 'life':
         return lives < maxLives;
       case 'skip':
@@ -279,7 +281,7 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
               <div className="flex-1 text-left">
                 <p className="text-sm font-medium text-white">{item.name}</p>
                 <p className="text-xs text-zinc-400">
-                  {item.type === 'hint' && `Reveal hint (${hintsRevealed}/4 revealed)`}
+                  {item.type === 'hint' && `Reveal hint (${hintsRevealed}/${maxHints} revealed)`}
                   {item.type === 'life' && `Add life (${lives}/${maxLives} lives)`}
                   {item.type === 'skip' && 'Skip character'}
                 </p>
