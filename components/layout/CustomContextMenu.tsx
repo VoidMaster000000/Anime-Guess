@@ -115,6 +115,7 @@ function AnimatedMenuItem({
 export default function CustomContextMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -122,6 +123,19 @@ export default function CustomContextMenu() {
   const { isAuthenticated, user, logout } = useAuth();
   const gameStatus = useGameStore((state) => state.gameStatus);
   const resetGame = useGameStore((state) => state.resetGame);
+
+  // Detect mobile/touch devices
+  useEffect(() => {
+    const checkMobile = () => {
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth < 768;
+      setIsMobile(isTouchDevice || isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const closeMenu = useCallback(() => {
     if (menuRef.current) {
@@ -138,6 +152,9 @@ export default function CustomContextMenu() {
   }, []);
 
   const handleContextMenu = useCallback((e: MouseEvent) => {
+    // On mobile, allow native context menu (long-press behavior)
+    if (isMobile) return;
+
     e.preventDefault();
 
     // Calculate position, ensuring menu stays within viewport
@@ -146,7 +163,7 @@ export default function CustomContextMenu() {
 
     setPosition({ x, y });
     setIsOpen(true);
-  }, []);
+  }, [isMobile]);
 
   const handleClick = useCallback(() => {
     if (isOpen) closeMenu();
