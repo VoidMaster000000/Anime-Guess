@@ -1,16 +1,19 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-
-// Lazy load heavy visual effects - they're not critical for LCP
-const CustomCursor = dynamic(() => import('@/components/layout/CustomCursor'), {
-  ssr: false,
-});
-const BackgroundVisuals = dynamic(() => import('@/components/effects/BackgroundVisuals'), {
-  ssr: false,
-});
+import { useEffect, useState } from 'react';
+import CustomCursor from '@/components/layout/CustomCursor';
+import BackgroundVisuals from '@/components/effects/BackgroundVisuals';
 
 export default function ClientEffects() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Only render effects after component mounts on client
+  if (!mounted) return null;
+
   return (
     <>
       <BackgroundVisuals />

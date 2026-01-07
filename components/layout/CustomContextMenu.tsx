@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { animate } from '@/lib/animejs';
+import { animate, useHoverAnimation } from '@/lib/animejs';
 import { useAuth } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
 import {
@@ -27,7 +27,7 @@ interface MenuItem {
   highlight?: boolean;
 }
 
-// CSS-based animated menu item (no JS blocking on hover)
+// Animated menu item with anime.js hover effects
 function AnimatedMenuItem({
   item,
   onClick,
@@ -35,30 +35,79 @@ function AnimatedMenuItem({
   item: MenuItem;
   onClick: () => void;
 }) {
+  const buttonRef = useHoverAnimation<HTMLButtonElement>(
+    {
+      translateX: 6,
+      scale: 1.02,
+      duration: 150,
+      ease: 'outQuad'
+    },
+    {
+      translateX: 0,
+      scale: 1,
+      duration: 150,
+      ease: 'outQuad'
+    }
+  );
+
+  const iconRef = useRef<HTMLSpanElement>(null);
+
+  const handleMouseEnter = () => {
+    if (item.disabled || !iconRef.current) return;
+    animate(iconRef.current, {
+      scale: [1, 1.3, 1.15],
+      rotate: item.highlight ? [0, 15, -5, 0] : [0, -10, 0],
+      duration: 300,
+      ease: 'outBack',
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (item.disabled || !iconRef.current) return;
+    animate(iconRef.current, {
+      scale: 1,
+      rotate: 0,
+      duration: 200,
+      ease: 'outQuad',
+    });
+  };
+
   return (
     <button
+      ref={item.disabled ? undefined : buttonRef}
       onClick={onClick}
       disabled={item.disabled}
-      className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg mx-1
-        transition-all duration-100
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={`group w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg mx-1
+        transition-colors duration-150
         ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
-          : 'hover:scale-[1.02] hover:translate-x-1 active:scale-[0.98]'
+          : 'active:scale-[0.98]'
         }
         ${item.disabled
           ? ''
           : item.highlight
-            ? 'text-purple-400 hover:bg-purple-500/20'
-            : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+            ? 'text-purple-400 hover:bg-purple-500/20 hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+            : 'text-zinc-300 hover:bg-zinc-800 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]'
         }`}
       style={{ width: 'calc(100% - 8px)' }}
     >
-      <span className={`transition-transform duration-150 ${
-        item.disabled ? 'opacity-50' : 'group-hover:scale-110'
-      } ${item.highlight && !item.disabled ? 'hover:rotate-12' : ''}`}>
+      <span
+        ref={iconRef}
+        className={`inline-flex ${item.disabled ? 'opacity-50' : ''}`}
+      >
         {item.icon}
       </span>
-      <span className="text-sm">{item.label}</span>
+      <span className="text-sm group-hover:tracking-wide transition-all duration-150">
+        {item.label}
+      </span>
+      {/* Hover indicator line */}
+      {!item.disabled && (
+        <span className={`ml-auto w-0 h-0.5 rounded-full transition-all duration-200 group-hover:w-3
+          ${item.highlight ? 'bg-purple-400' : 'bg-zinc-500'}`}
+        />
+      )}
     </button>
   );
 }

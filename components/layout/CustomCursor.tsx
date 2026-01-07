@@ -10,20 +10,14 @@ interface TrailDot {
   scale: number;
 }
 
-interface ClickParticle {
-  id: number;
-  x: number;
-  y: number;
-  element: HTMLDivElement;
-}
-
 export default function CustomCursor() {
   const cursorDotRef = useRef<HTMLDivElement>(null);
   const cursorRingRef = useRef<HTMLDivElement>(null);
   const trailContainerRef = useRef<HTMLDivElement>(null);
   const particleContainerRef = useRef<HTMLDivElement>(null);
   const [isPointer, setIsPointer] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true); // Start visible
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const ringPosition = useRef({ x: 0, y: 0 });
   const targetPosition = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number | null>(null);
@@ -33,8 +27,11 @@ export default function CustomCursor() {
   const TRAIL_LENGTH = 8;
   const lastTrailUpdate = useRef(0);
 
-  // Particle counter
-  const particleIdRef = useRef(0);
+  // Check for touch device on mount
+  useEffect(() => {
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    setIsTouchDevice(isTouch);
+  }, []);
 
   // Initialize trail dots
   useEffect(() => {
@@ -80,11 +77,13 @@ export default function CustomCursor() {
       const trailElements = trailContainerRef.current.children;
       for (let i = 0; i < trailElements.length; i++) {
         const dot = trailDotsRef.current[i];
-        const el = trailElements[i] as HTMLDivElement;
-        el.style.left = `${dot.x}px`;
-        el.style.top = `${dot.y}px`;
-        el.style.opacity = `${dot.opacity}`;
-        el.style.transform = `translate(-50%, -50%) scale(${dot.scale})`;
+        if (dot) {
+          const el = trailElements[i] as HTMLDivElement;
+          el.style.left = `${dot.x}px`;
+          el.style.top = `${dot.y}px`;
+          el.style.opacity = `${dot.opacity}`;
+          el.style.transform = `translate(-50%, -50%) scale(${dot.scale})`;
+        }
       }
     }
 
@@ -173,8 +172,6 @@ export default function CustomCursor() {
   }, []);
 
   useEffect(() => {
-    // Check if touch device
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     if (isTouchDevice) return;
 
     // Start ring animation loop
@@ -182,8 +179,8 @@ export default function CustomCursor() {
 
     document.addEventListener('mousemove', updatePosition);
     document.addEventListener('mousemove', checkHover);
-    document.addEventListener('mouseenter', handleMouseEnter);
-    document.addEventListener('mouseleave', handleMouseLeave);
+    document.documentElement.addEventListener('mouseenter', handleMouseEnter);
+    document.documentElement.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mouseup', handleMouseUp);
 
@@ -200,14 +197,14 @@ export default function CustomCursor() {
       }
       document.removeEventListener('mousemove', updatePosition);
       document.removeEventListener('mousemove', checkHover);
-      document.removeEventListener('mouseenter', handleMouseEnter);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.documentElement.removeEventListener('mouseenter', handleMouseEnter);
+      document.documentElement.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.cursor = '';
       document.getElementById('custom-cursor-style')?.remove();
     };
-  }, [updatePosition, checkHover, handleMouseEnter, handleMouseLeave, handleMouseDown, handleMouseUp, animateRing]);
+  }, [isTouchDevice, updatePosition, checkHover, handleMouseEnter, handleMouseLeave, handleMouseDown, handleMouseUp, animateRing]);
 
   // Animate hover state changes
   useEffect(() => {
@@ -228,7 +225,7 @@ export default function CustomCursor() {
   }, [isPointer]);
 
   // Don't render on touch devices
-  if (typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+  if (isTouchDevice) {
     return null;
   }
 
@@ -258,7 +255,7 @@ export default function CustomCursor() {
       {/* Outer ring - follows with delay */}
       <div
         ref={cursorRingRef}
-        className="absolute w-10 h-10 rounded-full border-2"
+        className="absolute w-10 h-10 rounded-full border-2 -translate-x-1/2 -translate-y-1/2"
         style={{
           borderColor: isPointer ? 'rgba(236, 72, 153, 0.8)' : 'rgba(168, 85, 247, 0.6)',
           boxShadow: isPointer
@@ -271,7 +268,7 @@ export default function CustomCursor() {
       {/* Inner dot - follows instantly */}
       <div
         ref={cursorDotRef}
-        className="absolute w-3 h-3 rounded-full"
+        className="absolute w-3 h-3 rounded-full -translate-x-1/2 -translate-y-1/2"
         style={{
           background: isPointer
             ? 'linear-gradient(135deg, #ec4899, #a855f7)'
