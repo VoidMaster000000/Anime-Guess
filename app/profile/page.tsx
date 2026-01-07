@@ -207,6 +207,11 @@ export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
   const level = user?.profile?.level ?? 1;
 
+  // Refresh user data on mount to get latest stats
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
+
   // All stats come from MongoDB user profile
   const profileStats = {
     gamesPlayed: user?.profile?.gamesPlayed ?? 0,
@@ -240,7 +245,7 @@ export default function ProfilePage() {
     ? (profileStats.correctGuesses / profileStats.totalGuesses) * 100
     : 0;
 
-  // Animate stats on mount
+  // Animate stats when user data changes
   useEffect(() => {
     const stats = {
       gamesPlayed: profileStats.gamesPlayed,
@@ -276,7 +281,14 @@ export default function ProfilePage() {
     }, stepDuration);
 
     return () => clearInterval(interval);
-  }, [profileStats, accuracy]);
+  }, [
+    profileStats.gamesPlayed,
+    profileStats.correctGuesses,
+    profileStats.highestStreak,
+    profileStats.totalXp,
+    profileStats.coins,
+    accuracy,
+  ]);
 
   const handleSaveProfile = async () => {
     setEditError(null);
