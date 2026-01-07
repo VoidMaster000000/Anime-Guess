@@ -207,11 +207,10 @@ function AnimatedQuadrant({
     }
   }, [isRevealed]);
 
-  // Calculate background position with distortion offset
-  const baseOffsetX = col * -200;
-  const baseOffsetY = row * -200;
-  const offsetX = antiCheatEnabled ? baseOffsetX + distortion.offsetX : baseOffsetX;
-  const offsetY = antiCheatEnabled ? baseOffsetY + distortion.offsetY : baseOffsetY;
+  // Calculate background position as percentages for responsive sizing
+  // Each quadrant shows 50% of image, offset by 0% or 100% based on position
+  const bgPositionX = col === 0 ? '0%' : '100%';
+  const bgPositionY = row === 0 ? '0%' : '100%';
 
   // Build filter string
   const getFilter = () => {
@@ -237,11 +236,11 @@ function AnimatedQuadrant({
     <div className="relative overflow-hidden">
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover"
         style={{
           backgroundImage: `url(${imageUrl})`,
-          backgroundPosition: `${offsetX}px ${offsetY}px`,
-          backgroundSize: '400px 400px',
+          backgroundPosition: `${bgPositionX} ${bgPositionY}`,
+          backgroundSize: '200% 200%',
           filter: getFilter(),
           transform: getTransform(),
         }}
@@ -257,11 +256,11 @@ function AnimatedQuadrant({
       {/* Revealed image */}
       <div
         ref={revealRef}
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover"
         style={{
           backgroundImage: `url(${imageUrl})`,
-          backgroundPosition: `${offsetX}px ${offsetY}px`,
-          backgroundSize: '400px 400px',
+          backgroundPosition: `${bgPositionX} ${bgPositionY}`,
+          backgroundSize: '200% 200%',
           opacity: isRevealed ? 1 : 0,
           transform: getTransform(isRevealed ? 'scale(1)' : 'scale(1.1)'),
           filter: getFilter(),
@@ -282,12 +281,22 @@ export default function CharacterImage({
 }: CharacterImageProps) {
   const [revealed, setRevealed] = useState<boolean[]>([false, false, false, false]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const prevImageRef = useRef<string>('');
 
   // Lazy load the image
   const { isLoaded, error } = useImagePreload(imageUrl);
 
   // Generate distortion once per image URL to keep it consistent
   const distortion = useMemo(() => generateDistortion(), [imageUrl]);
+
+  // Reset revealed state when image URL changes (new character)
+  useEffect(() => {
+    if (prevImageRef.current !== imageUrl) {
+      // New character - reset all quadrants immediately
+      setRevealed([false, false, false, false]);
+      prevImageRef.current = imageUrl;
+    }
+  }, [imageUrl]);
 
   // Animate container when image loads
   useEffect(() => {
@@ -299,16 +308,19 @@ export default function CharacterImage({
         ease: 'outQuad',
       });
     }
-  }, [isLoaded]);
+  }, [isLoaded, imageUrl]);
 
   useEffect(() => {
     // Reveal quadrants based on the count (0-4+)
-    const newRevealed = [false, false, false, false];
-    for (let i = 0; i < Math.min(revealedQuadrants, 4); i++) {
-      newRevealed[i] = true;
+    // Only update if we have the same image (not transitioning)
+    if (prevImageRef.current === imageUrl) {
+      const newRevealed = [false, false, false, false];
+      for (let i = 0; i < Math.min(revealedQuadrants, 4); i++) {
+        newRevealed[i] = true;
+      }
+      setRevealed(newRevealed);
     }
-    setRevealed(newRevealed);
-  }, [revealedQuadrants]);
+  }, [revealedQuadrants, imageUrl]);
 
   const quadrants = [
     { row: 0, col: 0, index: 0 }, // top-left
@@ -318,7 +330,7 @@ export default function CharacterImage({
   ];
 
   return (
-    <div className="relative w-[400px] h-[400px] rounded-2xl overflow-hidden">
+    <div className="relative w-full max-w-[400px] mx-auto aspect-square rounded-2xl overflow-hidden">
       {/* Loading overlay */}
       {!isLoaded && !error && <LoadingOverlay />}
 
