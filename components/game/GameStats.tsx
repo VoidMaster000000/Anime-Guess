@@ -1,7 +1,7 @@
 'use client';
 
 import { Heart, Flame, Star, Trophy } from 'lucide-react';
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { animate } from '@/lib/animejs';
 
 interface GameStatsProps {
@@ -13,152 +13,45 @@ interface GameStatsProps {
 }
 
 // ============================================================================
-// PARTICLE TRAIL EFFECT FOR STREAK
+// PARTICLE TRAIL EFFECT FOR STREAK (CSS-only on mobile for performance)
 // ============================================================================
 
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  opacity: number;
-}
-
 function StreakParticles({ streak }: { streak: number }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const particleIdRef = useRef(0);
-  const animationFrameRef = useRef<number | null>(null);
-
-  // Calculate intensity based on streak (more particles every 5 streaks)
   const intensity = Math.floor(streak / 5);
-  const particleCount = Math.min(intensity * 3, 15); // Max 15 particles at a time
   const isActive = streak >= 5;
-
-  // Color gradient based on intensity
-  const getParticleColor = useCallback((intensityLevel: number) => {
-    const colors = [
-      ['#f97316', '#fb923c'], // Orange (5-9)
-      ['#ef4444', '#f87171'], // Red (10-14)
-      ['#a855f7', '#c084fc'], // Purple (15-19)
-      ['#06b6d4', '#22d3ee'], // Cyan (20-24)
-      ['#fbbf24', '#fcd34d'], // Gold (25+)
-    ];
-    const colorIndex = Math.min(intensityLevel - 1, colors.length - 1);
-    const colorSet = colors[colorIndex] || colors[0];
-    return colorSet[Math.floor(Math.random() * colorSet.length)];
-  }, []);
-
-  // Spawn particles
-  useEffect(() => {
-    if (!isActive || !containerRef.current) return;
-
-    const spawnParticle = () => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const rect = container.getBoundingClientRect();
-      const newParticles: Particle[] = [];
-
-      for (let i = 0; i < Math.ceil(particleCount / 3); i++) {
-        newParticles.push({
-          id: particleIdRef.current++,
-          x: Math.random() * rect.width,
-          y: rect.height + 5,
-          size: 3 + Math.random() * (2 + intensity),
-          color: getParticleColor(intensity),
-          opacity: 0.7 + Math.random() * 0.3,
-        });
-      }
-
-      setParticles(prev => [...prev.slice(-30), ...newParticles]); // Keep max 30 particles
-    };
-
-    // Spawn interval decreases with intensity (faster spawning)
-    const spawnInterval = setInterval(spawnParticle, Math.max(150 - intensity * 20, 50));
-
-    return () => clearInterval(spawnInterval);
-  }, [isActive, particleCount, intensity, getParticleColor]);
-
-  // Animate particles upward
-  useEffect(() => {
-    if (!isActive || particles.length === 0) return;
-
-    const animateParticles = () => {
-      setParticles(prev =>
-        prev
-          .map(p => ({
-            ...p,
-            y: p.y - (2 + intensity * 0.5), // Speed increases with intensity
-            x: p.x + (Math.random() - 0.5) * 2, // Slight horizontal drift
-            opacity: p.opacity - 0.02,
-          }))
-          .filter(p => p.opacity > 0 && p.y > -20)
-      );
-
-      animationFrameRef.current = requestAnimationFrame(animateParticles);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(animateParticles);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isActive, particles.length, intensity]);
 
   if (!isActive) return null;
 
+  // Use CSS animation only - no JS particle system for better mobile performance
+  const getGlowColor = () => {
+    if (intensity >= 5) return 'rgba(251, 191, 36, 0.6)'; // Gold
+    if (intensity >= 4) return 'rgba(34, 211, 238, 0.6)'; // Cyan
+    if (intensity >= 3) return 'rgba(192, 132, 252, 0.6)'; // Purple
+    if (intensity >= 2) return 'rgba(239, 68, 68, 0.6)'; // Red
+    return 'rgba(249, 115, 22, 0.6)'; // Orange
+  };
+
   return (
     <div
-      ref={containerRef}
-      className="absolute inset-0 overflow-hidden pointer-events-none"
+      className="absolute inset-0 overflow-hidden pointer-events-none rounded-lg"
       style={{ zIndex: 0 }}
     >
-      {particles.map(particle => (
-        <div
-          key={particle.id}
-          className="absolute rounded-full"
-          style={{
-            left: particle.x,
-            top: particle.y,
-            width: particle.size,
-            height: particle.size,
-            backgroundColor: particle.color,
-            opacity: particle.opacity,
-            boxShadow: `0 0 ${particle.size * 2}px ${particle.color}`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      ))}
+      {/* Simple CSS glow effect instead of particles */}
+      <div
+        className="absolute inset-0 animate-pulse"
+        style={{
+          background: `radial-gradient(ellipse at center bottom, ${getGlowColor()}, transparent 70%)`,
+          animationDuration: `${Math.max(1.5 - intensity * 0.1, 0.8)}s`,
+        }}
+      />
     </div>
   );
 }
 
-// Glowing flame effect that intensifies with streak
+// Glowing flame effect that intensifies with streak (CSS-only for performance)
 function GlowingFlame({ streak }: { streak: number }) {
-  const ref = useRef<HTMLDivElement>(null);
   const intensity = Math.floor(streak / 5);
   const isActive = streak >= 5;
-
-  useEffect(() => {
-    if (!ref.current || !isActive) return;
-
-    // Pulsing glow animation
-    const animation = animate(ref.current, {
-      scale: [1, 1.1 + intensity * 0.05, 1],
-      opacity: [0.8, 1, 0.8],
-      duration: Math.max(800 - intensity * 50, 400),
-      loop: true,
-      ease: 'inOutSine',
-    });
-
-    return () => {
-      if (animation?.pause) animation.pause();
-    };
-  }, [isActive, intensity]);
 
   // Color based on intensity
   const getFlameColor = () => {
@@ -170,7 +63,7 @@ function GlowingFlame({ streak }: { streak: number }) {
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div className={`relative ${isActive ? 'animate-pulse' : ''}`}>
       <Flame className={`w-5 h-5 ${isActive ? getFlameColor() : 'text-orange-500'}`} />
       {isActive && (
         <Flame

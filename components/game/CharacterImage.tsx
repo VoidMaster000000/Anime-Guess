@@ -3,6 +3,12 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
 import { animate } from '@/lib/animejs';
 
+// Check if device is mobile for performance optimizations
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768;
+};
+
 interface CharacterImageProps {
   imageUrl: string;
   revealedQuadrants: number;
@@ -37,40 +43,16 @@ function useImagePreload(src: string) {
 }
 
 function LoadingOverlay() {
-  const spinnerRef = useRef<HTMLDivElement>(null);
-  const pulseRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (spinnerRef.current) {
-      animate(spinnerRef.current, {
-        rotate: 360,
-        duration: 1000,
-        ease: 'linear',
-        loop: true,
-      });
-    }
-    if (pulseRef.current) {
-      animate(pulseRef.current, {
-        scale: [1, 1.2, 1],
-        opacity: [0.3, 0.6, 0.3],
-        duration: 1500,
-        ease: 'inOutSine',
-        loop: true,
-      });
-    }
-  }, []);
-
+  // Use CSS-only animations for better mobile performance
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm z-10">
       <div className="relative">
         <div
-          ref={pulseRef}
-          className="absolute inset-0 w-20 h-20 bg-purple-500/30 rounded-full blur-xl"
+          className="absolute inset-0 w-20 h-20 bg-purple-500/30 rounded-full blur-xl animate-pulse"
           style={{ transform: 'translate(-50%, -50%)', left: '50%', top: '50%' }}
         />
         <div
-          ref={spinnerRef}
-          className="w-12 h-12 border-3 border-purple-500/30 border-t-purple-500 rounded-full"
+          className="w-12 h-12 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"
         />
       </div>
       <p className="absolute bottom-8 text-sm text-zinc-400">Loading character...</p>
@@ -189,10 +171,13 @@ function AnimatedQuadrant({
   const revealRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Use shorter animations on mobile to prevent flickering
+    const duration = isMobileDevice() ? 300 : 600;
+
     if (blurRef.current) {
       animate(blurRef.current, {
         opacity: isRevealed ? [1, 0] : 1,
-        duration: 600,
+        duration,
         ease: 'inOutQuad',
       });
     }
@@ -200,8 +185,8 @@ function AnimatedQuadrant({
     if (revealRef.current) {
       animate(revealRef.current, {
         opacity: isRevealed ? [0, 1] : 0,
-        scale: isRevealed ? [1.1, 1] : 1.1,
-        duration: 600,
+        scale: isRevealed ? [1.05, 1] : 1.05, // Reduced scale for less jarring effect
+        duration,
         ease: 'outQuad',
       });
     }
@@ -262,7 +247,7 @@ function AnimatedQuadrant({
           backgroundPosition: `${bgPositionX} ${bgPositionY}`,
           backgroundSize: '200% 200%',
           opacity: isRevealed ? 1 : 0,
-          transform: getTransform(isRevealed ? 'scale(1)' : 'scale(1.1)'),
+          transform: getTransform(isRevealed ? 'scale(1)' : 'scale(1.05)'),
           filter: getFilter(),
         }}
       />

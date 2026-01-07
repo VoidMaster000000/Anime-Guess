@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { animate } from '@/lib/animejs';
+// Note: animate is still used in UsedOverlay component
 import { Eye, Heart, SkipForward, HelpCircle, Package, Sparkles } from 'lucide-react';
 import { useAuth, fetchInventory, useInventoryItem, InventoryItem } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
@@ -10,29 +11,16 @@ interface ItemUsagePanelProps {
   onItemUse?: (itemId: string) => void;
 }
 
-// Animated panel wrapper
+// Simple panel wrapper - no animation to prevent flickering on mobile
 function AnimatedPanel({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 200,
-        ease: 'outQuad',
-      });
-    }
-  }, []);
-
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div className={className}>
       {children}
     </div>
   );
 }
 
-// Hover scale button
+// Hover scale button - uses CSS for better mobile performance
 function HoverButton({
   children,
   onClick,
@@ -44,42 +32,11 @@ function HoverButton({
   disabled: boolean;
   className: string;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  const handleMouseEnter = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 80, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 0.98, duration: 50, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 50, ease: 'outQuad' });
-    }
-  };
-
   return (
     <button
-      ref={ref}
       onClick={onClick}
       disabled={disabled}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      className={`${className} transition-transform duration-100 ${!disabled ? 'hover:scale-[1.02] active:scale-[0.98]' : ''}`}
     >
       {children}
     </button>

@@ -1,8 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
 import { Eye, Coins } from 'lucide-react';
-import { animate } from '@/lib/animejs';
 
 interface HintButtonProps {
   hintsRevealed: number;
@@ -12,7 +10,7 @@ interface HintButtonProps {
 }
 
 // ============================================================================
-// ANIMATED HELPER COMPONENTS
+// SIMPLE HELPER COMPONENTS (CSS-based for mobile performance)
 // ============================================================================
 
 function HoverButton({
@@ -26,42 +24,11 @@ function HoverButton({
   disabled: boolean;
   className: string;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current && !disabled) {
-      animate(ref.current, { scale: 1.05, duration: 150, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current && !disabled) {
-      animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (ref.current && !disabled) {
-      animate(ref.current, { scale: 0.95, duration: 100, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (ref.current && !disabled) {
-      animate(ref.current, { scale: 1.05, duration: 100, ease: 'outQuad' });
-    }
-  };
-
   return (
     <button
-      ref={ref}
       onClick={onClick}
       disabled={disabled}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      className={`${className} transition-transform duration-150 ${!disabled ? 'hover:scale-105 active:scale-95' : ''}`}
     >
       {children}
     </button>
@@ -69,51 +36,20 @@ function HoverButton({
 }
 
 function AnimatedGlow({ isEnabled }: { isEnabled: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!ref.current || !isEnabled) return;
-
-    const runPulse = () => {
-      if (!ref.current) return;
-      animate(ref.current, {
-        opacity: [0.3, 0.6, 0.3],
-        duration: 2000,
-        ease: 'inOutQuad',
-        onComplete: runPulse,
-      });
-    };
-
-    runPulse();
-  }, [isEnabled]);
-
   if (!isEnabled) return null;
 
+  // Use CSS animation instead of JS for better mobile performance
   return (
     <div
-      ref={ref}
-      className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-30 blur-xl -z-10"
+      className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-30 blur-xl -z-10 animate-pulse"
     />
   );
 }
 
-function AnimatedProgressBar({ progress }: { progress: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        width: [`${progress}%`],
-        duration: 300,
-        ease: 'outQuad',
-      });
-    }
-  }, [progress]);
-
+function ProgressBar({ progress }: { progress: number }) {
   return (
     <div
-      ref={ref}
-      className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
       style={{ width: `${progress}%` }}
     />
   );
@@ -170,7 +106,7 @@ export default function HintButton({ hintsRevealed, maxHints, onReveal, cost }: 
 
       {/* Progress indicator */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded-b-xl overflow-hidden">
-        <AnimatedProgressBar progress={(hintsRemaining / maxHints) * 100} />
+        <ProgressBar progress={(hintsRemaining / maxHints) * 100} />
       </div>
     </HoverButton>
   );

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Animated, AnimatePresence, Transition, AnimatedSplitText } from '@/lib/animejs';
-import { animate, useAnimeOnMount } from '@/lib/animejs';
+import { Animated, AnimatePresence } from '@/lib/animejs';
+import { animate } from '@/lib/animejs';
 import { useGameStore } from '@/store/gameStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAntiCheat } from '@/hooks/useAntiCheat';
@@ -88,21 +88,28 @@ export default function GamePage() {
 
   // Handle guess with profile integration
   const handleGuess = async (guess: string) => {
+    // Get current streak BEFORE submitting (since submitGuess updates it)
+    const currentStreak = streak;
+    const currentHintsRevealed = hintsRevealed;
+
     const isCorrect = submitGuess(guess);
 
     // Award XP and coins if authenticated (via MongoDB API)
     if (isAuthenticated) {
       if (isCorrect) {
+        // Calculate new streak (current + 1 since we just got it right)
+        const newStreakValue = currentStreak + 1;
+
         // Base rewards
         const baseXp = 10;
-        const streakBonus = Math.min(streak * 2, 20); // Max +20 XP from streak
+        const streakBonus = Math.min(currentStreak * 2, 20); // Max +20 XP from streak
         // Apply penalty if suspicious activity detected
         const antiCheatPenalty = isSuspicious ? 0.5 : 1; // 50% reduction if suspicious
         const totalXp = Math.floor((baseXp + streakBonus) * antiCheatPenalty);
 
         const baseCoins = 5;
         const difficultyBonus = difficulty === 'hard' ? 10 : difficulty === 'medium' ? 5 : 0;
-        const hintBonus = Math.max(0, (4 - hintsRevealed) * 2); // +2 coins per unused hint
+        const hintBonus = Math.max(0, (4 - currentHintsRevealed) * 2); // +2 coins per unused hint
         const totalCoins = Math.floor((baseCoins + difficultyBonus + hintBonus) * antiCheatPenalty);
 
         // Update stats via MongoDB API
@@ -110,7 +117,7 @@ export default function GamePage() {
           xpToAdd: totalXp,
           coinsToAdd: totalCoins,
           correctGuess: true,
-          newStreak: streak + 1,
+          newStreak: newStreakValue,
         });
       } else {
         // Record wrong guess via MongoDB API
@@ -175,8 +182,8 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white overflow-hidden relative">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20 animate-pulse" />
+      {/* Background gradient - static on mobile for performance */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20 sm:animate-pulse" />
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
@@ -275,39 +282,21 @@ export default function GamePage() {
                         revealedQuadrants={hintsRevealed}
                       />
 
-                      {/* Character Name Reference */}
-                      <Animated
-                        initial={{ opacity: 0, translateY: 10 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        className="card p-4"
-                      >
+                      {/* Character Name Reference - simplified for mobile performance */}
+                      <div className="card p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <Sparkles className="w-4 h-4 text-purple-400" />
                           <span className="text-sm font-medium text-zinc-400">Character</span>
                         </div>
-                        <AnimatedSplitText
-                          key={currentCharacter.name.full}
-                          text={currentCharacter.name.full}
-                          className="text-lg font-semibold text-white block"
-                          splitBy="chars"
-                          staggerDelay={25}
-                          duration={300}
-                          animation="fadeInUp"
-                          tag="p"
-                        />
+                        <p className="text-lg font-semibold text-white">
+                          {currentCharacter.name.full}
+                        </p>
                         {currentCharacter.name.native && (
-                          <AnimatedSplitText
-                            key={currentCharacter.name.native}
-                            text={currentCharacter.name.native}
-                            className="text-sm text-zinc-500 mt-1 block"
-                            splitBy="chars"
-                            staggerDelay={20}
-                            duration={250}
-                            animation="fadeIn"
-                            tag="p"
-                          />
+                          <p className="text-sm text-zinc-500 mt-1">
+                            {currentCharacter.name.native}
+                          </p>
                         )}
-                      </Animated>
+                      </div>
 
                       {/* Hint Button */}
                       <HintButton
@@ -329,11 +318,7 @@ export default function GamePage() {
 
                 {/* Right Column - Guess Input and Info */}
                 <div className="space-y-4">
-                  <Animated
-                    initial={{ opacity: 0, translateX: 20 }}
-                    animate={{ opacity: 1, translateX: 0 }}
-                    className="card p-4 sm:p-6 relative z-20"
-                  >
+                  <div className="card p-4 sm:p-6 relative z-20">
                     <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gradient">
                       Guess the Anime!
                     </h2>
@@ -345,25 +330,15 @@ export default function GamePage() {
                       onGuess={handleGuess}
                       disabled={isLoading}
                     />
-                  </Animated>
+                  </div>
 
                   {/* Item Usage Panel */}
-                  <Animated
-                    initial={{ opacity: 0, translateX: 20 }}
-                    animate={{ opacity: 1, translateX: 0 }}
-                    transition={{ delay: 100 }}
-                    className="relative z-10"
-                  >
+                  <div className="relative z-10">
                     <ItemUsagePanel />
-                  </Animated>
+                  </div>
 
                   {/* Game Tips - Hidden on small mobile, visible on larger screens */}
-                  <Animated
-                    initial={{ opacity: 0, translateX: 20 }}
-                    animate={{ opacity: 1, translateX: 0 }}
-                    transition={{ delay: 200 }}
-                    className="hidden sm:block stat-blue p-4 sm:p-6 relative z-10"
-                  >
+                  <div className="hidden sm:block stat-blue p-4 sm:p-6 relative z-10">
                     <div className="flex items-center gap-2 mb-3">
                       <Award className="w-5 h-5 text-blue-400" />
                       <h3 className="text-base sm:text-lg font-semibold text-blue-300">Pro Tips</h3>
@@ -386,7 +361,7 @@ export default function GamePage() {
                         <span>Build your streak for maximum points!</span>
                       </li>
                     </ul>
-                  </Animated>
+                  </div>
                 </div>
               </div>
             </Animated>
@@ -517,8 +492,8 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
 
         <div className="text-zinc-400">Loading next character...</div>
 
-        {/* Confetti particles */}
-        {[...Array(20)].map((_, i) => (
+        {/* Confetti particles - fewer on mobile */}
+        {[...Array(10)].map((_, i) => (
           <ConfettiParticle key={i} index={i} />
         ))}
       </div>
@@ -559,40 +534,15 @@ function ConfettiParticle({ index }: { index: number }) {
 }
 
 function BackgroundEffects() {
-  const ref1 = useRef<HTMLDivElement>(null);
-  const ref2 = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref1.current) {
-      animate(ref1.current, {
-        scale: [1, 1.2, 1],
-        opacity: [0.3, 0.5, 0.3],
-        duration: 8000,
-        loop: true,
-        ease: 'inOutQuad',
-      });
-    }
-
-    if (ref2.current) {
-      animate(ref2.current, {
-        scale: [1.2, 1, 1.2],
-        opacity: [0.3, 0.5, 0.3],
-        duration: 10000,
-        loop: true,
-        ease: 'inOutQuad',
-      });
-    }
-  }, []);
-
+  // Use CSS-only animation for better mobile performance
+  // No JS-based looping animations that cause flickering
   return (
-    <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+    <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden hidden sm:block">
       <div
-        ref={ref1}
-        className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-purple-600/20 to-transparent rounded-full blur-3xl"
+        className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-purple-600/15 to-transparent rounded-full blur-3xl opacity-40"
       />
       <div
-        ref={ref2}
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-blue-600/20 to-transparent rounded-full blur-3xl"
+        className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-blue-600/15 to-transparent rounded-full blur-3xl opacity-40"
       />
     </div>
   );

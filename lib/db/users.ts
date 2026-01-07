@@ -152,7 +152,7 @@ export async function updateUserStats(
 
   const incDoc: any = {};
 
-  if (updates.xpToAdd) {
+  if (updates.xpToAdd && updates.xpToAdd > 0) {
     incDoc['profile.totalXp'] = updates.xpToAdd;
 
     // Calculate new level and current XP within that level
@@ -164,7 +164,7 @@ export async function updateUserStats(
     updateDoc.$set['profile.xp'] = xp;
   }
 
-  if (updates.coinsToAdd) {
+  if (updates.coinsToAdd && updates.coinsToAdd > 0) {
     incDoc['profile.coins'] = updates.coinsToAdd;
   }
 
@@ -174,12 +174,12 @@ export async function updateUserStats(
 
   if (updates.correctGuess !== undefined) {
     incDoc['profile.totalGuesses'] = 1;
-    if (updates.correctGuess) {
+    if (updates.correctGuess === true) {
       incDoc['profile.correctGuesses'] = 1;
     }
   }
 
-  if (updates.newStreak && updates.newStreak > user.profile.highestStreak) {
+  if (updates.newStreak !== undefined && updates.newStreak > user.profile.highestStreak) {
     updateDoc.$set['profile.highestStreak'] = updates.newStreak;
   }
 
