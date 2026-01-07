@@ -10,30 +10,34 @@ import { GameDifficulty, DifficultyConfigMap } from '@/types';
 
 /**
  * Difficulty configurations for the game
- * - Easy: 5 lives, 2 hints revealed at start, 0.5x points
- * - Medium: 3 lives, 1 hint revealed at start, 1x points
- * - Hard: 2 lives, 0 hints revealed at start, 2x points
- * - Timed: 3 lives, 1 hint revealed at start, 1.5x points, 30 second timer
+ * - Easy: 5 lives, 2 hints revealed at start, 4 free hints, 0.5x points
+ * - Medium: 3 lives, 1 hint revealed at start, 4 free hints, 1x points
+ * - Hard: 2 lives, 0 hints revealed at start, 2 free hints (extra hints needed for 3rd/4th), 2x points
+ * - Timed: 3 lives, 1 hint revealed at start, 4 free hints, 1.5x points, 30 second timer
  */
 export const DIFFICULTY_CONFIGS: DifficultyConfigMap = {
   [GameDifficulty.EASY]: {
     lives: 5,
     initialHints: 2,
+    maxFreeHints: 4,
     pointsMultiplier: 0.5,
   },
   [GameDifficulty.MEDIUM]: {
     lives: 3,
     initialHints: 1,
+    maxFreeHints: 4,
     pointsMultiplier: 1,
   },
   [GameDifficulty.HARD]: {
     lives: 2,
     initialHints: 0,
+    maxFreeHints: 2,
     pointsMultiplier: 2,
   },
   [GameDifficulty.TIMED]: {
     lives: 3,
     initialHints: 1,
+    maxFreeHints: 4,
     pointsMultiplier: 1.5,
     timeLimit: 30,
   },

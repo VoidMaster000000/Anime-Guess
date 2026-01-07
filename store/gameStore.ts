@@ -22,30 +22,34 @@ import {
 
 /**
  * Difficulty configurations for the game
- * - Easy: 5 lives, 2 hints revealed at start, 0.5x points
- * - Medium: 3 lives, 1 hint revealed at start, 1x points
- * - Hard: 2 lives, 0 hints revealed at start, 2x points
- * - Timed: 3 lives, 1 hint revealed at start, 1.5x points, 30 second timer
+ * - Easy: 5 lives, 2 hints revealed at start, 4 free hints, 0.5x points
+ * - Medium: 3 lives, 1 hint revealed at start, 4 free hints, 1x points
+ * - Hard: 2 lives, 0 hints revealed at start, 2 free hints (extra hints needed for 3rd/4th), 2x points
+ * - Timed: 3 lives, 1 hint revealed at start, 4 free hints, 1.5x points, 30 second timer
  */
 const DIFFICULTY_CONFIGS: DifficultyConfigMap = {
   [GameDifficulty.EASY]: {
     lives: 5,
     initialHints: 2,
+    maxFreeHints: 4, // Can reveal all 4 quadrants for free
     pointsMultiplier: 0.5,
   },
   [GameDifficulty.MEDIUM]: {
     lives: 3,
     initialHints: 1,
+    maxFreeHints: 4, // Can reveal all 4 quadrants for free
     pointsMultiplier: 1,
   },
   [GameDifficulty.HARD]: {
     lives: 2,
     initialHints: 0,
+    maxFreeHints: 2, // Only 2 free hints - need extra hints for quadrants 3 & 4
     pointsMultiplier: 2,
   },
   [GameDifficulty.TIMED]: {
     lives: 3,
     initialHints: 1,
+    maxFreeHints: 4, // Can reveal all 4 quadrants for free
     pointsMultiplier: 1.5,
     timeLimit: 30,
   },
@@ -121,6 +125,9 @@ export const useGameStore = create<GameState>()(
         const { difficulty, extraHintsOwned, fetchNewCharacter } = get();
         const config = DIFFICULTY_CONFIGS[difficulty];
 
+        // Max hints = free hints from difficulty + extra hints owned (capped at 4)
+        const maxAllowedHints = Math.min(config.maxFreeHints + extraHintsOwned, 4);
+
         set({
           gameStatus: 'playing',
           lives: config.lives,
@@ -128,7 +135,7 @@ export const useGameStore = create<GameState>()(
           streak: 0,
           points: 0,
           hintsRevealed: config.initialHints,
-          maxHints: 4 + extraHintsOwned,
+          maxHints: maxAllowedHints,
           timeRemaining: config.timeLimit ?? null,
           isGuest: !isAuthenticated,
         });
@@ -152,11 +159,14 @@ export const useGameStore = create<GameState>()(
             const { difficulty, extraHintsOwned } = get();
             const config = DIFFICULTY_CONFIGS[difficulty];
 
+            // Max hints = free hints from difficulty + extra hints owned (capped at 4)
+            const maxAllowedHints = Math.min(config.maxFreeHints + extraHintsOwned, 4);
+
             set({
               currentCharacter: data.character,
               correctAnime: data.correctAnime,
               hintsRevealed: config.initialHints,
-              maxHints: 4 + extraHintsOwned,
+              maxHints: maxAllowedHints,
               timeRemaining: config.timeLimit ?? null,
               isLoading: false,
               gameStatus: 'playing', // Reset to playing state for next round
@@ -173,11 +183,17 @@ export const useGameStore = create<GameState>()(
 
       /**
        * Reveal one more hint (quadrant)
+       * In hard mode: only 2 free hints, extra hints extend to 3rd and 4th quadrant
+       * In other modes: all 4 hints are free
        */
       revealHint: () => {
-        const { hintsRevealed, maxHints } = get();
+        const { hintsRevealed, difficulty, extraHintsOwned } = get();
+        const config = DIFFICULTY_CONFIGS[difficulty];
 
-        if (hintsRevealed < maxHints && hintsRevealed < 4) {
+        // Calculate max hints: free hints from difficulty + extra hints owned (capped at 4 total)
+        const maxAllowedHints = Math.min(config.maxFreeHints + extraHintsOwned, 4);
+
+        if (hintsRevealed < maxAllowedHints) {
           set({ hintsRevealed: hintsRevealed + 1 });
         }
       },
@@ -303,10 +319,13 @@ export const useGameStore = create<GameState>()(
         // Process purchase based on item type
         switch (item.type) {
           case ShopItemType.EXTRA_HINT:
-            // Permanent extra hint slot
+            // Permanent extra hint slot - recalculate max hints based on difficulty
+            const newExtraHints = extraHintsOwned + 1;
+            const purchaseConfig = DIFFICULTY_CONFIGS[get().difficulty];
+            const newMaxHints = Math.min(purchaseConfig.maxFreeHints + newExtraHints, 4);
             set({
-              extraHintsOwned: extraHintsOwned + 1,
-              maxHints: maxHints + 1,
+              extraHintsOwned: newExtraHints,
+              maxHints: newMaxHints,
               totalPoints: totalPoints - item.cost,
             });
             return true;
@@ -361,12 +380,16 @@ export const useGameStore = create<GameState>()(
        */
       resetGame: () => {
         const { highStreak, totalPoints, extraHintsOwned, leaderboard } = get();
+        const config = DIFFICULTY_CONFIGS[GameDifficulty.MEDIUM];
+
+        // Max hints = free hints from difficulty + extra hints owned (capped at 4)
+        const maxAllowedHints = Math.min(config.maxFreeHints + extraHintsOwned, 4);
 
         set({
           currentCharacter: null,
           correctAnime: [],
           hintsRevealed: 0,
-          maxHints: 4 + extraHintsOwned,
+          maxHints: maxAllowedHints,
           lives: 3,
           maxLives: 3,
           streak: 0,

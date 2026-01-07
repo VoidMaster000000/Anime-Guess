@@ -65,6 +65,7 @@ export enum GameDifficulty {
 export interface DifficultyConfig {
   lives: number;              // Number of lives player starts with
   initialHints: number;       // Number of hints revealed at start (0-4)
+  maxFreeHints: number;       // Max hints that can be revealed for free (extra hints extend this)
   pointsMultiplier: number;   // Multiplier for points earned
   timeLimit?: number;         // Time limit in seconds (only for timed mode)
 }

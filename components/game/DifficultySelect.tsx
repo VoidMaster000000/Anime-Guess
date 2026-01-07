@@ -10,12 +10,13 @@ interface DifficultyOption {
   name: string;
   description: string;
   lives: number;
-  hints: number;
+  freeHints: number;  // Number of free hints (extra hints extend beyond this in hard mode)
   pointsMultiplier: number;
   timeLimit?: number;
   icon: typeof Heart;
   color: string;
   gradient: string;
+  extraHintNote?: string; // Note about extra hints
 }
 
 interface DifficultySelectProps {
@@ -28,7 +29,7 @@ const difficulties: DifficultyOption[] = [
     name: 'Easy',
     description: 'Perfect for beginners',
     lives: 5,
-    hints: 4,
+    freeHints: 4,
     pointsMultiplier: 1,
     icon: Shield,
     color: 'green',
@@ -39,7 +40,7 @@ const difficulties: DifficultyOption[] = [
     name: 'Medium',
     description: 'Balanced challenge',
     lives: 3,
-    hints: 3,
+    freeHints: 4,
     pointsMultiplier: 1.5,
     icon: Zap,
     color: 'blue',
@@ -50,18 +51,19 @@ const difficulties: DifficultyOption[] = [
     name: 'Hard',
     description: 'For true anime fans',
     lives: 2,
-    hints: 2,
+    freeHints: 2,
     pointsMultiplier: 2,
     icon: Flame,
     color: 'orange',
     gradient: 'from-orange-600 to-red-600',
+    extraHintNote: 'Extra hints unlock quadrants 3 & 4',
   },
   {
     id: GameDifficulty.TIMED,
     name: 'Timed',
     description: 'Race against the clock',
     lives: 3,
-    hints: 2,
+    freeHints: 4,
     pointsMultiplier: 2.5,
     timeLimit: 30,
     icon: Clock,
@@ -164,10 +166,17 @@ function DifficultyCard({
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2 text-gray-400">
                 <Eye className="w-4 h-4" />
-                <span>Hints</span>
+                <span>Free Hints</span>
               </div>
-              <div className="font-semibold text-white">{difficulty.hints}</div>
+              <div className="font-semibold text-white">{difficulty.freeHints}/4</div>
             </div>
+
+            {/* Extra Hint Note (for hard mode) */}
+            {difficulty.extraHintNote && (
+              <div className="text-xs text-orange-400/80 italic mt-1">
+                💡 {difficulty.extraHintNote}
+              </div>
+            )}
 
             {/* Points Multiplier */}
             <div className="flex items-center justify-between text-sm">
