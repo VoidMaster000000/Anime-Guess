@@ -5,12 +5,10 @@ import { Animated, AnimatePresence } from '@/lib/animejs';
 import { animate } from '@/lib/animejs';
 import { ArrowLeft, ShoppingBag, Coins, CheckCircle2, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useGameStore, SHOP_ITEMS } from '@/store/gameStore';
+import { SHOP_ITEMS } from '@/store/gameStore';
 import { useAuth, purchaseItem as purchaseItemApi } from '@/hooks/useAuth';
 import { ShopItemType } from '@/types';
 import UpgradeCard from '@/components/shop/UpgradeCard';
-
-const MAX_EXTRA_HINTS = 5;
 
 interface Notification {
   type: 'success' | 'error';
@@ -25,9 +23,6 @@ export default function ShopPage() {
 
   // Use MongoDB coins only
   const displayCoins = user ? user.profile.coins : 0;
-
-  // Game store values for item availability
-  const extraHintsOwned = useGameStore((state) => state.extraHintsOwned);
 
   const [notification, setNotification] = useState<Notification | null>(null);
   const [animatedCoins, setAnimatedCoins] = useState(displayCoins);
@@ -138,22 +133,8 @@ export default function ShopPage() {
     // Check coins
     if (displayCoins < item.cost) return true;
 
-    // Check specific item limits for permanent upgrades
-    switch (item.type) {
-      case ShopItemType.EXTRA_HINT:
-        if (extraHintsOwned >= MAX_EXTRA_HINTS) return true;
-        break;
-    }
-
-    // Consumables can always be purchased and stored in inventory
+    // All items are consumables and can be purchased
     return false;
-  };
-
-  const getOwnedCount = (item: typeof SHOP_ITEMS[0]): number | undefined => {
-    if (item.type === ShopItemType.HINT_REVEAL && item.maxOwned) {
-      return extraHintsOwned;
-    }
-    return undefined;
   };
 
   return (
@@ -237,7 +218,6 @@ export default function ShopPage() {
                 item={item}
                 onPurchase={() => handlePurchase(item)}
                 disabled={isItemDisabled(item)}
-                owned={getOwnedCount(item)}
               />
             </Animated>
           ))}
