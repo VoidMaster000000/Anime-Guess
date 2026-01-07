@@ -96,7 +96,7 @@ export const Animated = forwardRef<HTMLDivElement, AnimatedProps>(
 
       const params: AnimationParams = {
         ...animateProps,
-        duration: transition?.duration || 500,
+        duration: transition?.duration || 200,
         delay: transition?.delay || 0,
         ease: transition?.ease || 'outQuad',
       };
@@ -148,7 +148,7 @@ export const Animated = forwardRef<HTMLDivElement, AnimatedProps>(
 
       animate(element, {
         ...exit,
-        duration: transition?.duration || 300,
+        duration: transition?.duration || 150,
         ease: transition?.ease || 'inQuad',
         onComplete: () => {
           setIsAnimating(false);
@@ -163,7 +163,7 @@ export const Animated = forwardRef<HTMLDivElement, AnimatedProps>(
       if (!element || !whileHover) return;
       animate(element, {
         ...whileHover,
-        duration: 200,
+        duration: 100,
         ease: 'outQuad',
       });
     };
@@ -175,7 +175,7 @@ export const Animated = forwardRef<HTMLDivElement, AnimatedProps>(
       if (animateProps) {
         animate(element, {
           ...animateProps,
-          duration: 200,
+          duration: 100,
           ease: 'outQuad',
         });
       }
@@ -186,7 +186,7 @@ export const Animated = forwardRef<HTMLDivElement, AnimatedProps>(
       if (!element || !whileTap) return;
       animate(element, {
         ...whileTap,
-        duration: 100,
+        duration: 50,
         ease: 'outQuad',
       });
     };
@@ -199,7 +199,7 @@ export const Animated = forwardRef<HTMLDivElement, AnimatedProps>(
       if (targetState) {
         animate(element, {
           ...targetState,
-          duration: 100,
+          duration: 50,
           ease: 'outQuad',
         });
       }

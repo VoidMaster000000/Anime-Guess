@@ -39,13 +39,13 @@ function AnimatedMenuItem({
     {
       translateX: 6,
       scale: 1.02,
-      duration: 150,
+      duration: 80,
       ease: 'outQuad'
     },
     {
       translateX: 0,
       scale: 1,
-      duration: 150,
+      duration: 80,
       ease: 'outQuad'
     }
   );
@@ -57,7 +57,7 @@ function AnimatedMenuItem({
     animate(iconRef.current, {
       scale: [1, 1.3, 1.15],
       rotate: item.highlight ? [0, 15, -5, 0] : [0, -10, 0],
-      duration: 300,
+      duration: 150,
       ease: 'outBack',
     });
   };
@@ -67,7 +67,7 @@ function AnimatedMenuItem({
     animate(iconRef.current, {
       scale: 1,
       rotate: 0,
-      duration: 200,
+      duration: 100,
       ease: 'outQuad',
     });
   };

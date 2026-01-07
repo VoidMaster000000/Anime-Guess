@@ -75,7 +75,7 @@ export default function LazyImage({
         opacity: [0, 1],
         scale: [1.05, 1],
         filter: ['blur(10px)', 'blur(0px)'],
-        duration: 400,
+        duration: 200,
         ease: 'outQuad',
       });
     }
@@ -188,7 +188,7 @@ function LoadingSpinner() {
     if (spinnerRef.current) {
       animate(spinnerRef.current, {
         rotate: 360,
-        duration: 1000,
+        duration: 400,
         ease: 'linear',
         loop: true,
       });

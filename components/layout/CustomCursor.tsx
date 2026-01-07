@@ -133,7 +133,7 @@ export default function CustomCursor() {
         translateY: Math.sin(angle) * velocity,
         opacity: [1, 0],
         scale: [1, 0],
-        duration: 600 + Math.random() * 200,
+        duration: 300 + Math.random() * 100,
         ease: 'outQuad',
         onComplete: () => particle.remove(),
       });
@@ -214,14 +214,14 @@ export default function CustomCursor() {
     if (cursorDotRef.current) {
       animate(cursorDotRef.current, {
         scale: isPointer ? 1.5 : 1,
-        duration: 150,
+        duration: 80,
         ease: 'outQuad',
       });
     }
     if (cursorRingRef.current) {
       animate(cursorRingRef.current, {
         scale: isPointer ? 1.4 : 1,
-        duration: 150,
+        duration: 80,
         ease: 'outQuad',
       });
     }

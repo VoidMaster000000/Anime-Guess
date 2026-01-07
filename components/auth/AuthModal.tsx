@@ -56,7 +56,7 @@ function AnimatedModal({
         opacity: [0, 1],
         scale: [0.9, 1],
         translateY: [20, 0],
-        duration: 300,
+        duration: 150,
         ease: 'outQuad',
       });
     }
@@ -83,7 +83,7 @@ function AnimatedHeader({
       animate(ref.current, {
         opacity: [0, 1],
         translateY: [-10, 0],
-        duration: 300,
+        duration: 150,
         ease: 'outQuad',
       });
     }
@@ -113,8 +113,8 @@ function AnimatedSubtitle({
     if (ref.current) {
       animate(ref.current, {
         opacity: [0, 1],
-        duration: 300,
-        delay: 100,
+        duration: 150,
+        delay: 50,
         ease: 'outQuad',
       });
     }
@@ -139,7 +139,7 @@ function AnimatedTabIndicator({
       animate(ref.current, {
         opacity: [0, 1],
         scale: [0.95, 1],
-        duration: 300,
+        duration: 150,
         ease: 'outQuad',
       });
     }

@@ -139,7 +139,7 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
             initial={{ opacity: 0, translateY: -10, scale: 0.95 }}
             animate={{ opacity: 1, translateY: 0, scale: 1 }}
             exit={{ opacity: 0, translateY: -10, scale: 0.95 }}
-            transition={{ duration: 200 }}
+            transition={{ duration: 100 }}
             className="absolute z-50 w-full mt-2 bg-gray-900/95 backdrop-blur-xl border-2 border-purple-500/30 rounded-xl overflow-hidden shadow-2xl shadow-purple-500/20"
           >
             <div ref={dropdownRef} className="max-h-[300px] overflow-y-auto">
@@ -173,8 +173,8 @@ function SuggestionItem({
   onMouseEnter: () => void;
 }) {
   const ref = useHoverAnimation<HTMLButtonElement>(
-    { translateX: 8, scale: 1.02, duration: 150, ease: 'outQuad' },
-    { translateX: 0, scale: 1, duration: 150, ease: 'outQuad' }
+    { translateX: 8, scale: 1.02, duration: 80, ease: 'outQuad' },
+    { translateX: 0, scale: 1, duration: 80, ease: 'outQuad' }
   );
 
   return (

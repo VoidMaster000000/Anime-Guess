@@ -28,7 +28,7 @@ function AnimatedFormContainer({
       animate(ref.current, {
         opacity: [0, 1],
         translateY: [20, 0],
-        duration: 300,
+        duration: 150,
         ease: 'outQuad',
       });
     }

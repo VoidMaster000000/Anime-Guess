@@ -114,7 +114,7 @@ export default function BackgroundVisuals() {
         opacity: [0, 1, 0],
         scale: [0, 1.5, 0],
         translateY: -30 - Math.random() * 20,
-        duration: sparkle.maxLife * 16,
+        duration: sparkle.maxLife * 10,
         ease: 'outQuad',
         onComplete: () => {
           element.remove();
