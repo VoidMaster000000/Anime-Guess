@@ -67,13 +67,30 @@ export default function SettingsPage() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Track the last saved settings to prevent unnecessary saves
+  const lastSavedRef = useRef<string>('');
+
   // Load settings from MongoDB user data
   useEffect(() => {
     if (user?.settings) {
-      setSoundEnabled(user.settings.soundEnabled ?? true);
-      setMusicEnabled(user.settings.musicEnabled ?? true);
-      setAnimationsEnabled(user.settings.animationsEnabled ?? true);
-      setTheme(user.settings.theme ?? 'dark');
+      const sound = user.settings.soundEnabled ?? true;
+      const music = user.settings.musicEnabled ?? true;
+      const animations = user.settings.animationsEnabled ?? true;
+      const userTheme = user.settings.theme ?? 'dark';
+
+      setSoundEnabled(sound);
+      setMusicEnabled(music);
+      setAnimationsEnabled(animations);
+      setTheme(userTheme);
+
+      // Initialize lastSavedRef so we don't immediately re-save
+      lastSavedRef.current = JSON.stringify({
+        soundEnabled: sound,
+        musicEnabled: music,
+        animationsEnabled: animations,
+        theme: userTheme,
+      });
+
       setHasLoaded(true);
     }
   }, [user]);
@@ -86,10 +103,13 @@ export default function SettingsPage() {
     theme: 'dark' | 'light' | 'system';
   }) => {
     if (!isAuthenticated || !user) {
-      setSaveMessage('Please login to save settings.');
-      setIsError(true);
-      setTimeout(() => setSaveMessage(''), 3000);
-      return;
+      return; // Silent fail for non-authenticated users
+    }
+
+    // Create a hash of current settings to compare
+    const settingsHash = JSON.stringify(settings);
+    if (settingsHash === lastSavedRef.current) {
+      return; // No changes, don't save
     }
 
     setIsSaving(true);
@@ -97,7 +117,7 @@ export default function SettingsPage() {
       const result = await updateUserSettings(settings);
 
       if (result.success) {
-        await refreshUser();
+        lastSavedRef.current = settingsHash; // Update last saved
         setSaveMessage('Settings saved!');
         setIsError(false);
       } else {
@@ -111,7 +131,7 @@ export default function SettingsPage() {
       setIsSaving(false);
       setTimeout(() => setSaveMessage(''), 2000);
     }
-  }, [isAuthenticated, user, refreshUser]);
+  }, [isAuthenticated, user]);
 
   // Debounced auto-save when settings change
   useEffect(() => {
@@ -122,10 +142,10 @@ export default function SettingsPage() {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    // Debounce save by 500ms
+    // Debounce save by 800ms
     saveTimeoutRef.current = setTimeout(() => {
       saveSettings({ soundEnabled, musicEnabled, animationsEnabled, theme });
-    }, 500);
+    }, 800);
 
     return () => {
       if (saveTimeoutRef.current) {
