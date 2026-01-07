@@ -32,10 +32,29 @@ function HoverScaleTap({ children, className }: { children: React.ReactNode; cla
   );
 }
 
-// CSS-based spin on hover
+// Animated spin on hover for logo (keeps the fun interaction)
 function SpinOnHover({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (ref.current) {
+      animate(ref.current, { rotate: 360, duration: 300, ease: 'inOutQuad' });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (ref.current) {
+      ref.current.style.transform = 'rotate(0deg)';
+    }
+  };
+
   return (
-    <div className={`transition-transform duration-300 hover:rotate-[360deg] ${className || ''}`}>
+    <div
+      ref={ref}
+      className={className}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {children}
     </div>
   );
