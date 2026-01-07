@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { Search, Loader2 } from 'lucide-react';
+import { Animated, AnimatePresence } from '@/lib/animejs';
+import { useHoverAnimation } from '@/lib/animejs';
 
 interface SearchResult {
   romaji: string;
@@ -130,28 +132,35 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
         />
       </div>
 
-      {/* Dropdown suggestions - CSS animation for better INP */}
-      {showDropdown && suggestions.length > 0 && !disabled && (
-        <div
-          ref={dropdownRef}
-          className="absolute z-50 w-full mt-2 bg-gray-900 border-2 border-purple-500/30 rounded-xl overflow-hidden shadow-2xl animate-dropdown-in max-h-[300px] overflow-y-auto"
-        >
-          {suggestions.map((anime, index) => (
-            <SuggestionItem
-              key={`${anime.romaji}-${index}`}
-              anime={anime}
-              isSelected={selectedIndex === index}
-              onClick={() => handleSelect(anime.romaji)}
-              onMouseEnter={() => setSelectedIndex(index)}
-            />
-          ))}
-        </div>
-      )}
+      {/* Dropdown suggestions with anime.js animations */}
+      <AnimatePresence>
+        {showDropdown && suggestions.length > 0 && !disabled && (
+          <Animated
+            initial={{ opacity: 0, translateY: -10, scale: 0.95 }}
+            animate={{ opacity: 1, translateY: 0, scale: 1 }}
+            exit={{ opacity: 0, translateY: -10, scale: 0.95 }}
+            transition={{ duration: 200 }}
+            className="absolute z-50 w-full mt-2 bg-gray-900/95 backdrop-blur-xl border-2 border-purple-500/30 rounded-xl overflow-hidden shadow-2xl shadow-purple-500/20"
+          >
+            <div ref={dropdownRef} className="max-h-[300px] overflow-y-auto">
+              {suggestions.map((anime, index) => (
+                <SuggestionItem
+                  key={`${anime.romaji}-${index}`}
+                  anime={anime}
+                  isSelected={selectedIndex === index}
+                  onClick={() => handleSelect(anime.romaji)}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                />
+              ))}
+            </div>
+          </Animated>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-// Helper component for suggestion items - CSS only for better INP
+// Helper component for suggestion items with anime.js hover
 function SuggestionItem({
   anime,
   isSelected,
@@ -163,15 +172,20 @@ function SuggestionItem({
   onClick: () => void;
   onMouseEnter: () => void;
 }) {
+  const ref = useHoverAnimation<HTMLButtonElement>(
+    { translateX: 8, scale: 1.02, duration: 150, ease: 'outQuad' },
+    { translateX: 0, scale: 1, duration: 150, ease: 'outQuad' }
+  );
+
   return (
     <button
+      ref={ref}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       className={`
-        w-full px-4 py-3 text-left transition-all duration-100
-        hover:translate-x-1
+        w-full px-4 py-3 text-left transition-colors
         ${isSelected
-          ? 'bg-purple-500/20 text-white translate-x-1'
+          ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/20 text-white border-l-2 border-purple-500'
           : 'text-gray-300 hover:bg-purple-500/10'
         }
       `}
