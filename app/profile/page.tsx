@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useGameStore } from '@/store/gameStore';
 import LevelProgress from '@/components/profile/LevelProgress';
 import CoinDisplay from '@/components/profile/CoinDisplay';
 
@@ -204,21 +203,19 @@ function ModalOverlay({
 export default function ProfilePage() {
   const router = useRouter();
 
-  // Auth hook for user data
+  // Auth hook for user data (MongoDB)
   const { user, refreshUser } = useAuth();
   const level = user?.profile?.level ?? 1;
+
+  // All stats come from MongoDB user profile
   const profileStats = {
     gamesPlayed: user?.profile?.gamesPlayed ?? 0,
     correctGuesses: user?.profile?.correctGuesses ?? 0,
-    wrongGuesses: (user?.profile?.totalGuesses ?? 0) - (user?.profile?.correctGuesses ?? 0),
+    totalGuesses: user?.profile?.totalGuesses ?? 0,
     highestStreak: user?.profile?.highestStreak ?? 0,
-    totalPoints: user?.profile?.coins ?? 0,
-    perfectGames: 0,
+    totalXp: user?.profile?.totalXp ?? 0,
+    coins: user?.profile?.coins ?? 0,
   };
-
-  // Game store (for total points and high streak)
-  const totalPoints = useGameStore((state) => state.totalPoints);
-  const highStreak = useGameStore((state) => state.highStreak);
 
   // Edit profile modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -234,18 +231,14 @@ export default function ProfilePage() {
     correctGuesses: 0,
     accuracy: 0,
     highestStreak: 0,
-    totalPoints: 0,
-    perfectGames: 0,
+    totalXp: 0,
+    coins: 0,
   });
 
-  // Calculate accuracy from game store stats
-  const totalGuesses = profileStats.correctGuesses + profileStats.wrongGuesses;
-  const accuracy = totalGuesses > 0
-    ? (profileStats.correctGuesses / totalGuesses) * 100
+  // Calculate accuracy from MongoDB stats
+  const accuracy = profileStats.totalGuesses > 0
+    ? (profileStats.correctGuesses / profileStats.totalGuesses) * 100
     : 0;
-
-  // Perfect games (tracked separately, for now showing 0 as placeholder)
-  const perfectGames = 0;
 
   // Animate stats on mount
   useEffect(() => {
@@ -253,9 +246,9 @@ export default function ProfilePage() {
       gamesPlayed: profileStats.gamesPlayed,
       correctGuesses: profileStats.correctGuesses,
       accuracy: accuracy,
-      highestStreak: profileStats.highestStreak || highStreak,
-      totalPoints: totalPoints,
-      perfectGames: perfectGames,
+      highestStreak: profileStats.highestStreak,
+      totalXp: profileStats.totalXp,
+      coins: profileStats.coins,
     };
 
     const animationDuration = 1000;
@@ -272,8 +265,8 @@ export default function ProfilePage() {
         correctGuesses: Math.floor(stats.correctGuesses * progress),
         accuracy: stats.accuracy * progress,
         highestStreak: Math.floor(stats.highestStreak * progress),
-        totalPoints: Math.floor(stats.totalPoints * progress),
-        perfectGames: Math.floor(stats.perfectGames * progress),
+        totalXp: Math.floor(stats.totalXp * progress),
+        coins: Math.floor(stats.coins * progress),
       });
 
       if (currentStep >= steps) {
@@ -283,7 +276,7 @@ export default function ProfilePage() {
     }, stepDuration);
 
     return () => clearInterval(interval);
-  }, [profileStats, totalPoints, highStreak, accuracy, perfectGames]);
+  }, [profileStats, accuracy]);
 
   const handleSaveProfile = async () => {
     setEditError(null);
@@ -388,8 +381,8 @@ export default function ProfilePage() {
       format: (v: number) => v.toLocaleString(),
     },
     {
-      label: 'Total Points',
-      value: animatedStats.totalPoints,
+      label: 'Total XP',
+      value: animatedStats.totalXp,
       icon: Award,
       color: 'from-purple-500/20 to-purple-600/20',
       borderColor: 'border-purple-500/30',
@@ -397,12 +390,12 @@ export default function ProfilePage() {
       format: (v: number) => v.toLocaleString(),
     },
     {
-      label: 'Perfect Games',
-      value: animatedStats.perfectGames,
+      label: 'Coins',
+      value: animatedStats.coins,
       icon: Star,
-      color: 'from-pink-500/20 to-pink-600/20',
-      borderColor: 'border-pink-500/30',
-      iconColor: 'text-pink-400',
+      color: 'from-yellow-500/20 to-yellow-600/20',
+      borderColor: 'border-yellow-500/30',
+      iconColor: 'text-yellow-400',
       format: (v: number) => v.toLocaleString(),
     },
   ];
