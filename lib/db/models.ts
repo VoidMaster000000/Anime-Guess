@@ -206,20 +206,32 @@ export const SHOP_ITEMS: ShopItemDefinition[] = [
 // XP/LEVEL CALCULATIONS
 // ============================================================================
 
+/**
+ * XP required per level: 100 XP base, increases by 50 XP per level
+ * Level 1→2: 100 XP
+ * Level 2→3: 150 XP
+ * Level 10→11: 550 XP
+ * Level 50→51: 2550 XP
+ */
+function getXpForLevel(level: number): number {
+  return 100 + (level - 1) * 50;
+}
+
 export function calculateLevel(totalXp: number): { level: number; xp: number; xpToNextLevel: number } {
-  // XP required for each level increases: level * 100
   let level = 1;
   let remainingXp = totalXp;
+  let xpNeeded = getXpForLevel(level);
 
-  while (remainingXp >= level * 100) {
-    remainingXp -= level * 100;
+  while (remainingXp >= xpNeeded) {
+    remainingXp -= xpNeeded;
     level++;
+    xpNeeded = getXpForLevel(level);
   }
 
   return {
     level,
     xp: remainingXp,
-    xpToNextLevel: level * 100,
+    xpToNextLevel: xpNeeded,
   };
 }
 
@@ -227,7 +239,10 @@ export function calculateXpForLevel(level: number): number {
   // Total XP needed to reach a specific level
   let total = 0;
   for (let i = 1; i < level; i++) {
-    total += i * 100;
+    total += getXpForLevel(i);
   }
   return total;
 }
+
+// Export for use in frontend
+export { getXpForLevel };

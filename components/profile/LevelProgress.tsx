@@ -857,11 +857,10 @@ export default function LevelProgress({
   const totalXp = user?.profile?.totalXp ?? 0;
 
   // Calculate XP progress locally
-  const BASE_XP = 100;
-  const XP_MULTIPLIER = 1.5;
-
+  // Formula: 100 XP base, increases by 50 XP per level (matches backend)
+  // Level 1→2: 100 XP, Level 2→3: 150 XP, Level 10→11: 550 XP
   const getRequiredXpForLevel = useCallback((lvl: number) => {
-    return Math.floor(BASE_XP * Math.pow(XP_MULTIPLIER, lvl - 1));
+    return 100 + (lvl - 1) * 50;
   }, []);
 
   // Calculate current XP within level and required XP

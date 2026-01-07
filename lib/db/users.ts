@@ -153,13 +153,15 @@ export async function updateUserStats(
   const incDoc: any = {};
 
   if (updates.xpToAdd) {
-    incDoc['profile.xp'] = updates.xpToAdd;
     incDoc['profile.totalXp'] = updates.xpToAdd;
 
-    // Calculate new level
+    // Calculate new level and current XP within that level
     const newTotalXp = user.profile.totalXp + updates.xpToAdd;
-    const { level } = calculateLevel(newTotalXp);
+    const { level, xp } = calculateLevel(newTotalXp);
+
+    // Set the correct level and XP within current level (not cumulative)
     updateDoc.$set['profile.level'] = level;
+    updateDoc.$set['profile.xp'] = xp;
   }
 
   if (updates.coinsToAdd) {
