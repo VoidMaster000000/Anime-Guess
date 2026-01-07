@@ -27,10 +27,13 @@ export default function CustomCursor() {
   const TRAIL_LENGTH = 8;
   const lastTrailUpdate = useRef(0);
 
-  // Check for touch device on mount
+  // Check for touch-only device on mount (not hybrid like laptops with touchscreen)
   useEffect(() => {
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    setIsTouchDevice(isTouch);
+    // Check if device has fine pointer (mouse) - if yes, show custom cursor
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+    // Only hide cursor on pure touch devices (no mouse available)
+    const isPureTouchDevice = !hasFinePointer && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    setIsTouchDevice(isPureTouchDevice);
   }, []);
 
   // Initialize trail dots
