@@ -14,100 +14,28 @@ const navLinks = [
   { href: "/shop", label: "Shop", icon: ShoppingBag },
 ];
 
-// Hover animation component
+// CSS-based hover scale (no JS blocking)
 function HoverScale({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.03, duration: 100, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 100, ease: 'outQuad' });
-    }
-  };
-
   return (
-    <div
-      ref={ref}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className={`transition-transform duration-100 hover:scale-[1.03] ${className || ''}`}>
       {children}
     </div>
   );
 }
 
-// Hover scale with tap animation
+// CSS-based hover scale with active state
 function HoverScaleTap({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.03, duration: 100, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 100, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 0.97, duration: 50, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.03, duration: 50, ease: 'outQuad' });
-    }
-  };
-
   return (
-    <div
-      ref={ref}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-    >
+    <div className={`transition-transform duration-100 hover:scale-[1.03] active:scale-[0.97] ${className || ''}`}>
       {children}
     </div>
   );
 }
 
-// Spin on hover component
+// CSS-based spin on hover
 function SpinOnHover({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { rotate: 360, duration: 300, ease: 'inOutQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      // Reset rotation without animation
-      ref.current.style.transform = 'rotate(0deg)';
-    }
-  };
-
   return (
-    <div
-      ref={ref}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className={`transition-transform duration-300 hover:rotate-[360deg] ${className || ''}`}>
       {children}
     </div>
   );

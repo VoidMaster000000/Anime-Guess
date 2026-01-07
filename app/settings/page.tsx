@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   ArrowLeft,
   Settings,
@@ -21,51 +20,20 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAuth, updateSettings as updateUserSettings } from '@/hooks/useAuth';
 
-// Animated section wrapper
+// CSS-based animated section wrapper
 function AnimatedSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 200,
-        delay: delay * 0.5,
-        ease: 'outQuad',
-      });
-    }
-  }, [delay]);
-
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`animate-fade-in-up ${className || ''}`}
+      style={{ animationDelay: `${delay * 0.5}ms` }}
+    >
       {children}
     </div>
   );
 }
 
-// Animated toggle switch
+// CSS-based toggle switch (no JS blocking)
 function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => void }) {
-  const knobRef = useRef<HTMLDivElement>(null);
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    if (knobRef.current) {
-      if (isFirstRender.current) {
-        // Set initial position without animation
-        knobRef.current.style.transform = `translateX(${value ? 24 : 0}px)`;
-        isFirstRender.current = false;
-      } else {
-        // Animate subsequent changes
-        animate(knobRef.current, {
-          translateX: value ? 24 : 0,
-          duration: 120,
-          ease: 'outQuad',
-        });
-      }
-    }
-  }, [value]);
-
   return (
     <button
       onClick={onChange}
@@ -76,8 +44,9 @@ function ToggleSwitch({ value, onChange }: { value: boolean; onChange: () => voi
       }`}
     >
       <div
-        ref={knobRef}
-        className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform"
+        className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md
+          transition-transform duration-150 ease-out
+          ${value ? 'translate-x-6' : 'translate-x-0'}`}
       />
     </button>
   );

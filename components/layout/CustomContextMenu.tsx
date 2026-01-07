@@ -27,7 +27,7 @@ interface MenuItem {
   highlight?: boolean;
 }
 
-// Animated menu item with hover effects
+// CSS-based animated menu item (no JS blocking on hover)
 function AnimatedMenuItem({
   item,
   onClick,
@@ -35,88 +35,27 @@ function AnimatedMenuItem({
   item: MenuItem;
   onClick: () => void;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const iconRef = useRef<HTMLSpanElement>(null);
-
-  const handleMouseEnter = () => {
-    if (item.disabled || !ref.current) return;
-
-    animate(ref.current, {
-      scale: 1.02,
-      translateX: 4,
-      duration: 100,
-      ease: 'outQuad',
-    });
-
-    if (iconRef.current) {
-      animate(iconRef.current, {
-        scale: 1.2,
-        rotate: item.highlight ? 15 : 0,
-        duration: 150,
-        ease: 'outBack',
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!ref.current) return;
-
-    animate(ref.current, {
-      scale: 1,
-      translateX: 0,
-      duration: 100,
-      ease: 'outQuad',
-    });
-
-    if (iconRef.current) {
-      animate(iconRef.current, {
-        scale: 1,
-        rotate: 0,
-        duration: 100,
-        ease: 'outQuad',
-      });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (item.disabled || !ref.current) return;
-
-    animate(ref.current, {
-      scale: 0.98,
-      duration: 50,
-      ease: 'outQuad',
-    });
-  };
-
-  const handleMouseUp = () => {
-    if (item.disabled || !ref.current) return;
-
-    animate(ref.current, {
-      scale: 1.02,
-      duration: 50,
-      ease: 'outQuad',
-    });
-  };
-
   return (
     <button
-      ref={ref}
       onClick={onClick}
       disabled={item.disabled}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors rounded-lg mx-1 ${
-        item.disabled
+      className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg mx-1
+        transition-all duration-100
+        ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
+          : 'hover:scale-[1.02] hover:translate-x-1 active:scale-[0.98]'
+        }
+        ${item.disabled
+          ? ''
           : item.highlight
-          ? 'text-purple-400 hover:bg-purple-500/20'
-          : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
-      }`}
+            ? 'text-purple-400 hover:bg-purple-500/20'
+            : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+        }`}
       style={{ width: 'calc(100% - 8px)' }}
     >
-      <span ref={iconRef} className={item.disabled ? 'opacity-50' : ''}>
+      <span className={`transition-transform duration-150 ${
+        item.disabled ? 'opacity-50' : 'group-hover:scale-110'
+      } ${item.highlight && !item.disabled ? 'hover:rotate-12' : ''}`}>
         {item.icon}
       </span>
       <span className="text-sm">{item.label}</span>

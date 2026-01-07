@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { animate } from "@/lib/animejs";
 import {
   User,
   LogOut,
@@ -21,52 +20,24 @@ interface ProfileDropdownProps {
   onLogout?: () => void;
 }
 
-// Animated dropdown panel
-function DropdownPanel({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [-5, 0],
-        scale: [0.97, 1],
-        duration: 100,
-        ease: 'outQuad',
-      });
-    }
-  }, []);
-
+// CSS-based dropdown panel
+function DropdownPanel({ children }: { children: React.ReactNode }) {
   return (
     <div
-      ref={ref}
-      className="absolute right-0 mt-2 w-72 bg-bg-card border border-bg-card/50 rounded-xl shadow-2xl overflow-hidden z-50"
-      style={{ opacity: 0 }}
+      className="absolute right-0 mt-2 w-72 bg-bg-card border border-bg-card/50 rounded-xl shadow-2xl overflow-hidden z-50
+        animate-dropdown-in"
     >
       {children}
     </div>
   );
 }
 
-// Animated progress bar
+// CSS-based progress bar
 function AnimatedProgress({ progress }: { progress: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        width: [0, `${progress}%`],
-        duration: 250,
-        ease: 'outQuad',
-      });
-    }
-  }, [progress]);
-
   return (
     <div
-      ref={ref}
-      className="h-full bg-gradient-to-r from-accent to-accent-purple"
-      style={{ width: 0 }}
+      className="h-full bg-gradient-to-r from-accent to-accent-purple transition-all duration-300 ease-out"
+      style={{ width: `${progress}%` }}
     />
   );
 }
@@ -179,7 +150,7 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <DropdownPanel onClose={() => setIsOpen(false)}>
+        <DropdownPanel>
           {/* Profile Header */}
           <div className="p-4 bg-gradient-to-br from-accent/10 to-accent-purple/10 border-b border-accent/20">
             <div className="flex items-center space-x-3 mb-3">
