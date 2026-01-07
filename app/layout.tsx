@@ -4,8 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CustomContextMenu from "@/components/layout/CustomContextMenu";
-import CustomCursor from "@/components/layout/CustomCursor";
-import BackgroundVisuals from "@/components/effects/BackgroundVisuals";
+import ClientEffects from "@/components/layout/ClientEffects";
 import Providers from "@/components/Providers";
 
 const inter = Inter({
@@ -33,12 +32,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        {/* Preload critical fonts to reduce LCP */}
+        <link
+          rel="preload"
+          href="/fonts/altron.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/nasalization.otf"
+          as="font"
+          type="font/opentype"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body
         className={`${inter.variable} font-sans antialiased min-h-screen bg-bg-primary text-text-primary`}
       >
         <Providers>
-          <BackgroundVisuals />
-          <CustomCursor />
+          <ClientEffects />
           <CustomContextMenu />
           <div className="flex flex-col min-h-screen relative z-10">
             <Header />
