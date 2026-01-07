@@ -151,12 +151,12 @@ export interface ShopItemDefinition {
 
 export const SHOP_ITEMS: ShopItemDefinition[] = [
   {
-    id: 'extra_hint',
-    name: 'Extra Hint',
-    description: 'Reveal an additional quadrant',
+    id: 'reveal_hint',
+    name: 'Reveal Hint',
+    description: 'Instantly reveal one hint quadrant',
     price: 50,
     type: 'hint',
-    icon: 'Lightbulb',
+    icon: 'Eye',
     maxOwnable: 10,
     effect: { type: 'reveal_quadrant', value: 1 },
   },

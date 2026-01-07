@@ -22,34 +22,34 @@ import {
 
 /**
  * Difficulty configurations for the game
- * - Easy: 5 lives, 2 hints revealed at start, 4 free hints, 0.5x points
- * - Medium: 3 lives, 1 hint revealed at start, 4 free hints, 1x points
- * - Hard: 2 lives, 0 hints revealed at start, 2 free hints (extra hints needed for 3rd/4th), 2x points
- * - Timed: 3 lives, 1 hint revealed at start, 4 free hints, 1.5x points, 30 second timer
+ * - Easy: 5 lives, 2 hints revealed at start, 0.5x points
+ * - Medium: 3 lives, 1 hint revealed at start, 1x points
+ * - Hard: 2 lives, 0 hints revealed at start, 2x points
+ * - Timed: 3 lives, 1 hint revealed at start, 1.5x points, 30 second timer
  */
 const DIFFICULTY_CONFIGS: DifficultyConfigMap = {
   [GameDifficulty.EASY]: {
     lives: 5,
     initialHints: 2,
-    maxFreeHints: 4, // Can reveal all 4 quadrants for free
+    maxFreeHints: 4,
     pointsMultiplier: 0.5,
   },
   [GameDifficulty.MEDIUM]: {
     lives: 3,
     initialHints: 1,
-    maxFreeHints: 4, // Can reveal all 4 quadrants for free
+    maxFreeHints: 4,
     pointsMultiplier: 1,
   },
   [GameDifficulty.HARD]: {
     lives: 2,
     initialHints: 0,
-    maxFreeHints: 2, // Only 2 free hints - need extra hints for quadrants 3 & 4
+    maxFreeHints: 4,
     pointsMultiplier: 2,
   },
   [GameDifficulty.TIMED]: {
     lives: 3,
     initialHints: 1,
-    maxFreeHints: 4, // Can reveal all 4 quadrants for free
+    maxFreeHints: 4,
     pointsMultiplier: 1.5,
     timeLimit: 30,
   },
@@ -565,18 +565,9 @@ export const useGameStore = create<GameState>()(
 // ============================================================================
 
 /**
- * Available shop items
+ * Available shop items - synced with lib/db/models.ts SHOP_ITEMS
  */
 export const SHOP_ITEMS: ShopItem[] = [
-  {
-    id: 'extra_hint_slot',
-    name: 'Extra Hint Slot',
-    description: 'Permanently unlock additional hint slot (max 5)',
-    cost: 500,
-    type: ShopItemType.EXTRA_HINT,
-    maxOwned: 5,
-    icon: 'eye',
-  },
   {
     id: 'reveal_hint',
     name: 'Reveal Hint',
