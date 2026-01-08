@@ -50,23 +50,22 @@ export default function GamePage() {
   const [showLevelUpNotification, setShowLevelUpNotification] = useState(false);
   const [showAntiCheatWarning, setShowAntiCheatWarning] = useState(false);
 
-  // Anti-cheat system
+  // Anti-cheat system (relaxed - only penalize excessive switching)
   const {
     tabSwitchCount,
     isSuspicious,
     isTabVisible,
     resetAntiCheat,
   } = useAntiCheat({
-    maxTabSwitches: 3,
+    maxTabSwitches: 10, // More lenient - allow 10 switches before penalty
     enabled: gameStatus === 'playing',
-    onWarning: useCallback((message: string) => {
-      setShowAntiCheatWarning(true);
-      // Auto-hide after 5 seconds
-      setTimeout(() => setShowAntiCheatWarning(false), 5000);
+    onWarning: useCallback(() => {
+      // Only show warning on first tab switch, not every time
+      // Warnings are now handled inside the hook more selectively
     }, []),
     onSuspiciousActivity: useCallback((type: string, count: number) => {
       setShowAntiCheatWarning(true);
-      // Lose a life as punishment for cheating
+      // Lose a life as punishment for excessive cheating
       loseLife(`Cheating detected: ${type} (${count} times)`);
     }, [loseLife]),
   });
@@ -79,12 +78,15 @@ export default function GamePage() {
     }
   }, [gameStatus, resetAntiCheat]);
 
-  // Show warning when returning to tab (if switches detected)
+  // Only show warning when approaching the limit (at 7+ switches)
   useEffect(() => {
-    if (isTabVisible && tabSwitchCount > 0 && gameStatus === 'playing') {
+    if (isTabVisible && tabSwitchCount >= 7 && tabSwitchCount < 10 && gameStatus === 'playing' && !isSuspicious) {
       setShowAntiCheatWarning(true);
+      // Auto-hide after 3 seconds
+      const timer = setTimeout(() => setShowAntiCheatWarning(false), 3000);
+      return () => clearTimeout(timer);
     }
-  }, [isTabVisible, tabSwitchCount, gameStatus]);
+  }, [isTabVisible, tabSwitchCount, gameStatus, isSuspicious]);
 
   // Handle guess with profile integration
   const handleGuess = async (guess: string) => {
@@ -403,7 +405,7 @@ export default function GamePage() {
       <AntiCheatWarning
         isVisible={showAntiCheatWarning}
         tabSwitchCount={tabSwitchCount}
-        maxSwitches={3}
+        maxSwitches={10}
         onDismiss={() => setShowAntiCheatWarning(false)}
         isSuspicious={isSuspicious}
       />

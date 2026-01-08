@@ -67,13 +67,9 @@ export function useAntiCheat(options: UseAntiCheatOptions = {}) {
             const warning = `Suspicious activity detected: ${switchCount} tab switches`;
             newWarnings.push(warning);
             onSuspiciousActivity?.('tab_switch', switchCount);
-          } else if (switchCount > 0 && switchCount < maxTabSwitches) {
-            const warning = `Warning: Tab switch detected (${switchCount}/${maxTabSwitches})`;
-            if (!newWarnings.includes(warning)) {
-              newWarnings.push(warning);
-              onWarning?.(warning);
-            }
           }
+          // Only warn when approaching the limit (70%+), not on every switch
+          // This makes the system much less intrusive
 
           return {
             ...prev,
