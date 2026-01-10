@@ -151,8 +151,8 @@ export default function GameStats({ lives, streak, points, highStreak, maxLives 
   }, [lives, prevLives]);
 
   return (
-    <div className="w-full bg-gray-900/80 backdrop-blur-sm border-b-2 border-purple-500/30 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-6 flex-wrap">
+    <div className="w-full bg-gray-900/80 backdrop-blur-sm border-b-2 border-purple-500/30 px-4 sm:px-6 py-3 sm:py-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4 md:gap-6 flex-wrap">
         {/* Lives */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">

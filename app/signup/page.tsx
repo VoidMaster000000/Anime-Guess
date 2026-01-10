@@ -131,13 +131,13 @@ export default function SignupPage() {
         <div className="bg-glow-cyan top-1/3 left-0 w-[400px] h-[400px] blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-md relative z-10 px-4 sm:px-0">
+      <div className="w-full max-w-md relative z-10 px-4 sm:px-6 md:px-0">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-5 md:mb-6 transition-colors group text-sm sm:text-base">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Back to Home
           </Link>
@@ -148,10 +148,10 @@ export default function SignupPage() {
           variants={modalVariants}
           initial="hidden"
           animate="visible"
-          className="card-dark p-5 sm:p-8"
+          className="card-dark p-5 sm:p-6 md:p-8"
         >
           {/* Logo */}
-          <div className="text-center mb-4 sm:mb-6">
+          <div className="text-center mb-4 sm:mb-5 md:mb-6">
             <motion.div
               variants={scaleInBounce}
               initial="hidden"
@@ -389,7 +389,7 @@ export default function SignupPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="form-element mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base"
+            className="form-element mt-4 sm:mt-5 md:mt-6 text-center text-gray-400 text-sm sm:text-base"
           >
             Already have an account?{' '}
             <Link href="/login" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Login</Link>

@@ -262,10 +262,10 @@ export default function InventoryPage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         {/* Header */}
         <AnimatedSection className="mb-6 sm:mb-8">
-          <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+          <div className="flex items-center justify-between mb-4 sm:mb-5 md:mb-6 gap-3">
             <button
               onClick={() => router.back()}
               className="btn btn-secondary text-sm sm:text-base"
@@ -309,7 +309,7 @@ export default function InventoryPage() {
 
         {/* Inventory Grid */}
         {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
             {filteredItems.map((item, index) => {
               const rarityStyle = RARITY_COLORS[item.rarity];
               const Icon = item.icon;

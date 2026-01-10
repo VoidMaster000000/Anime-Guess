@@ -71,13 +71,13 @@ const difficulties: DifficultyOption[] = [
 
 export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-12">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Header */}
       <motion.div
         variants={fadeInUp}
         initial="hidden"
         animate="visible"
-        className="text-center mb-12"
+        className="text-center mb-8 sm:mb-12"
       >
         <div className="inline-flex items-center gap-3 mb-4">
           <Trophy className="w-10 h-10 text-purple-500" />
@@ -95,7 +95,7 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6"
       >
         {difficulties.map((difficulty) => (
           <DifficultyCard

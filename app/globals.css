@@ -390,11 +390,79 @@
 
 /* ---------- Page Layout ---------- */
 .page-container {
-  @apply min-h-screen bg-gray-950 p-4 overflow-hidden relative;
+  @apply min-h-screen bg-gray-950 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-hidden relative;
 }
 
 .page-bg {
   @apply fixed inset-0 overflow-hidden pointer-events-none;
+}
+
+/* ---------- Symmetric Spacing ---------- */
+/* Consistent responsive container padding */
+.container-padding {
+  @apply px-4 sm:px-6 lg:px-8;
+}
+
+.section-padding {
+  @apply py-6 sm:py-8 lg:py-10;
+}
+
+/* Consistent responsive gaps */
+.gap-responsive {
+  @apply gap-3 sm:gap-4 md:gap-6;
+}
+
+.gap-responsive-sm {
+  @apply gap-2 sm:gap-3 md:gap-4;
+}
+
+/* Consistent section margins */
+.mb-section {
+  @apply mb-6 sm:mb-8;
+}
+
+.mb-section-sm {
+  @apply mb-4 sm:mb-6;
+}
+
+/* Symmetric grid layouts */
+.grid-stats {
+  @apply grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4;
+}
+
+.grid-cards {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+}
+
+.grid-shop {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+}
+
+/* Consistent card padding */
+.card-padding {
+  @apply p-4 sm:p-6;
+}
+
+.card-padding-sm {
+  @apply p-3 sm:p-4;
+}
+
+/* Form element spacing */
+.form-element {
+  @apply mb-0;
+}
+
+/* Consistent icon sizes */
+.icon-sm {
+  @apply w-4 h-4 sm:w-5 sm:h-5;
+}
+
+.icon-md {
+  @apply w-5 h-5 sm:w-6 sm:h-6;
+}
+
+.icon-lg {
+  @apply w-6 h-6 sm:w-8 sm:h-8;
 }
 
 /* ============================================================================

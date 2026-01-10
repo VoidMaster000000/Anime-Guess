@@ -190,7 +190,7 @@ export default function GamePage() {
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         <AnimatePresence mode="wait">
           {/* MENU STATE - Difficulty Selection */}
           {gameStatus === 'menu' && (
@@ -230,7 +230,7 @@ export default function GamePage() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="space-y-6"
+              className="space-y-4 sm:space-y-5 md:space-y-6"
             >
               {/* Game Stats Bar */}
               <GameStats
@@ -282,10 +282,10 @@ export default function GamePage() {
                 variants={staggerContainer}
                 initial="hidden"
                 animate="visible"
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6"
               >
                 {/* Left Column - Character Image */}
-                <motion.div variants={staggerItem} className="space-y-4">
+                <motion.div variants={staggerItem} className="space-y-3 sm:space-y-4">
                   {currentCharacter ? (
                     <>
                       <CharacterImage
@@ -331,10 +331,10 @@ export default function GamePage() {
                 </motion.div>
 
                 {/* Right Column - Guess Input and Info */}
-                <motion.div variants={staggerItem} className="space-y-4">
+                <motion.div variants={staggerItem} className="space-y-3 sm:space-y-4">
                   <motion.div
                     variants={fadeInUp}
-                    className="card p-4 sm:p-6 relative z-20"
+                    className="card card-padding relative z-20"
                   >
                     <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gradient">
                       Guess the Anime!
@@ -357,7 +357,7 @@ export default function GamePage() {
                   {/* Game Tips - Hidden on small mobile, visible on larger screens */}
                   <motion.div
                     variants={fadeInUp}
-                    className="hidden sm:block stat-blue p-4 sm:p-6 relative z-10"
+                    className="hidden sm:block stat-blue card-padding relative z-10"
                   >
                     <div className="flex items-center gap-2 mb-3">
                       <Award className="w-5 h-5 text-blue-400" />

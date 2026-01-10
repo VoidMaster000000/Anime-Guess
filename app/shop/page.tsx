@@ -154,10 +154,10 @@ export default function ShopPage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         {/* Header */}
         <AnimatedSection className="mb-6 sm:mb-8">
-          <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+          <div className="flex items-center justify-between mb-4 sm:mb-5 md:mb-6 gap-3">
             <button
               onClick={() => router.back()}
               className="btn btn-secondary text-sm sm:text-base"
@@ -168,7 +168,7 @@ export default function ShopPage() {
             </button>
 
             {/* Coins Display */}
-            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 stat-yellow">
+            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-6 py-2 sm:py-3 stat-yellow">
               <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
               <div className="flex flex-col">
                 <span className="text-[10px] sm:text-xs text-zinc-400">Your Coins</span>
@@ -210,7 +210,7 @@ export default function ShopPage() {
         </AnimatedSection>
 
         {/* Shop Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8">
           {SHOP_ITEMS.map((item, index) => (
             <AnimatedSection
               key={item.id}
@@ -226,9 +226,9 @@ export default function ShopPage() {
         </div>
 
         {/* Info Section */}
-        <AnimatedSection delay={400} className="card p-4 sm:p-6">
+        <AnimatedSection delay={400} className="card card-padding">
           <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">How to Earn Coins</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm text-zinc-400">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5 text-xs sm:text-sm text-zinc-400">
             <div>
               <div className="font-semibold text-purple-400 mb-1">Correct Guesses</div>
               <p>Earn coins by correctly guessing characters. Use fewer hints for more coins!</p>

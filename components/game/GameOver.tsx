@@ -135,7 +135,7 @@ export default function GameOver({
         >
           {/* Gradient border container */}
           <div className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 p-[2px] rounded-2xl">
-            <div className="bg-gray-900 rounded-2xl p-8">
+            <div className="bg-gray-900 rounded-2xl p-5 sm:p-6 md:p-8">
               {/* Close button */}
               {onClose && (
                 <button
@@ -147,7 +147,7 @@ export default function GameOver({
               )}
 
               {/* Header */}
-              <div className="text-center mb-8">
+              <div className="text-center mb-6 sm:mb-8">
                 <motion.div
                   variants={scaleInBounce}
                   initial="hidden"
@@ -181,7 +181,7 @@ export default function GameOver({
                 variants={staggerContainer}
                 initial="hidden"
                 animate="visible"
-                className="grid grid-cols-2 gap-4 mb-8"
+                className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8"
               >
                 {/* Final Streak */}
                 <motion.div

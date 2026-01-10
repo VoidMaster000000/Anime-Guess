@@ -352,20 +352,20 @@ export default function ProfilePage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl">
         {/* Header */}
-        <AnimatedSection className="mb-8">
+        <AnimatedSection className="mb-6 sm:mb-8">
           <button
             onClick={() => router.back()}
-            className="btn btn-secondary mb-6"
+            className="btn btn-secondary mb-4 sm:mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back</span>
           </button>
 
           {/* Profile Header Card */}
-          <ScaleCard className="card-glass p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6">
+          <ScaleCard className="card-glass p-4 sm:p-5 md:p-6 lg:p-8 mb-5 sm:mb-6 md:mb-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-5 md:gap-6">
               {/* Avatar */}
               <HoverAvatar className="w-20 h-20 sm:w-24 sm:h-24 stat-purple flex-center text-4xl sm:text-5xl flex-shrink-0 overflow-hidden rounded-xl sm:rounded-2xl">
                 {user?.avatarImage ? (
@@ -398,7 +398,7 @@ export default function ProfilePage() {
                 </p>
 
                 {/* Level and Coins */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5 max-w-2xl">
                   <LevelProgress showDetails size="lg" />
                   <CoinDisplay showAddButton size="lg" />
                 </div>
@@ -414,7 +414,7 @@ export default function ProfilePage() {
             Statistics
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {statsGrid.map((stat, index) => (
               <HoverCard
                 key={stat.label}

@@ -99,14 +99,14 @@ export default function LoginPage() {
         <div className="bg-glow-blue top-1/2 right-0 w-[500px] h-[500px] blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-md relative z-10 px-4 sm:px-0">
+      <div className="w-full max-w-md relative z-10 px-4 sm:px-6 md:px-0">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-5 md:mb-6 transition-colors group text-sm sm:text-base">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Back to Home
           </Link>
@@ -118,7 +118,7 @@ export default function LoginPage() {
           variants={modalVariants}
           initial="hidden"
           animate="visible"
-          className="card-dark p-5 sm:p-8"
+          className="card-dark p-5 sm:p-6 md:p-8"
         >
           {/* Logo */}
           <div className="text-center mb-6 sm:mb-8">
@@ -157,7 +157,7 @@ export default function LoginPage() {
             initial="hidden"
             animate="visible"
             onSubmit={handleSubmit}
-            className="space-y-4 sm:space-y-5"
+            className="space-y-3 sm:space-y-4"
           >
             {/* Email */}
             <motion.div variants={staggerItem} className="form-element">
@@ -242,7 +242,7 @@ export default function LoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="form-element my-4 sm:my-6 flex items-center gap-4"
+            className="form-element my-4 sm:my-5 md:my-6 flex items-center gap-4"
           >
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
             <span className="text-xs sm:text-sm text-gray-500">or</span>
@@ -265,7 +265,7 @@ export default function LoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="form-element mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base"
+            className="form-element mt-4 sm:mt-5 md:mt-6 text-center text-gray-400 text-sm sm:text-base"
           >
             Don't have an account?{' '}
             <Link href="/signup" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">

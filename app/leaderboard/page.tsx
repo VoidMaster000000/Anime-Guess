@@ -164,9 +164,9 @@ export default function LeaderboardPage() {
         <div className="bg-glow-blue bottom-0 right-1/4" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         {/* Header */}
-        <AnimatedSection className="mb-8">
+        <AnimatedSection className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-6">
             <button onClick={() => router.push('/')} className="btn btn-secondary">
               <ArrowLeft className="w-5 h-5" />
@@ -178,7 +178,7 @@ export default function LeaderboardPage() {
             </button>
           </div>
 
-          <div className="text-center mb-6">
+          <div className="text-center mb-4 sm:mb-6">
             <div className="flex-center gap-2 sm:gap-3 mb-2">
               <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500" />
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gradient">Leaderboard</h1>
@@ -195,7 +195,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             <StatCard delay={100} className="stat-purple p-3 sm:p-4">
               <div className="flex items-center gap-2 sm:gap-3">
                 <Users className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 flex-shrink-0" />
@@ -223,7 +223,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Search */}
-          <div className="mb-4 relative">
+          <div className="mb-3 sm:mb-4 relative">
             <Search className="icon-input" />
             <input
               type="text"
@@ -240,8 +240,8 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Time Filters */}
-          <div className="card p-4 mb-4">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="card p-3 sm:p-4 mb-3 sm:mb-4">
+            <div className="flex items-center gap-2 mb-2 sm:mb-3">
               <Calendar className="w-5 h-5 text-gray-400" />
               <span className="text-gray-400 text-sm font-medium">Time Period:</span>
             </div>
@@ -297,7 +297,7 @@ export default function LeaderboardPage() {
         </AnimatedSection>
 
         {/* List */}
-        <AnimatedSection delay={200} className="space-y-3">
+        <AnimatedSection delay={200} className="space-y-2 sm:space-y-3">
           {isLoading ? (
             <div className="text-center py-16 card">
               <RefreshCw className="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" />
