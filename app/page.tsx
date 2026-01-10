@@ -360,14 +360,14 @@ export default function GamePage() {
                   </motion.div>
 
                   {/* Item Usage Panel */}
-                  <div className="relative z-10">
+                  <div className="relative z-0">
                     <ItemUsagePanel />
                   </div>
 
                   {/* Game Tips - Gaming style card with cut corner */}
                   <motion.div
                     variants={fadeInUp}
-                    className="hidden sm:block card-hexagon p-4 sm:p-6 border border-cyan-500/20 relative z-10"
+                    className="hidden sm:block card-hexagon p-4 sm:p-6 border border-cyan-500/20 relative z-0"
                   >
                     <div className="stripe-decoration text-cyan-500" />
                     <div className="relative">

@@ -103,7 +103,7 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
   }, []);
 
   return (
-    <div className="relative w-full max-w-2xl">
+    <div className="relative w-full max-w-2xl z-50">
       {/* Input container */}
       <div className="relative">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
