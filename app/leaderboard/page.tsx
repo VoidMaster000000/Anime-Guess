@@ -470,14 +470,22 @@ export default function LeaderboardPage() {
               </p>
             </div>
           ) : (
-            (searchQuery ? filteredEntries : restEntries).map((entry, index) => (
-              <LeaderboardRow
-                key={entry.id}
-                entry={entry}
-                rank={searchQuery ? index + 1 : index + 4}
-                isCurrentUser={user?.id === entry.userId}
-              />
-            ))
+            (() => {
+              // If podium is showing (3+ entries, no search), show entries starting from rank 4
+              // Otherwise, show all entries starting from rank 1
+              const showPodium = topThree.length >= 3 && !searchQuery;
+              const entriesToShow = showPodium ? restEntries : filteredEntries;
+              const startRank = showPodium ? 4 : 1;
+
+              return entriesToShow.map((entry, index) => (
+                <LeaderboardRow
+                  key={entry.id}
+                  entry={entry}
+                  rank={startRank + index}
+                  isCurrentUser={user?.id === entry.userId}
+                />
+              ));
+            })()
           )}
         </motion.div>
       </div>
