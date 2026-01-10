@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   Package,
@@ -37,26 +36,23 @@ interface InventoryItemDisplay {
 }
 
 // ============================================================================
-// ANIMATED COMPONENTS
+// ANIMATED COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 200,
-        delay: delay * 0.5,
-        ease: 'outQuad',
-      });
-    }
+    const timer = setTimeout(() => setIsVisible(true), delay * 0.5);
+    return () => clearTimeout(timer);
   }, [delay]);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-200 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'
+      }`}
+    >
       {children}
     </div>
   );
@@ -73,42 +69,11 @@ function HoverScaleButton({
   className: string;
   disabled?: boolean;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  const handleMouseEnter = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 80, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 0.98, duration: 50, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 50, ease: 'outQuad' });
-    }
-  };
-
   return (
     <button
-      ref={ref}
       onClick={onClick}
       disabled={disabled}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      className={`${className} transition-transform duration-100 ${!disabled ? 'hover:scale-[1.02] active:scale-[0.98]' : ''}`}
     >
       {children}
     </button>
@@ -124,39 +89,18 @@ function HoverCard({
   className: string;
   delay?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 200,
-        delay: delay * 0.4,
-        ease: 'outQuad',
-      });
-    }
+    const timer = setTimeout(() => setIsVisible(true), delay * 0.4);
+    return () => clearTimeout(timer);
   }, [delay]);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.03, translateY: -4, duration: 100, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, translateY: 0, duration: 100, ease: 'outQuad' });
-    }
-  };
 
   return (
     <div
-      ref={ref}
-      className={className}
-      style={{ opacity: 0 }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`${className} transition-all duration-200 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'
+      } hover:scale-[1.03] hover:-translate-y-1`}
     >
       {children}
     </div>
@@ -170,37 +114,23 @@ function ModalOverlay({
   children: React.ReactNode;
   onClose: () => void;
 }) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (overlayRef.current) {
-      animate(overlayRef.current, {
-        opacity: [0, 1],
-        duration: 120,
-        ease: 'outQuad',
-      });
-    }
-    if (contentRef.current) {
-      animate(contentRef.current, {
-        scale: [0.95, 1],
-        opacity: [0, 1],
-        duration: 150,
-        ease: 'outQuad',
-      });
-    }
+    requestAnimationFrame(() => setIsVisible(true));
   }, []);
 
   return (
     <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      style={{ opacity: 0 }}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity duration-120 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
       onClick={onClose}
     >
       <div
-        ref={contentRef}
-        style={{ opacity: 0 }}
+        className={`transition-all duration-150 ease-out ${
+          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

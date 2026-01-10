@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect } from 'react';
 import { User, Edit, LogOut, Trophy, Flame, Target, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -11,25 +10,22 @@ interface ProfileCardProps {
 }
 
 // ============================================================================
-// ANIMATED HELPER COMPONENTS
+// ANIMATED HELPER COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedCard({ children, className }: { children: React.ReactNode; className: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 200,
-        ease: 'outQuad',
-      });
-    }
+    requestAnimationFrame(() => setIsVisible(true));
   }, []);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-200 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'
+      }`}
+    >
       {children}
     </div>
   );
@@ -46,82 +42,39 @@ function HoverScaleElement({
   onClick?: () => void;
   as?: 'div' | 'button';
 }) {
-  const ref = useRef<HTMLDivElement | HTMLButtonElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.03, duration: 80, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 0.98, duration: 50, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.03, duration: 50, ease: 'outQuad' });
-    }
-  };
+  const hoverClass = 'transition-transform duration-100 hover:scale-[1.03] active:scale-[0.98]';
 
   if (as === 'button') {
     return (
-      <button
-        ref={ref as React.RefObject<HTMLButtonElement>}
-        className={className}
-        onClick={onClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-      >
+      <button className={`${className} ${hoverClass}`} onClick={onClick}>
         {children}
       </button>
     );
   }
 
   return (
-    <div
-      ref={ref as React.RefObject<HTMLDivElement>}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className={`${className} ${hoverClass}`}>
       {children}
     </div>
   );
 }
 
 function AnimatedLevelBadge({ level }: { level: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        scale: [0, 1.1, 1],
-        duration: 200,
-        delay: 100,
-        ease: 'outBack',
-      });
-    }
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div
-      ref={ref}
-      className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full
+      className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full
                bg-gradient-to-br from-yellow-500 to-orange-500
                border-2 border-gray-900 flex items-center justify-center
-               text-xs font-bold text-white shadow-lg"
-      style={{ transform: 'scale(0)' }}
+               text-xs font-bold text-white shadow-lg
+               transition-transform duration-200 ${isVisible ? 'scale-100' : 'scale-0'}`}
+      style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
     >
       {level}
     </div>
@@ -129,58 +82,40 @@ function AnimatedLevelBadge({ level }: { level: number }) {
 }
 
 function AnimatedProgressBar({ progress }: { progress: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [currentProgress, setCurrentProgress] = useState(0);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        width: [0, `${progress}%`],
-        duration: 400,
-        ease: 'outQuad',
-      });
-    }
+    requestAnimationFrame(() => setCurrentProgress(progress));
   }, [progress]);
 
   return (
     <div
-      ref={ref}
       className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500
-               shadow-lg shadow-purple-500/50"
-      style={{ width: 0 }}
+               shadow-lg shadow-purple-500/50 transition-all duration-400 ease-out"
+      style={{ width: `${currentProgress}%` }}
     />
   );
 }
 
 function AnimatedBackground() {
-  const ref = useRef<HTMLDivElement>(null);
+  const [bgIndex, setBgIndex] = useState(0);
+  const backgrounds = [
+    'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
+    'radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.4) 0%, transparent 50%)',
+    'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
+  ];
 
   useEffect(() => {
-    if (!ref.current) return;
-
-    let currentBg = 0;
-    const backgrounds = [
-      'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
-      'radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.4) 0%, transparent 50%)',
-      'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
-    ];
-
-    const switchBg = () => {
-      if (!ref.current) return;
-      currentBg = (currentBg + 1) % backgrounds.length;
-      ref.current.style.background = backgrounds[currentBg];
-    };
-
-    const interval = setInterval(switchBg, 8000 / 3);
+    const interval = setInterval(() => {
+      setBgIndex(prev => (prev + 1) % backgrounds.length);
+    }, 8000 / 3);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div
-      ref={ref}
       className="w-full h-full transition-all duration-[2000ms]"
-      style={{
-        background: 'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
-      }}
+      style={{ background: backgrounds[bgIndex] }}
     />
   );
 }

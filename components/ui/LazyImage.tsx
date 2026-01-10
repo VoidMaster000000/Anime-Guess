@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { animate } from '@/lib/animejs';
 
 interface LazyImageProps {
   src: string;
@@ -39,7 +38,6 @@ export default function LazyImage({
   const [isInView, setIsInView] = useState(false);
   const [hasError, setHasError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
 
   // Intersection Observer for lazy loading
   useEffect(() => {
@@ -67,19 +65,6 @@ export default function LazyImage({
 
     return () => observer.disconnect();
   }, [priority]);
-
-  // Animate on load
-  useEffect(() => {
-    if (isLoaded && imageRef.current) {
-      animate(imageRef.current, {
-        opacity: [0, 1],
-        scale: [1.05, 1],
-        filter: ['blur(10px)', 'blur(0px)'],
-        duration: 200,
-        ease: 'outQuad',
-      });
-    }
-  }, [isLoaded]);
 
   const handleLoad = () => {
     setIsLoaded(true);
@@ -145,9 +130,7 @@ export default function LazyImage({
       {/* Actual image */}
       {isInView && !hasError && (
         <div
-          ref={imageRef}
-          className="absolute inset-0"
-          style={{ opacity: 0 }}
+          className={`absolute inset-0 transition-all duration-200 ease-out ${isLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-105 blur-sm'}`}
         >
           {fill ? (
             <Image
@@ -180,25 +163,9 @@ export default function LazyImage({
   );
 }
 
-// Loading spinner component
+// Loading spinner component (CSS-based)
 function LoadingSpinner() {
-  const spinnerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (spinnerRef.current) {
-      animate(spinnerRef.current, {
-        rotate: 360,
-        duration: 400,
-        ease: 'linear',
-        loop: true,
-      });
-    }
-  }, []);
-
   return (
-    <div
-      ref={spinnerRef}
-      className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full"
-    />
+    <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
   );
 }

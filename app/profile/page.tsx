@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { animate } from '@/lib/animejs';
 import {
   ArrowLeft,
   User,
@@ -23,26 +22,21 @@ import LevelProgress from '@/components/profile/LevelProgress';
 import CoinDisplay from '@/components/profile/CoinDisplay';
 
 // ============================================================================
-// ANIMATED COMPONENTS
+// ANIMATED COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 400,
-        delay: delay,
-        ease: 'outQuad',
-      });
-    }
+    const timer = setTimeout(() => setIsVisible(true), delay);
+    return () => clearTimeout(timer);
   }, [delay]);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-300 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+    >
       {children}
     </div>
   );
@@ -57,39 +51,16 @@ function HoverCard({
   className: string;
   delay?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 400,
-        delay: delay,
-        ease: 'outQuad',
-      });
-    }
+    const timer = setTimeout(() => setIsVisible(true), delay);
+    return () => clearTimeout(timer);
   }, [delay]);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.02, translateY: -2, duration: 200, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, translateY: 0, duration: 200, ease: 'outQuad' });
-    }
-  };
 
   return (
     <div
-      ref={ref}
-      className={className}
-      style={{ opacity: 0 }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`${className} transition-all duration-200 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'} hover:scale-[1.02] hover:-translate-y-0.5`}
     >
       {children}
     </div>
@@ -103,47 +74,25 @@ function ScaleCard({
   children: React.ReactNode;
   className: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        scale: [0.95, 1],
-        duration: 400,
-        ease: 'outQuad',
-      });
-    }
+    setIsVisible(true);
   }, []);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-300 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+    >
       {children}
     </div>
   );
 }
 
 function HoverAvatar({ children, className }: { children: React.ReactNode; className: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.05, rotate: 5, duration: 200, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, rotate: 0, duration: 200, ease: 'outQuad' });
-    }
-  };
-
   return (
     <div
-      ref={ref}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`${className} transition-transform duration-200 ease-out hover:scale-105 hover:rotate-[5deg]`}
     >
       {children}
     </div>
@@ -157,37 +106,19 @@ function ModalOverlay({
   children: React.ReactNode;
   onClose: () => void;
 }) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (overlayRef.current) {
-      animate(overlayRef.current, {
-        opacity: [0, 1],
-        duration: 200,
-        ease: 'outQuad',
-      });
-    }
-    if (contentRef.current) {
-      animate(contentRef.current, {
-        scale: [0.9, 1],
-        opacity: [0, 1],
-        duration: 200,
-        ease: 'outQuad',
-      });
-    }
+    setIsVisible(true);
   }, []);
 
   return (
     <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      style={{ opacity: 0 }}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
       onClick={onClose}
     >
       <div
-        ref={contentRef}
-        style={{ opacity: 0 }}
+        className={`transition-all duration-200 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

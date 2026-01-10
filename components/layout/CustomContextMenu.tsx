@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { animate, useHoverAnimation } from '@/lib/animejs';
 import { useAuth } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
 import {
@@ -27,7 +26,7 @@ interface MenuItem {
   highlight?: boolean;
 }
 
-// Animated menu item with anime.js hover effects
+// Animated menu item with CSS hover effects
 function AnimatedMenuItem({
   item,
   onClick,
@@ -35,55 +34,15 @@ function AnimatedMenuItem({
   item: MenuItem;
   onClick: () => void;
 }) {
-  const buttonRef = useHoverAnimation<HTMLButtonElement>(
-    {
-      translateX: 6,
-      scale: 1.02,
-      duration: 80,
-      ease: 'outQuad'
-    },
-    {
-      translateX: 0,
-      scale: 1,
-      duration: 80,
-      ease: 'outQuad'
-    }
-  );
-
-  const iconRef = useRef<HTMLSpanElement>(null);
-
-  const handleMouseEnter = () => {
-    if (item.disabled || !iconRef.current) return;
-    animate(iconRef.current, {
-      scale: [1, 1.3, 1.15],
-      rotate: item.highlight ? [0, 15, -5, 0] : [0, -10, 0],
-      duration: 150,
-      ease: 'outBack',
-    });
-  };
-
-  const handleMouseLeave = () => {
-    if (item.disabled || !iconRef.current) return;
-    animate(iconRef.current, {
-      scale: 1,
-      rotate: 0,
-      duration: 100,
-      ease: 'outQuad',
-    });
-  };
-
   return (
     <button
-      ref={item.disabled ? undefined : buttonRef}
       onClick={onClick}
       disabled={item.disabled}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       className={`group w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg mx-1
-        transition-colors duration-150
+        transition-all duration-100
         ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
-          : 'active:scale-[0.98]'
+          : 'active:scale-[0.98] hover:translate-x-1.5 hover:scale-[1.02]'
         }
         ${item.disabled
           ? ''
@@ -94,8 +53,7 @@ function AnimatedMenuItem({
       style={{ width: 'calc(100% - 8px)' }}
     >
       <span
-        ref={iconRef}
-        className={`inline-flex ${item.disabled ? 'opacity-50' : ''}`}
+        className={`inline-flex transition-transform duration-150 ${item.disabled ? 'opacity-50' : 'group-hover:scale-110'}`}
       >
         {item.icon}
       </span>
@@ -114,9 +72,9 @@ function AnimatedMenuItem({
 
 export default function CustomContextMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isUsingTouch, setIsUsingTouch] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -153,17 +111,9 @@ export default function CustomContextMenu() {
   }, []);
 
   const closeMenu = useCallback(() => {
-    if (menuRef.current) {
-      animate(menuRef.current, {
-        opacity: [1, 0],
-        scale: [1, 0.95],
-        duration: 100,
-        ease: 'outQuad',
-        onComplete: () => setIsOpen(false),
-      });
-    } else {
-      setIsOpen(false);
-    }
+    setIsVisible(false);
+    // Wait for CSS transition to complete before unmounting
+    setTimeout(() => setIsOpen(false), 100);
   }, []);
 
   const handleContextMenu = useCallback((e: MouseEvent) => {
@@ -179,6 +129,8 @@ export default function CustomContextMenu() {
 
     setPosition({ x, y });
     setIsOpen(true);
+    // Trigger animation on next frame
+    requestAnimationFrame(() => setIsVisible(true));
   }, [isUsingTouch]);
 
   const handleClick = useCallback(() => {
@@ -210,17 +162,6 @@ export default function CustomContextMenu() {
     };
   }, [handleContextMenu, handleClick, handleKeyDown, handleDragStart]);
 
-  // Animate menu on open
-  useEffect(() => {
-    if (isOpen && menuRef.current) {
-      animate(menuRef.current, {
-        opacity: [0, 1],
-        scale: [0.95, 1],
-        duration: 100,
-        ease: 'outQuad',
-      });
-    }
-  }, [isOpen]);
 
   const handleMenuClick = (action: () => void) => {
     action();
@@ -320,12 +261,12 @@ export default function CustomContextMenu() {
 
   return (
     <div
-      ref={menuRef}
-      className="fixed z-[100] min-w-[200px] bg-zinc-900/95 backdrop-blur-xl border border-zinc-700/50 rounded-xl shadow-2xl overflow-hidden"
+      className={`fixed z-[100] min-w-[200px] bg-zinc-900/95 backdrop-blur-xl border border-zinc-700/50 rounded-xl shadow-2xl overflow-hidden transition-all duration-100 ease-out ${
+        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+      }`}
       style={{
         left: position.x,
         top: position.y,
-        opacity: 0,
         transformOrigin: 'top left',
       }}
     >

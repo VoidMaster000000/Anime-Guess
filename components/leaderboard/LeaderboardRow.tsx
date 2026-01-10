@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect } from 'react';
 import { Crown, Medal, Flame, Star, TrendingUp, Infinity, User } from 'lucide-react';
 import type { LeaderboardEntry } from '@/types';
 import { GameDifficulty } from '@/types';
@@ -125,22 +124,19 @@ function AnimatedRow({
   rank: number;
   className: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [10, 0],
-        duration: 150,
-        delay: rank * 15,
-        ease: 'outQuad',
-      });
-    }
+    const timer = setTimeout(() => setIsVisible(true), rank * 15);
+    return () => clearTimeout(timer);
   }, [rank]);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-150 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'
+      }`}
+    >
       {children}
     </div>
   );

@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Animated, AnimatePresence } from '@/lib/animejs';
-import { animate } from '@/lib/animejs';
 import { ArrowLeft, ShoppingBag, Coins, CheckCircle2, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SHOP_ITEMS } from '@/store/gameStore';
@@ -13,6 +11,32 @@ import UpgradeCard from '@/components/shop/UpgradeCard';
 interface Notification {
   type: 'success' | 'error';
   message: string;
+}
+
+// CSS-based animated wrapper
+function AnimatedSection({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <div
+      className={`${className} transition-all duration-300 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 export default function ShopPage() {
@@ -76,22 +100,6 @@ export default function ShopPage() {
       return;
     }
 
-    // Determine item type for inventory
-    const getInventoryType = (shopType: ShopItemType): 'hint' | 'skip' | 'life' | 'booster' => {
-      switch (shopType) {
-        case ShopItemType.HINT_REVEAL:
-        case ShopItemType.EXTRA_HINT:
-        case ShopItemType.TEXT_HINT:
-          return 'hint';
-        case ShopItemType.SKIP:
-          return 'skip';
-        case ShopItemType.EXTRA_LIFE:
-          return 'life';
-        default:
-          return 'booster';
-      }
-    };
-
     setIsPurchasing(true);
 
     try {
@@ -148,11 +156,7 @@ export default function ShopPage() {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl">
         {/* Header */}
-        <Animated
-          initial={{ opacity: 0, translateY: -20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          className="mb-6 sm:mb-8"
-        >
+        <AnimatedSection className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
             <button
               onClick={() => router.back()}
@@ -203,33 +207,26 @@ export default function ShopPage() {
               </p>
             </div>
           )}
-        </Animated>
+        </AnimatedSection>
 
         {/* Shop Items Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {SHOP_ITEMS.map((item, index) => (
-            <Animated
+            <AnimatedSection
               key={item.id}
-              initial={{ opacity: 0, translateY: 20 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              transition={{ delay: index * 100 }}
+              delay={index * 100}
             >
               <UpgradeCard
                 item={item}
                 onPurchase={() => handlePurchase(item)}
                 disabled={isItemDisabled(item)}
               />
-            </Animated>
+            </AnimatedSection>
           ))}
         </div>
 
         {/* Info Section */}
-        <Animated
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 400 }}
-          className="card p-4 sm:p-6"
-        >
+        <AnimatedSection delay={400} className="card p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">How to Earn Coins</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm text-zinc-400">
             <div>
@@ -245,41 +242,31 @@ export default function ShopPage() {
               <p>Maintain winning streaks to earn XP and level up for bonus coins!</p>
             </div>
           </div>
-        </Animated>
+        </AnimatedSection>
       </div>
 
       {/* Notification Toast */}
-      <AnimatePresence>
-        {notification && (
-          <NotificationToast notification={notification} />
-        )}
-      </AnimatePresence>
+      {notification && (
+        <NotificationToast notification={notification} />
+      )}
     </div>
   );
 }
 
 // Helper Component
 function NotificationToast({ notification }: { notification: { type: 'success' | 'error'; message: string } }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [-20, 0],
-        duration: 150,
-        ease: 'outQuad',
-      });
-    }
+    // Trigger animation on next frame
+    requestAnimationFrame(() => setIsVisible(true));
   }, []);
 
   return (
     <div
-      ref={ref}
-      className="fixed top-8 left-1/2 z-50 px-6 py-4 rounded-xl shadow-2xl border max-w-md"
+      className={`fixed top-8 left-1/2 z-50 px-6 py-4 rounded-xl shadow-2xl border max-w-md transition-all duration-150 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5'}`}
       style={{
-        opacity: 0,
-        transform: 'translateX(-50%)',
+        transform: `translateX(-50%) ${isVisible ? 'translateY(0)' : 'translateY(-20px)'}`,
         background: notification.type === 'success'
           ? 'linear-gradient(to right, rgb(16 185 129 / 0.1), rgb(5 150 105 / 0.1))'
           : 'linear-gradient(to right, rgb(239 68 68 / 0.1), rgb(220 38 38 / 0.1))',

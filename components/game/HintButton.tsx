@@ -1,58 +1,13 @@
 'use client';
 
 import { Eye, Coins } from 'lucide-react';
+import { motion } from '@/lib/animations';
 
 interface HintButtonProps {
   hintsRevealed: number;
   maxHints: number;
   onReveal: () => void;
   cost: number;
-}
-
-// ============================================================================
-// SIMPLE HELPER COMPONENTS (CSS-based for mobile performance)
-// ============================================================================
-
-function HoverButton({
-  children,
-  onClick,
-  disabled,
-  className,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  disabled: boolean;
-  className: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`${className} transition-transform duration-150 ${!disabled ? 'hover:scale-105 active:scale-95' : ''}`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function AnimatedGlow({ isEnabled }: { isEnabled: boolean }) {
-  if (!isEnabled) return null;
-
-  // Use CSS animation instead of JS for better mobile performance
-  return (
-    <div
-      className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-30 blur-xl -z-10 animate-pulse"
-    />
-  );
-}
-
-function ProgressBar({ progress }: { progress: number }) {
-  return (
-    <div
-      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
-      style={{ width: `${progress}%` }}
-    />
-  );
 }
 
 // ============================================================================
@@ -64,12 +19,14 @@ export default function HintButton({ hintsRevealed, maxHints, onReveal, cost }: 
   const isDisabled = hintsRemaining <= 0;
 
   return (
-    <HoverButton
+    <motion.button
       onClick={onReveal}
       disabled={isDisabled}
+      whileHover={!isDisabled ? { scale: 1.05 } : {}}
+      whileTap={!isDisabled ? { scale: 0.95 } : {}}
       className={`
         relative px-6 py-3 rounded-xl font-semibold text-lg
-        transition-all duration-300 flex items-center gap-3
+        transition-colors duration-300 flex items-center gap-3
         ${
           isDisabled
             ? 'bg-gray-800 text-gray-600 cursor-not-allowed border-2 border-gray-700'
@@ -102,12 +59,19 @@ export default function HintButton({ hintsRevealed, maxHints, onReveal, cost }: 
       </div>
 
       {/* Glow effect when enabled */}
-      <AnimatedGlow isEnabled={!isDisabled} />
+      {!isDisabled && (
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-30 blur-xl -z-10 animate-pulse" />
+      )}
 
       {/* Progress indicator */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded-b-xl overflow-hidden">
-        <ProgressBar progress={(hintsRemaining / maxHints) * 100} />
+        <motion.div
+          className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+          initial={{ width: '100%' }}
+          animate={{ width: `${(hintsRemaining / maxHints) * 100}%` }}
+          transition={{ duration: 0.3 }}
+        />
       </div>
-    </HoverButton>
+    </motion.button>
   );
 }

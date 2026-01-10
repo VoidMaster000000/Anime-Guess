@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { animate } from '@/lib/animejs';
 import { Coins, Plus, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,7 +48,7 @@ const SIZE_CONFIG = {
 };
 
 // ============================================================================
-// ANIMATED COMPONENTS
+// ANIMATED COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedContainer({
@@ -59,21 +58,18 @@ function AnimatedContainer({
   children: React.ReactNode;
   className: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        scale: [0.95, 1],
-        duration: 400,
-        ease: 'outQuad',
-      });
-    }
+    requestAnimationFrame(() => setIsVisible(true));
   }, []);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-400 ease-out ${
+        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+      }`}
+    >
       {children}
     </div>
   );
@@ -88,41 +84,10 @@ function HoverButton({
   onClick: () => void;
   className: string;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.05, duration: 150, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 0.95, duration: 100, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1.05, duration: 100, ease: 'outQuad' });
-    }
-  };
-
   return (
     <button
-      ref={ref}
       onClick={onClick}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      className={`${className} transition-transform duration-150 hover:scale-105 active:scale-95`}
     >
       {children}
     </button>
@@ -168,33 +133,33 @@ export default function CoinDisplay({
     if (diff > 0) {
       setIsIncreasing(true);
 
-      // Animate coin icon
+      // Animate coin icon with CSS
       if (coinIconRef.current) {
-        animate(coinIconRef.current, {
-          scale: [1, 1.3, 1],
-          rotate: [0, 15, -15, 0],
-          duration: 600,
-          ease: 'outQuad',
-        });
+        coinIconRef.current.style.transition = 'transform 600ms ease-out';
+        coinIconRef.current.style.transform = 'scale(1.3) rotate(15deg)';
+        setTimeout(() => {
+          if (coinIconRef.current) {
+            coinIconRef.current.style.transform = 'scale(1) rotate(0deg)';
+          }
+        }, 300);
       }
 
-      // Animate amount
+      // Animate amount with CSS
       if (amountRef.current) {
-        animate(amountRef.current, {
-          scale: [1, 1.1, 1],
-          duration: 300,
-          ease: 'outQuad',
-        });
+        amountRef.current.style.transition = 'transform 300ms ease-out';
+        amountRef.current.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          if (amountRef.current) {
+            amountRef.current.style.transform = 'scale(1)';
+          }
+        }, 150);
       }
 
-      // Animate pulse
+      // Animate pulse with CSS
       if (pulseRef.current) {
-        animate(pulseRef.current, {
-          scale: [1, 2],
-          opacity: [0.5, 0],
-          duration: 600,
-          ease: 'outQuad',
-        });
+        pulseRef.current.style.transition = 'transform 600ms ease-out, opacity 600ms ease-out';
+        pulseRef.current.style.transform = 'scale(2)';
+        pulseRef.current.style.opacity = '0';
       }
 
       setTimeout(() => setIsIncreasing(false), 600);
@@ -274,39 +239,37 @@ export default function CoinDisplay({
   );
 }
 
-// Floating coins component
+// Floating coins component (CSS-based)
 function FloatingCoins({ count }: { count: number }) {
-  const refs = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    refs.current.forEach((ref, i) => {
-      if (ref) {
-        animate(ref, {
-          opacity: [1, 0],
-          translateY: [0, -50 - (i * 10)],
-          translateX: [(i - 1) * 20, (i - 1) * 20],
-          scale: [1, 0.5],
-          duration: 800,
-          delay: i * 100,
-          ease: 'outQuad',
-        });
-      }
-    });
-  }, []);
-
   return (
     <>
       {[...Array(count)].map((_, i) => (
-        <div
-          key={i}
-          ref={(el) => { refs.current[i] = el; }}
-          className="absolute left-4 top-1/2 pointer-events-none"
-          style={{ opacity: 0 }}
-        >
-          <TrendingUp className="w-4 h-4 text-yellow-500" />
-        </div>
+        <FloatingCoin key={i} index={i} />
       ))}
     </>
+  );
+}
+
+function FloatingCoin({ index }: { index: number }) {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsAnimating(true), index * 100);
+    return () => clearTimeout(timer);
+  }, [index]);
+
+  return (
+    <div
+      className="absolute left-4 top-1/2 pointer-events-none transition-all duration-[800ms] ease-out"
+      style={{
+        opacity: isAnimating ? 0 : 1,
+        transform: isAnimating
+          ? `translateY(${-50 - index * 10}px) translateX(${(index - 1) * 20}px) scale(0.5)`
+          : `translateY(0) translateX(${(index - 1) * 20}px) scale(1)`,
+      }}
+    >
+      <TrendingUp className="w-4 h-4 text-yellow-500" />
+    </div>
   );
 }
 
@@ -321,45 +284,34 @@ interface CoinTransactionProps {
 }
 
 export function CoinTransaction({ amount, type, onComplete }: CoinTransactionProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const coinRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
 
   useEffect(() => {
-    if (containerRef.current) {
-      animate(containerRef.current, {
-        opacity: [0, 1],
-        translateY: [20, 0],
-        scale: [0.8, 1],
-        duration: 300,
-        ease: 'outQuad',
-      });
-    }
-    if (coinRef.current) {
-      animate(coinRef.current, {
-        rotate: type === 'gain' ? [0, 360] : [0, -360],
-        duration: 600,
-        ease: 'outQuad',
-      });
-    }
+    requestAnimationFrame(() => {
+      setIsVisible(true);
+      setIsSpinning(true);
+    });
 
     const timer = setTimeout(() => {
       onComplete?.();
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [onComplete, type]);
+  }, [onComplete]);
 
   return (
     <div
-      ref={containerRef}
-      className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl border flex items-center gap-3 ${
+      className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl border flex items-center gap-3 transition-all duration-300 ease-out ${
         type === 'gain'
           ? 'bg-green-500/20 border-green-500/50'
           : 'bg-red-500/20 border-red-500/50'
-      }`}
-      style={{ opacity: 0 }}
+      } ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-5 scale-80'}`}
     >
-      <div ref={coinRef}>
+      <div
+        className="transition-transform duration-600 ease-out"
+        style={{ transform: isSpinning ? `rotate(${type === 'gain' ? 360 : -360}deg)` : 'rotate(0deg)' }}
+      >
         <Coins className={`w-6 h-6 ${type === 'gain' ? 'text-green-400' : 'text-red-400'}`} />
       </div>
       <span className={`text-xl font-bold ${type === 'gain' ? 'text-green-400' : 'text-red-400'}`}>

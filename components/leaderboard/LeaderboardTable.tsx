@@ -1,8 +1,7 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Trophy, Medal, Crown } from 'lucide-react';
-import { animate, stagger } from '@/lib/animejs';
 import type { LeaderboardEntry } from '@/types';
 import { GameDifficulty } from '@/types';
 
@@ -107,32 +106,24 @@ function AnimatedTableRow({
   isCurrentUser: boolean;
   delay: number;
 }) {
-  const ref = useRef<HTMLTableRowElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 300,
-        delay,
-        ease: 'outQuad',
-      });
-    }
+    const timer = setTimeout(() => setIsVisible(true), delay);
+    return () => clearTimeout(timer);
   }, [delay]);
 
   const rankIcon = getRankIcon(rank);
 
   return (
     <tr
-      ref={ref}
       className={`
-        transition-all duration-200
+        transition-all duration-300 ease-out
         ${getRankStyle(rank)}
         ${isCurrentUser ? 'ring-2 ring-blue-500/50' : ''}
         hover:bg-gray-700/30 border-l-4
+        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}
       `}
-      style={{ opacity: 0 }}
     >
       {/* Rank */}
       <td className="px-6 py-4 whitespace-nowrap">

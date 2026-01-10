@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect } from 'react';
 import { AlertTriangle, X, Eye, EyeOff } from 'lucide-react';
 
 interface AntiCheatWarningProps {
@@ -19,27 +18,18 @@ export default function AntiCheatWarning({
   onDismiss,
   isSuspicious,
 }: AntiCheatWarningProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLDivElement>(null);
+  const [isAnimatedIn, setIsAnimatedIn] = useState(false);
+  const [iconPulse, setIconPulse] = useState(false);
 
   useEffect(() => {
-    if (isVisible && containerRef.current) {
-      animate(containerRef.current, {
-        translateY: [-100, 0],
-        opacity: [0, 1],
-        duration: 400,
-        ease: 'outBack',
-      });
-    }
-
-    if (isVisible && iconRef.current) {
-      animate(iconRef.current, {
-        scale: [1, 1.2, 1],
-        rotate: [0, -10, 10, 0],
-        duration: 500,
-        loop: 3,
-        ease: 'inOutQuad',
-      });
+    if (isVisible) {
+      requestAnimationFrame(() => setIsAnimatedIn(true));
+      // Pulse icon 3 times
+      setIconPulse(true);
+      const timer = setTimeout(() => setIconPulse(false), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsAnimatedIn(false);
     }
   }, [isVisible]);
 
@@ -67,18 +57,31 @@ export default function AntiCheatWarning({
 
   return (
     <div
-      ref={containerRef}
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] ${bgColor} border rounded-xl px-6 py-4 backdrop-blur-md shadow-2xl max-w-md w-full mx-4`}
-      style={{ opacity: 0 }}
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] ${bgColor} border rounded-xl px-6 py-4 backdrop-blur-md shadow-2xl max-w-md w-full mx-4 transition-all duration-400 ${
+        isAnimatedIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-24'
+      }`}
+      style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
     >
       <div className="flex items-start gap-4">
-        <div ref={iconRef} className={`${iconColor} flex-shrink-0 mt-0.5`}>
+        <div
+          className={`${iconColor} flex-shrink-0 mt-0.5 ${iconPulse ? 'animate-wiggle' : ''}`}
+          style={{
+            animation: iconPulse ? 'wiggle 500ms ease-in-out 3' : 'none',
+          }}
+        >
           {isSuspicious ? (
             <EyeOff className="w-6 h-6" />
           ) : (
             <AlertTriangle className="w-6 h-6" />
           )}
         </div>
+        <style>{`
+          @keyframes wiggle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-10deg); }
+            75% { transform: scale(1.2) rotate(10deg); }
+          }
+        `}</style>
 
         <div className="flex-1">
           <h3 className={`font-bold ${textColor} text-lg`}>

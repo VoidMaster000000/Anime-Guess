@@ -1,8 +1,9 @@
 'use client';
 
 import { Heart, Flame, Star, Trophy } from 'lucide-react';
-import { useRef, useEffect, useState } from 'react';
-import { animate } from '@/lib/animejs';
+import { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from '@/lib/animations';
+import { gsap } from '@/lib/animations';
 
 interface GameStatsProps {
   lives: number;
@@ -76,25 +77,24 @@ function GlowingFlame({ streak }: { streak: number }) {
 }
 
 // ============================================================================
-// ANIMATED HELPER COMPONENTS
+// ANIMATED HELPER COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedHeart({ index, lives, lostLife }: { index: number; lives: number; lostLife: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const heartRef = useRef<HTMLDivElement>(null);
+  const shouldAnimate = lostLife && index === lives;
 
   useEffect(() => {
-    if (ref.current && lostLife && index === lives) {
-      animate(ref.current, {
-        scale: [1, 1.3, 0.8, 1],
-        rotate: [0, -10, 10, 0],
-        duration: 500,
-        ease: 'outQuad',
-      });
+    if (shouldAnimate && heartRef.current) {
+      gsap.fromTo(heartRef.current,
+        { scale: 1, opacity: 1 },
+        { scale: 0, opacity: 0, duration: 0.4, ease: 'back.in(2)' }
+      );
     }
-  }, [lostLife, index, lives]);
+  }, [shouldAnimate]);
 
   return (
-    <div ref={ref}>
+    <div ref={heartRef}>
       {index < lives ? (
         <Heart className="w-6 h-6 fill-red-500 text-red-500" />
       ) : (
@@ -105,36 +105,31 @@ function AnimatedHeart({ index, lives, lostLife }: { index: number; lives: numbe
 }
 
 function AnimatedNumber({ value, className }: { value: number; className: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const prevValueRef = useRef(value);
+  const numberRef = useRef<HTMLSpanElement>(null);
+  const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
-    if (ref.current && prevValueRef.current !== value) {
-      // Animate out old value and in new value
-      animate(ref.current, {
-        translateY: [0, -20],
-        opacity: [1, 0],
-        duration: 150,
-        ease: 'inQuad',
+    if (displayValue !== value && numberRef.current) {
+      // Animate out
+      gsap.to(numberRef.current, {
+        opacity: 0,
+        y: -10,
+        duration: 0.15,
         onComplete: () => {
-          if (ref.current) {
-            ref.current.textContent = String(value);
-            animate(ref.current, {
-              translateY: [20, 0],
-              opacity: [0, 1],
-              duration: 150,
-              ease: 'outQuad',
-            });
-          }
-        },
+          setDisplayValue(value);
+          // Animate in
+          gsap.fromTo(numberRef.current,
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.15 }
+          );
+        }
       });
-      prevValueRef.current = value;
     }
-  }, [value]);
+  }, [value, displayValue]);
 
   return (
-    <span ref={ref} className={className}>
-      {value}
+    <span ref={numberRef} className={className}>
+      {displayValue}
     </span>
   );
 }

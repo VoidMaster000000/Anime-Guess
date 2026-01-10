@@ -1,13 +1,6 @@
 'use client';
 
 import { useRef, useEffect, useState, useMemo } from 'react';
-import { animate } from '@/lib/animejs';
-
-// Check if device is mobile for performance optimizations
-const isMobileDevice = () => {
-  if (typeof window === 'undefined') return false;
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768;
-};
 
 interface CharacterImageProps {
   imageUrl: string;
@@ -149,7 +142,7 @@ function WatermarkOverlay() {
 }
 
 // ============================================================================
-// ANIMATED QUADRANT
+// ANIMATED QUADRANT (CSS-based animations)
 // ============================================================================
 
 function AnimatedQuadrant({
@@ -167,31 +160,6 @@ function AnimatedQuadrant({
   distortion: ImageDistortion;
   antiCheatEnabled: boolean;
 }) {
-  const blurRef = useRef<HTMLDivElement>(null);
-  const revealRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Use shorter animations on mobile to prevent flickering
-    const duration = isMobileDevice() ? 300 : 600;
-
-    if (blurRef.current) {
-      animate(blurRef.current, {
-        opacity: isRevealed ? [1, 0] : 1,
-        duration,
-        ease: 'inOutQuad',
-      });
-    }
-
-    if (revealRef.current) {
-      animate(revealRef.current, {
-        opacity: isRevealed ? [0, 1] : 0,
-        scale: isRevealed ? [1.05, 1] : 1.05, // Reduced scale for less jarring effect
-        duration,
-        ease: 'outQuad',
-      });
-    }
-  }, [isRevealed]);
-
   // Calculate background position as percentages for responsive sizing
   // Each quadrant shows 50% of image, offset by 0% or 100% based on position
   const bgPositionX = col === 0 ? '0%' : '100%';
@@ -231,24 +199,20 @@ function AnimatedQuadrant({
         }}
       />
 
-      {/* Blur overlay */}
+      {/* Blur overlay - CSS transition */}
       <div
-        ref={blurRef}
-        className="absolute inset-0 backdrop-blur-[20px] bg-black/30"
-        style={{ opacity: isRevealed ? 0 : 1 }}
+        className={`absolute inset-0 backdrop-blur-[20px] bg-black/30 transition-opacity duration-500 ease-in-out ${isRevealed ? 'opacity-0' : 'opacity-100'}`}
       />
 
-      {/* Revealed image */}
+      {/* Revealed image - CSS transition */}
       <div
-        ref={revealRef}
-        className="absolute inset-0 bg-cover"
+        className={`absolute inset-0 bg-cover transition-all duration-500 ease-out ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
         style={{
           backgroundImage: `url(${imageUrl})`,
           backgroundPosition: `${bgPositionX} ${bgPositionY}`,
           backgroundSize: '200% 200%',
-          opacity: isRevealed ? 1 : 0,
-          transform: getTransform(isRevealed ? 'scale(1)' : 'scale(1.05)'),
           filter: getFilter(),
+          transform: getTransform(),
         }}
       />
     </div>
@@ -265,7 +229,7 @@ export default function CharacterImage({
   antiCheatEnabled = true,
 }: CharacterImageProps) {
   const [revealed, setRevealed] = useState<boolean[]>([false, false, false, false]);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isContainerVisible, setIsContainerVisible] = useState(false);
   const prevImageRef = useRef<string>('');
 
   // Lazy load the image
@@ -279,18 +243,17 @@ export default function CharacterImage({
     if (prevImageRef.current !== imageUrl) {
       // New character - reset all quadrants immediately
       setRevealed([false, false, false, false]);
+      setIsContainerVisible(false);
       prevImageRef.current = imageUrl;
     }
   }, [imageUrl]);
 
-  // Animate container when image loads
+  // Animate container when image loads (CSS-based)
   useEffect(() => {
-    if (isLoaded && containerRef.current) {
-      animate(containerRef.current, {
-        opacity: [0, 1],
-        scale: [0.95, 1],
-        duration: 400,
-        ease: 'outQuad',
+    if (isLoaded) {
+      // Small delay to trigger CSS transition
+      requestAnimationFrame(() => {
+        setIsContainerVisible(true);
       });
     }
   }, [isLoaded, imageUrl]);
@@ -333,9 +296,7 @@ export default function CharacterImage({
 
       {/* Gradient glowing border */}
       <div
-        ref={containerRef}
-        className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 p-[2px]"
-        style={{ opacity: isLoaded ? 1 : 0 }}
+        className={`absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 p-[2px] transition-all duration-300 ease-out ${isContainerVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
       >
         <div className="w-full h-full bg-gray-900 rounded-2xl overflow-hidden">
           {/* Image grid */}

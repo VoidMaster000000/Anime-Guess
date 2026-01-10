@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect } from 'react';
 import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -11,7 +10,7 @@ interface LoginFormProps {
 }
 
 // ============================================================================
-// ANIMATED COMPONENTS
+// ANIMATED COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedFormContainer({
@@ -21,49 +20,25 @@ function AnimatedFormContainer({
   children: React.ReactNode;
   className: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 150,
-        ease: 'outQuad',
-      });
-    }
+    setMounted(true);
   }, []);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-150 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+    >
       {children}
     </div>
   );
 }
 
-function AnimatedErrorMessage({
-  message,
-}: {
-  message: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        height: [0, 'auto'],
-        duration: 200,
-        ease: 'outQuad',
-      });
-    }
-  }, []);
-
+function AnimatedErrorMessage({ message }: { message: string }) {
   return (
     <div
-      ref={ref}
-      className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg"
-      style={{ opacity: 0, overflow: 'hidden' }}
+      className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg animate-fade-in"
     >
       <p className="text-sm text-red-400">{message}</p>
     </div>
@@ -81,42 +56,11 @@ function HoverButton({
   disabled?: boolean;
   className: string;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  const handleMouseEnter = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 150, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, duration: 150, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 0.98, duration: 100, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, duration: 100, ease: 'outQuad' });
-    }
-  };
-
   return (
     <button
-      ref={ref}
       type={type}
       disabled={disabled}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      className={`${className} transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]`}
     >
       {children}
     </button>
@@ -124,28 +68,8 @@ function HoverButton({
 }
 
 function SpinningLoader() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-
-    const runAnimation = () => {
-      if (!ref.current) return;
-      animate(ref.current, {
-        rotate: [0, 360],
-        duration: 1000,
-        ease: 'linear',
-        onComplete: runAnimation,
-      });
-    };
-    runAnimation();
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-    />
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
   );
 }
 

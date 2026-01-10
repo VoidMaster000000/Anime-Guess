@@ -1,9 +1,8 @@
 'use client';
 
-import { Animated } from '@/lib/animejs';
-import { useHoverAnimation } from '@/lib/animejs';
 import { Heart, Eye, TrendingUp, Clock, Zap, Shield, Flame, Trophy } from 'lucide-react';
 import { GameDifficulty } from '@/types';
+import { motion, fadeInUp, staggerContainer, staggerItem, cardHover } from '@/lib/animations';
 
 interface DifficultyOption {
   id: GameDifficulty;
@@ -74,9 +73,10 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-12">
       {/* Header */}
-      <Animated
-        initial={{ opacity: 0, translateY: -20 }}
-        animate={{ opacity: 1, translateY: 0 }}
+      <motion.div
+        variants={fadeInUp}
+        initial="hidden"
+        animate="visible"
         className="text-center mb-12"
       >
         <div className="inline-flex items-center gap-3 mb-4">
@@ -88,19 +88,23 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
         <p className="text-gray-400 text-lg">
           Select a difficulty level to begin your anime guessing adventure
         </p>
-      </Animated>
+      </motion.div>
 
       {/* Difficulty Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {difficulties.map((difficulty, index) => (
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        {difficulties.map((difficulty) => (
           <DifficultyCard
             key={difficulty.id}
             difficulty={difficulty}
             onSelect={onSelect}
-            delay={index * 0.1}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -108,117 +112,99 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
 function DifficultyCard({
   difficulty,
   onSelect,
-  delay,
 }: {
   difficulty: DifficultyOption;
   onSelect: (difficulty: GameDifficulty) => void;
-  delay: number;
 }) {
   const Icon = difficulty.icon;
-  const hoverRef = useHoverAnimation<HTMLDivElement>(
-    { translateY: -8, duration: 200, ease: 'outQuad' },
-    { translateY: 0, duration: 200, ease: 'outQuad' }
-  );
 
   return (
-    <Animated
-      initial={{ opacity: 0, translateY: 20 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{ delay: delay * 100 }}
+    <motion.div
+      variants={staggerItem}
       className="relative group cursor-pointer"
     >
-      <div
-        ref={hoverRef}
+      <motion.div
         onClick={() => onSelect(difficulty.id)}
+        variants={cardHover}
+        initial="rest"
+        whileHover="hover"
+        whileTap="tap"
       >
-      {/* Gradient border container */}
-      <div className={`relative bg-gradient-to-br ${difficulty.gradient} p-[2px] rounded-2xl h-full`}>
-        <div className="bg-gray-900 rounded-2xl p-6 h-full flex flex-col">
-          {/* Icon */}
-          <div className="mb-4">
-            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl bg-${difficulty.color}-500/10 border border-${difficulty.color}-500/30`}>
-              <Icon className={`w-8 h-8 text-${difficulty.color}-500`} />
-            </div>
-          </div>
-
-          {/* Title */}
-          <h3 className="text-2xl font-bold text-white mb-2">{difficulty.name}</h3>
-          <p className="text-gray-400 text-sm mb-6 flex-grow">{difficulty.description}</p>
-
-          {/* Stats */}
-          <div className="space-y-3">
-            {/* Lives */}
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2 text-gray-400">
-                <Heart className="w-4 h-4" />
-                <span>Lives</span>
-              </div>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: difficulty.lives }).map((_, i) => (
-                  <Heart key={i} className="w-3 h-3 fill-red-500 text-red-500" />
-                ))}
+        {/* Gradient border container */}
+        <div className={`relative bg-gradient-to-br ${difficulty.gradient} p-[2px] rounded-2xl h-full`}>
+          <div className="bg-gray-900 rounded-2xl p-6 h-full flex flex-col">
+            {/* Icon */}
+            <div className="mb-4">
+              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl bg-${difficulty.color}-500/10 border border-${difficulty.color}-500/30`}>
+                <Icon className={`w-8 h-8 text-${difficulty.color}-500`} />
               </div>
             </div>
 
-            {/* Hints */}
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2 text-gray-400">
-                <Eye className="w-4 h-4" />
-                <span>Hints</span>
-              </div>
-              <div className="font-semibold text-white">{difficulty.hints}</div>
-            </div>
+            {/* Title */}
+            <h3 className="text-2xl font-bold text-white mb-2">{difficulty.name}</h3>
+            <p className="text-gray-400 text-sm mb-6 flex-grow">{difficulty.description}</p>
 
-            {/* Points Multiplier */}
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2 text-gray-400">
-                <TrendingUp className="w-4 h-4" />
-                <span>Multiplier</span>
-              </div>
-              <div className="font-semibold text-yellow-500">{difficulty.pointsMultiplier}x</div>
-            </div>
-
-            {/* Time Limit (if applicable) */}
-            {difficulty.timeLimit && (
+            {/* Stats */}
+            <div className="space-y-3">
+              {/* Lives */}
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2 text-gray-400">
-                  <Clock className="w-4 h-4" />
-                  <span>Time Limit</span>
+                  <Heart className="w-4 h-4" />
+                  <span>Lives</span>
                 </div>
-                <div className="font-semibold text-purple-400">{difficulty.timeLimit}s</div>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: difficulty.lives }).map((_, i) => (
+                    <Heart key={i} className="w-3 h-3 fill-red-500 text-red-500" />
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Select Button */}
-          <HoverButton gradient={difficulty.gradient}>
-            Select
-          </HoverButton>
+              {/* Hints */}
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Eye className="w-4 h-4" />
+                  <span>Hints</span>
+                </div>
+                <div className="font-semibold text-white">{difficulty.hints}</div>
+              </div>
+
+              {/* Points Multiplier */}
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Multiplier</span>
+                </div>
+                <div className="font-semibold text-yellow-500">{difficulty.pointsMultiplier}x</div>
+              </div>
+
+              {/* Time Limit (if applicable) */}
+              {difficulty.timeLimit && (
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Clock className="w-4 h-4" />
+                    <span>Time Limit</span>
+                  </div>
+                  <div className="font-semibold text-purple-400">{difficulty.timeLimit}s</div>
+                </div>
+              )}
+            </div>
+
+            {/* Select Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`w-full mt-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${difficulty.gradient}`}
+            >
+              Select
+            </motion.button>
+          </div>
         </div>
-      </div>
-      </div>
+      </motion.div>
 
       {/* Glow effect on hover */}
       <div
         className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${difficulty.gradient} opacity-0 group-hover:opacity-50 blur-xl -z-10 transition-opacity`}
       />
-    </Animated>
-  );
-}
-
-// Helper component for hover button
-function HoverButton({ children, gradient }: { children: React.ReactNode; gradient: string }) {
-  const ref = useHoverAnimation<HTMLButtonElement>(
-    { scale: 1.05, duration: 200, ease: 'outQuad' },
-    { scale: 1, duration: 200, ease: 'outQuad' }
-  );
-
-  return (
-    <button
-      ref={ref}
-      className={`w-full mt-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${gradient} transition-all`}
-    >
-      {children}
-    </button>
+    </motion.div>
   );
 }

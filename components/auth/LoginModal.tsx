@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { animate } from "@/lib/animejs";
+import { useState, useEffect } from "react";
 import { X, LogIn, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -22,21 +21,14 @@ function AnimatedModal({
   children: React.ReactNode;
   className: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        scale: [0.9, 1],
-        duration: 300,
-        ease: 'outQuad',
-      });
-    }
+    requestAnimationFrame(() => setIsVisible(true));
   }, []);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0, transform: 'scale(0.9)' }}>
+    <div className={`${className} transition-all duration-300 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
       {children}
     </div>
   );

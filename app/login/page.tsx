@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { animate, stagger, utils } from '@/lib/animejs/anime.esm.js';
 import { LogIn, Lock, Eye, EyeOff, Gamepad2, ArrowLeft, Sparkles, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { motion, AnimatePresence, fadeInUp, staggerContainer, staggerItem, modalVariants, scaleInBounce } from '@/lib/animations';
+import { gsap, particleFloat, shake } from '@/lib/animations';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,11 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
 
   const { login, isAuthenticated } = useAuth();
@@ -31,95 +28,35 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, router]);
 
-  // Anime.js animations on mount
+  // GSAP particle animations
   useEffect(() => {
-    // Create floating particles
-    if (particlesRef.current) {
-      for (let i = 0; i < 30; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'absolute w-2 h-2 rounded-full bg-purple-500/20';
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.top = `${Math.random() * 100}%`;
-        particlesRef.current.appendChild(particle);
+    if (!particlesRef.current) return;
 
-        animate(particle, {
-          translateX: () => utils.random(-100, 100),
-          translateY: () => utils.random(-100, 100),
-          scale: [0, utils.random(0.5, 1.5), 0],
-          opacity: [0, 0.6, 0],
-          duration: utils.random(3000, 6000),
-          delay: utils.random(0, 2000),
-          loop: true,
-          ease: 'inOutQuad',
-        });
-      }
-    }
+    const particles: HTMLDivElement[] = [];
+    const container = particlesRef.current;
 
-    // Card entrance animation
-    if (cardRef.current) {
-      animate(cardRef.current, {
-        translateY: [30, 0],
-        opacity: [0, 1],
-        duration: 300,
-        ease: 'outExpo',
-      });
-    }
+    for (let i = 0; i < 30; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'absolute w-2 h-2 rounded-full bg-purple-500/20';
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      container.appendChild(particle);
+      particles.push(particle);
 
-    // Logo animation
-    if (logoRef.current) {
-      animate(logoRef.current, {
-        scale: [0, 1],
-        rotate: [90, 0],
-        duration: 400,
-        delay: 50,
-        ease: 'outQuad',
-      });
-    }
-
-    // Title animation
-    if (titleRef.current) {
-      animate(titleRef.current, {
-        translateY: [10, 0],
-        opacity: [0, 1],
-        duration: 250,
-        delay: 100,
-        ease: 'outQuad',
-      });
-    }
-
-    // Form elements stagger animation
-    if (formRef.current) {
-      animate(formRef.current.querySelectorAll('.form-element'), {
-        translateY: [15, 0],
-        opacity: [0, 1],
-        duration: 200,
-        delay: stagger(40, { start: 150 }),
-        ease: 'outQuad',
-      });
+      particleFloat(particle);
     }
 
     return () => {
-      if (particlesRef.current) {
-        particlesRef.current.innerHTML = '';
-      }
+      particles.forEach(p => {
+        gsap.killTweensOf(p);
+        p.remove();
+      });
     };
   }, []);
 
-  const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(e.currentTarget, { scale: 1.02, duration: 100, ease: 'outQuad' });
-  };
-
-  const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(e.currentTarget, { scale: 1, duration: 100, ease: 'outQuad' });
-  };
-
   const shakeError = () => {
     if (cardRef.current) {
-      animate(cardRef.current, {
-        translateX: [-10, 10, -10, 10, 0],
-        duration: 250,
-        ease: 'inOutQuad',
-      });
+      shake(cardRef.current, { intensity: 10, duration: 0.4 });
     }
   };
 
@@ -139,21 +76,12 @@ export default function LoginPage() {
       const result = await login(email, password);
 
       if (result.success) {
-        if (cardRef.current) {
-          animate(cardRef.current, {
-            scale: [1, 0.95, 1.02],
-            duration: 150,
-            ease: 'outQuad',
-            onComplete: () => router.push('/'),
-          });
-        } else {
-          router.push('/');
-        }
+        router.push('/');
       } else {
         setError(result.error || 'Invalid credentials');
         shakeError();
       }
-    } catch (err) {
+    } catch {
       setError('Login failed. Please try again.');
       shakeError();
     } finally {
@@ -162,7 +90,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div ref={containerRef} className="page-container flex-center">
+    <div className="page-container flex-center">
       {/* Background */}
       <div className="page-bg">
         <div ref={particlesRef} className="absolute inset-0" />
@@ -173,31 +101,66 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md relative z-10 px-4 sm:px-0">
         {/* Back Button */}
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-        </Link>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Home
+          </Link>
+        </motion.div>
 
         {/* Card */}
-        <div ref={cardRef} className="card-dark p-5 sm:p-8 opacity-0">
+        <motion.div
+          ref={cardRef}
+          variants={modalVariants}
+          initial="hidden"
+          animate="visible"
+          className="card-dark p-5 sm:p-8"
+        >
           {/* Logo */}
           <div className="text-center mb-6 sm:mb-8">
-            <div ref={logoRef} className="inline-flex flex-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-purple-500/30">
+            <motion.div
+              variants={scaleInBounce}
+              initial="hidden"
+              animate="visible"
+              className="inline-flex flex-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-purple-500/30"
+            >
               <Gamepad2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-            </div>
-            <h1 ref={titleRef} className="text-2xl sm:text-3xl font-bold text-white mb-2 opacity-0">
+            </motion.div>
+            <motion.h1
+              variants={fadeInUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.1 }}
+              className="text-2xl sm:text-3xl font-bold text-white mb-2"
+            >
               Welcome Back!
-            </h1>
-            <p className="text-sm sm:text-base text-gray-400 flex-center gap-2">
+            </motion.h1>
+            <motion.p
+              variants={fadeInUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.15 }}
+              className="text-sm sm:text-base text-gray-400 flex-center gap-2"
+            >
               <Sparkles className="w-4 h-4 text-purple-400" />
               Login to continue your anime journey
-            </p>
+            </motion.p>
           </div>
 
           {/* Form */}
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          <motion.form
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            onSubmit={handleSubmit}
+            className="space-y-4 sm:space-y-5"
+          >
             {/* Email */}
-            <div className="form-element opacity-0">
+            <motion.div variants={staggerItem} className="form-element">
               <label htmlFor="email" className="label text-sm sm:text-base">Email</label>
               <div className="relative group">
                 <Mail className="icon-input" />
@@ -211,10 +174,10 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
               </div>
-            </div>
+            </motion.div>
 
             {/* Password */}
-            <div className="form-element opacity-0">
+            <motion.div variants={staggerItem} className="form-element">
               <label htmlFor="password" className="label text-sm sm:text-base">Password</label>
               <div className="relative group">
                 <Lock className="icon-input" />
@@ -235,22 +198,30 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Error */}
-            {error && (
-              <div className="stat-red p-3 sm:p-4 animate-pulse">
-                <p className="text-xs sm:text-sm text-red-400">{error}</p>
-              </div>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="stat-red p-3 sm:p-4"
+                >
+                  <p className="text-xs sm:text-sm text-red-400">{error}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Submit */}
-            <button
+            <motion.button
+              variants={staggerItem}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              onMouseEnter={handleButtonHover}
-              onMouseLeave={handleButtonLeave}
-              className="form-element opacity-0 w-full py-3 sm:py-4 btn btn-gradient rounded-xl text-sm sm:text-base"
+              className="form-element w-full py-3 sm:py-4 btn btn-gradient rounded-xl text-sm sm:text-base"
             >
               {isLoading ? (
                 <>
@@ -263,29 +234,45 @@ export default function LoginPage() {
                   <span>Login</span>
                 </>
               )}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
 
           {/* Divider */}
-          <div className="form-element opacity-0 my-4 sm:my-6 flex items-center gap-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="form-element my-4 sm:my-6 flex items-center gap-4"
+          >
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
             <span className="text-xs sm:text-sm text-gray-500">or</span>
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-          </div>
+          </motion.div>
 
           {/* Guest Button */}
-          <Link href="/" className="form-element opacity-0 w-full py-2.5 sm:py-3 btn btn-secondary rounded-xl text-sm sm:text-base">
-            Continue as Guest
-          </Link>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+          >
+            <Link href="/" className="form-element w-full py-2.5 sm:py-3 btn btn-secondary rounded-xl text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-transform">
+              Continue as Guest
+            </Link>
+          </motion.div>
 
           {/* Sign Up Link */}
-          <p className="form-element opacity-0 mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="form-element mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base"
+          >
             Don't have an account?{' '}
             <Link href="/signup" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
               Sign Up
             </Link>
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
     </div>
   );

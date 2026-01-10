@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { animate } from '@/lib/animejs';
 import { Infinity as InfinityIcon, TrendingUp, Crown, Star, Zap, Flame, Diamond, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -185,7 +184,7 @@ const SIZE_CONFIG = {
 };
 
 // ============================================================================
-// ANIMATED COMPONENTS
+// ANIMATED COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedContainer({
@@ -195,21 +194,16 @@ function AnimatedContainer({
   children: React.ReactNode;
   className: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        scale: [0.95, 1],
-        duration: 400,
-        ease: 'outQuad',
-      });
-    }
+    setIsVisible(true);
   }, []);
 
   return (
-    <div ref={ref} className={className} style={{ opacity: 0 }}>
+    <div
+      className={`${className} transition-all duration-300 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+    >
       {children}
     </div>
   );
@@ -539,33 +533,25 @@ function LevelBadgeParticles({
   );
 }
 
-// Orbiting ring effect for higher tiers
+// Orbiting ring effect for higher tiers (CSS animation)
 function OrbitingRing({ level, glowColor }: { level: number; glowColor: string }) {
-  const ref = useRef<HTMLDivElement>(null);
   const tier = Math.floor(level / 5);
-
-  useEffect(() => {
-    if (!ref.current || tier < 2) return;
-
-    animate(ref.current, {
-      rotate: [0, 360],
-      duration: Math.max(4000 - tier * 300, 1500),
-      loop: true,
-      ease: 'linear',
-    });
-  }, [tier]);
 
   if (tier < 2) return null;
 
+  // Calculate animation duration based on tier
+  const duration = Math.max(4000 - tier * 300, 1500);
+
   return (
     <div
-      ref={ref}
-      className="absolute inset-0 pointer-events-none"
+      className="absolute inset-0 pointer-events-none animate-spin"
       style={{
         width: '130%',
         height: '130%',
         left: '-15%',
         top: '-15%',
+        animationDuration: `${duration}ms`,
+        animationTimingFunction: 'linear',
       }}
     >
       {/* Orbiting dots */}
@@ -590,38 +576,28 @@ function OrbitingRing({ level, glowColor }: { level: number; glowColor: string }
   );
 }
 
-// Pulsing glow effect
+// Pulsing glow effect (CSS animation)
 function PulsingGlow({ level, glowColor }: { level: number; glowColor: string }) {
-  const ref = useRef<HTMLDivElement>(null);
   const tier = Math.floor(level / 5);
-
-  useEffect(() => {
-    if (!ref.current || tier < 1) return;
-
-    animate(ref.current, {
-      scale: [1, 1.1 + tier * 0.02, 1],
-      opacity: [0.4, 0.7 + tier * 0.03, 0.4],
-      duration: Math.max(2000 - tier * 100, 800),
-      loop: true,
-      ease: 'inOutSine',
-    });
-  }, [tier]);
 
   if (tier < 1) return null;
 
+  // Calculate animation duration based on tier
+  const duration = Math.max(2000 - tier * 100, 800);
+
   return (
     <div
-      ref={ref}
-      className="absolute inset-0 rounded-xl pointer-events-none"
+      className="absolute inset-0 rounded-xl pointer-events-none animate-pulse"
       style={{
         background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
-        opacity: 0.4,
+        opacity: 0.5,
+        animationDuration: `${duration}ms`,
       }}
     />
   );
 }
 
-// Premium Level Badge
+// Premium Level Badge (CSS-based animations)
 function PremiumLevelBadge({
   level,
   size,
@@ -631,27 +607,13 @@ function PremiumLevelBadge({
   size: 'sm' | 'md' | 'lg';
   isMaxLevel: boolean;
 }) {
-  const badgeRef = useRef<HTMLDivElement>(null);
   const shineRef = useRef<HTMLDivElement>(null);
   const config = SIZE_CONFIG[size];
   const tier = getLevelTier(level);
   const TierIcon = tier.icon;
   const tierIndex = Math.floor(level / 5);
 
-  // Hover animations
-  const handleMouseEnter = () => {
-    if (badgeRef.current) {
-      animate(badgeRef.current, { scale: 1.08, duration: 200, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (badgeRef.current) {
-      animate(badgeRef.current, { scale: 1, duration: 200, ease: 'outQuad' });
-    }
-  };
-
-  // Shine animation
+  // Shine animation using CSS transitions
   useEffect(() => {
     if (!shineRef.current) return;
 
@@ -671,9 +633,7 @@ function PremiumLevelBadge({
 
   return (
     <div
-      className="relative flex-shrink-0"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className="relative flex-shrink-0 group"
     >
       {/* Particles (level 5+) */}
       <LevelBadgeParticles
@@ -690,14 +650,14 @@ function PremiumLevelBadge({
 
       {/* Main badge */}
       <div
-        ref={badgeRef}
         className={`
           relative ${config.levelBadge} flex items-center justify-center
           bg-gradient-to-br ${tier.gradient}
           rounded-xl font-bold text-white cursor-pointer
           ${tier.ringEffect}
-          transition-shadow duration-300
+          transition-all duration-200
           overflow-hidden
+          group-hover:scale-[1.08]
         `}
         style={{
           boxShadow: `
@@ -789,17 +749,16 @@ function AnimatedProgressBar({
   isMaxLevel: boolean;
   className: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
   const shineRef = useRef<HTMLDivElement>(null);
+  const [animatedWidth, setAnimatedWidth] = useState(0);
 
+  // Animate width on mount and progress change
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        width: [0, `${isMaxLevel ? 100 : progress}%`],
-        duration: 500,
-        ease: 'outQuad',
-      });
-    }
+    const targetWidth = isMaxLevel ? 100 : progress;
+    // Small delay to trigger CSS transition
+    requestAnimationFrame(() => {
+      setAnimatedWidth(targetWidth);
+    });
   }, [progress, isMaxLevel]);
 
   // Continuous shine animation using CSS transition
@@ -829,9 +788,8 @@ function AnimatedProgressBar({
   return (
     <div className={className}>
       <div
-        ref={ref}
-        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full relative overflow-hidden"
-        style={{ width: 0 }}
+        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full relative overflow-hidden transition-all duration-500 ease-out"
+        style={{ width: `${animatedWidth}%` }}
       >
         {/* Shine effect */}
         <div
@@ -945,7 +903,7 @@ export default function LevelProgress({
 }
 
 // ============================================================================
-// LEVEL UP CELEBRATION COMPONENT (Optional)
+// LEVEL UP CELEBRATION COMPONENT (Optional) - CSS-based animations
 // ============================================================================
 
 interface LevelUpCelebrationProps {
@@ -954,56 +912,24 @@ interface LevelUpCelebrationProps {
 }
 
 export function LevelUpCelebration({ newLevel, onComplete }: LevelUpCelebrationProps) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const emojiRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (overlayRef.current) {
-      animate(overlayRef.current, {
-        opacity: [0, 1],
-        duration: 300,
-        ease: 'outQuad',
-      });
-    }
-    if (contentRef.current) {
-      animate(contentRef.current, {
-        translateY: [50, 0],
-        opacity: [0, 1],
-        duration: 400,
-        delay: 200,
-        ease: 'outQuad',
-      });
-    }
-    if (emojiRef.current) {
-      // Celebratory animation
-      const runAnimation = () => {
-        animate(emojiRef.current, {
-          scale: [1, 1.2, 1],
-          rotate: [0, 10, -10, 0],
-          duration: 500,
-          ease: 'outQuad',
-        });
-      };
-      runAnimation();
-      const interval = setInterval(runAnimation, 600);
-      setTimeout(() => clearInterval(interval), 1800);
-    }
+    // Trigger animation on mount
+    requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
   }, []);
 
   return (
     <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-      style={{ opacity: 0 }}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
       onClick={onComplete}
     >
       <div
-        ref={contentRef}
-        className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500 rounded-2xl p-8 text-center"
-        style={{ opacity: 0 }}
+        className={`bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500 rounded-2xl p-8 text-center transition-all duration-300 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
       >
-        <div ref={emojiRef} className="text-6xl mb-4">
+        <div className="text-6xl mb-4 animate-bounce">
           🎉
         </div>
         <h2 className="text-4xl font-bold text-white mb-2">Level Up!</h2>

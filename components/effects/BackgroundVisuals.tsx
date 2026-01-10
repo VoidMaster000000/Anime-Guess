@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { animate } from '@/lib/animejs';
 
 interface Particle {
   element: HTMLDivElement;
@@ -109,18 +108,21 @@ export default function BackgroundVisuals() {
 
       sparklesRef.current.push(sparkle);
 
-      // Animate sparkle
-      animate(element, {
-        opacity: [0, 1, 0],
-        scale: [0, 1.5, 0],
-        translateY: -30 - Math.random() * 20,
-        duration: sparkle.maxLife * 10,
-        ease: 'outQuad',
-        onComplete: () => {
-          element.remove();
-          sparklesRef.current = sparklesRef.current.filter(s => s !== sparkle);
-        },
+      // Animate sparkle with CSS
+      const translateY = -30 - Math.random() * 20;
+      element.style.transition = `all ${sparkle.maxLife * 10}ms ease-out`;
+      element.style.opacity = '1';
+      element.style.transform = 'scale(1.5)';
+
+      requestAnimationFrame(() => {
+        element.style.opacity = '0';
+        element.style.transform = `scale(0) translateY(${translateY}px)`;
       });
+
+      setTimeout(() => {
+        element.remove();
+        sparklesRef.current = sparklesRef.current.filter(s => s !== sparkle);
+      }, sparkle.maxLife * 10);
     };
 
     window.addEventListener('mousemove', handleMouseMove);

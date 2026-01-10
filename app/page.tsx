@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Animated, AnimatePresence } from '@/lib/animejs';
-import { animate } from '@/lib/animejs';
 import { useGameStore } from '@/store/gameStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAntiCheat } from '@/hooks/useAntiCheat';
@@ -17,6 +15,8 @@ import {
   AntiCheatWarning,
 } from '@/components/game';
 import { Loader2, Timer, Sparkles, Award } from 'lucide-react';
+import { motion, AnimatePresence, fadeInUp, scaleIn, staggerContainer, staggerItem } from '@/lib/animations';
+import { gsap, particleFloat } from '@/lib/animations';
 
 export default function GamePage() {
   const {
@@ -194,19 +194,20 @@ export default function GamePage() {
         <AnimatePresence mode="wait">
           {/* MENU STATE - Difficulty Selection */}
           {gameStatus === 'menu' && (
-            <Animated
+            <motion.div
               key="menu"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.1 }}
-              transition={{ duration: 150 }}
+              variants={scaleIn}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               className="flex items-center justify-center min-h-[calc(100vh-4rem)]"
             >
               <div className="text-center space-y-8">
-                <Animated
-                  initial={{ translateY: -20, opacity: 0 }}
-                  animate={{ translateY: 0, opacity: 1 }}
-                  transition={{ delay: 200 }}
+                <motion.div
+                  variants={fadeInUp}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.2 }}
                 >
                   <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4 px-2">
                     Anime Guess Game
@@ -214,21 +215,21 @@ export default function GamePage() {
                   <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto px-4">
                     Test your anime knowledge! Guess the anime from character images revealed quadrant by quadrant.
                   </p>
-                </Animated>
+                </motion.div>
 
                 <DifficultySelect onSelect={handleDifficultySelect} />
               </div>
-            </Animated>
+            </motion.div>
           )}
 
           {/* PLAYING STATE - Main Game UI */}
           {gameStatus === 'playing' && (
-            <Animated
+            <motion.div
               key="playing"
-              initial={{ opacity: 0, translateY: 20 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -20 }}
-              transition={{ duration: 150 }}
+              variants={fadeInUp}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               className="space-y-6"
             >
               {/* Game Stats Bar */}
@@ -242,9 +243,10 @@ export default function GamePage() {
 
               {/* Timer for Timed Mode */}
               {difficulty === 'timed' && timeRemaining !== null && (
-                <Animated
-                  initial={{ scale: [0, 1] }}
-                  animate={{ scale: 1 }}
+                <motion.div
+                  variants={scaleIn}
+                  initial="hidden"
+                  animate="visible"
                   className="card p-4"
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -261,22 +263,29 @@ export default function GamePage() {
                     </span>
                   </div>
                   <div className="w-full h-2 bg-zinc-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-500 ${
+                    <motion.div
+                      className={`h-full ${
                         timeRemaining <= 5 ? 'bg-red-500' :
                         timeRemaining <= 10 ? 'bg-orange-500' :
                         'bg-green-500'
                       }`}
-                      style={{ width: `${(timeRemaining / 30) * 100}%` }}
+                      initial={{ width: '100%' }}
+                      animate={{ width: `${(timeRemaining / 30) * 100}%` }}
+                      transition={{ duration: 0.5 }}
                     />
                   </div>
-                </Animated>
+                </motion.div>
               )}
 
               {/* Main Game Area */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
+              >
                 {/* Left Column - Character Image */}
-                <div className="space-y-4">
+                <motion.div variants={staggerItem} className="space-y-4">
                   {currentCharacter ? (
                     <>
                       <CharacterImage
@@ -285,7 +294,10 @@ export default function GamePage() {
                       />
 
                       {/* Character Name Reference - simplified for mobile performance */}
-                      <div className="card p-4">
+                      <motion.div
+                        variants={fadeInUp}
+                        className="card p-4"
+                      >
                         <div className="flex items-center gap-2 mb-2">
                           <Sparkles className="w-4 h-4 text-purple-400" />
                           <span className="text-sm font-medium text-zinc-400">Character</span>
@@ -298,7 +310,7 @@ export default function GamePage() {
                             {currentCharacter.name.native}
                           </p>
                         )}
-                      </div>
+                      </motion.div>
 
                       {/* Hint Button */}
                       <HintButton
@@ -316,11 +328,14 @@ export default function GamePage() {
                       </div>
                     </div>
                   )}
-                </div>
+                </motion.div>
 
                 {/* Right Column - Guess Input and Info */}
-                <div className="space-y-4">
-                  <div className="card p-4 sm:p-6 relative z-20">
+                <motion.div variants={staggerItem} className="space-y-4">
+                  <motion.div
+                    variants={fadeInUp}
+                    className="card p-4 sm:p-6 relative z-20"
+                  >
                     <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gradient">
                       Guess the Anime!
                     </h2>
@@ -332,7 +347,7 @@ export default function GamePage() {
                       onGuess={handleGuess}
                       disabled={isLoading}
                     />
-                  </div>
+                  </motion.div>
 
                   {/* Item Usage Panel */}
                   <div className="relative z-10">
@@ -340,7 +355,10 @@ export default function GamePage() {
                   </div>
 
                   {/* Game Tips - Hidden on small mobile, visible on larger screens */}
-                  <div className="hidden sm:block stat-blue p-4 sm:p-6 relative z-10">
+                  <motion.div
+                    variants={fadeInUp}
+                    className="hidden sm:block stat-blue p-4 sm:p-6 relative z-10"
+                  >
                     <div className="flex items-center gap-2 mb-3">
                       <Award className="w-5 h-5 text-blue-400" />
                       <h3 className="text-base sm:text-lg font-semibold text-blue-300">Pro Tips</h3>
@@ -363,10 +381,10 @@ export default function GamePage() {
                         <span>Build your streak for maximum points!</span>
                       </li>
                     </ul>
-                  </div>
-                </div>
-              </div>
-            </Animated>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
           )}
 
           {/* CORRECT STATE - Success Animation */}
@@ -376,7 +394,7 @@ export default function GamePage() {
 
           {/* GAME OVER STATE */}
           {gameStatus === 'gameover' && (
-            <Animated
+            <motion.div
               key="gameover"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -393,7 +411,7 @@ export default function GamePage() {
                 isAuthenticated={isAuthenticated}
                 username={user?.username}
               />
-            </Animated>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
@@ -413,74 +431,85 @@ export default function GamePage() {
   );
 }
 
-// Helper Components
+// Helper Components (GSAP + Motion animations)
 function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const messageRef = useRef<HTMLDivElement>(null);
-  const emojiRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null);
+  const confettiRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current) {
-      animate(containerRef.current, {
-        opacity: [0, 1],
-        scale: [0.9, 1],
-        duration: 150,
-        ease: 'outQuad',
-      });
-    }
+    const ctx = gsap.context(() => {
+      // Overlay fade in
+      gsap.fromTo(overlayRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3 }
+      );
 
-    if (flashRef.current) {
-      animate(flashRef.current, {
-        opacity: [0, 0.3, 0],
-        duration: 400,
-        ease: 'inOutQuad',
-      });
-    }
+      // Green flash
+      gsap.fromTo(flashRef.current,
+        { opacity: 0 },
+        { opacity: 0.3, duration: 0.15, yoyo: true, repeat: 1 }
+      );
 
-    if (messageRef.current) {
-      animate(messageRef.current, {
-        opacity: [0, 1],
-        scale: [0.8, 1],
-        rotate: [-5, 0],
-        duration: 200,
-        ease: 'outBack',
-      });
-    }
+      // Content scale in with bounce
+      gsap.fromTo(contentRef.current,
+        { opacity: 0, scale: 0.8, y: 20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)', delay: 0.1 }
+      );
 
-    if (emojiRef.current) {
-      animate(emojiRef.current, {
-        scale: [1, 1.2, 1],
-        rotate: [0, 5, -5, 0],
-        duration: 400,
-        loop: true,
-        ease: 'inOutQuad',
-      });
-    }
+      // Confetti particles
+      if (confettiRef.current) {
+        const particles = confettiRef.current.children;
+        Array.from(particles).forEach((particle, i) => {
+          const el = particle as HTMLElement;
+          const translateX = (Math.random() - 0.5) * 400;
+          const translateY = Math.random() * -400 - 100;
+
+          gsap.fromTo(el,
+            { opacity: 1, x: 0, y: 0, scale: 1 },
+            {
+              opacity: 0,
+              x: translateX,
+              y: translateY,
+              scale: 0,
+              duration: 1.5,
+              delay: i * 0.05,
+              ease: 'power2.out'
+            }
+          );
+        });
+      }
+    });
+
+    return () => ctx.revert();
   }, []);
+
+  const colors = ['#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#f59e0b'];
 
   return (
     <div
-      ref={containerRef}
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-      style={{ opacity: 0 }}
     >
       {/* Green flash effect */}
       <div
         ref={flashRef}
-        className="absolute inset-0 bg-green-500"
-        style={{ opacity: 0 }}
+        className="absolute inset-0 bg-green-500 opacity-0"
       />
 
       {/* Success message */}
       <div
-        ref={messageRef}
+        ref={contentRef}
         className="relative text-center space-y-6 p-8"
-        style={{ opacity: 0 }}
       >
-        <div ref={emojiRef} className="text-8xl">
+        <motion.div
+          animate={{ y: [0, -20, 0] }}
+          transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0.2 }}
+          className="text-8xl"
+        >
           🎉
-        </div>
+        </motion.div>
 
         <div>
           <h2 className="text-5xl font-bold text-green-400 mb-2">Correct!</h2>
@@ -494,58 +523,60 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
 
         <div className="text-zinc-400">Loading next character...</div>
 
-        {/* Confetti particles - fewer on mobile */}
-        {[...Array(10)].map((_, i) => (
-          <ConfettiParticle key={i} index={i} />
-        ))}
+        {/* Confetti particles */}
+        <div ref={confettiRef} className="absolute inset-0 pointer-events-none">
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-3 h-3 rounded-full left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ backgroundColor: colors[i % 5] }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-function ConfettiParticle({ index }: { index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+function BackgroundEffects() {
+  const particlesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [1, 0],
-        translateX: [(Math.random() - 0.5) * 400],
-        translateY: [Math.random() * -400 - 100],
-        scale: [1, 0],
-        duration: 1500,
-        delay: Math.random() * 300,
-        ease: 'outQuad',
+    if (!particlesRef.current) return;
+
+    const particles: HTMLDivElement[] = [];
+    const container = particlesRef.current;
+    const colors = ['bg-purple-500/10', 'bg-pink-500/10', 'bg-blue-500/10'];
+
+    // Create floating particles
+    for (let i = 0; i < 15; i++) {
+      const particle = document.createElement('div');
+      particle.className = `absolute w-3 h-3 rounded-full ${colors[Math.floor(Math.random() * colors.length)]}`;
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      container.appendChild(particle);
+      particles.push(particle);
+
+      particleFloat(particle, {
+        x: (Math.random() - 0.5) * 200,
+        y: (Math.random() - 0.5) * 200,
+        scale: 0.5 + Math.random() * 1.5,
       });
     }
+
+    return () => {
+      particles.forEach(p => {
+        gsap.killTweensOf(p);
+        p.remove();
+      });
+    };
   }, []);
 
-  const colors = ['#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#f59e0b'];
-
-  return (
-    <div
-      ref={ref}
-      className="absolute w-3 h-3 rounded-full"
-      style={{
-        backgroundColor: colors[Math.floor(Math.random() * 5)],
-        left: '50%',
-        top: '50%',
-      }}
-    />
-  );
-}
-
-function BackgroundEffects() {
-  // Use CSS-only animation for better mobile performance
-  // No JS-based looping animations that cause flickering
   return (
     <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden hidden sm:block">
-      <div
-        className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-purple-600/15 to-transparent rounded-full blur-3xl opacity-40"
-      />
-      <div
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-blue-600/15 to-transparent rounded-full blur-3xl opacity-40"
-      />
+      <div ref={particlesRef} className="absolute inset-0" />
+      <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-purple-600/15 to-transparent rounded-full blur-3xl opacity-40" />
+      <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-blue-600/15 to-transparent rounded-full blur-3xl opacity-40" />
     </div>
   );
 }

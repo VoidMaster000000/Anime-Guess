@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect } from 'react';
 import { Coins, Eye, SkipForward, Heart, HelpCircle } from 'lucide-react';
 import type { ShopItem } from '@/types';
 
@@ -29,38 +28,18 @@ function HoverCard({
   className: string;
   disabled: boolean;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 400,
-        ease: 'outQuad',
-      });
-    }
+    requestAnimationFrame(() => setIsVisible(true));
   }, []);
-
-  const handleMouseEnter = () => {
-    if (!disabled && ref.current) {
-      animate(ref.current, { scale: 1.02, translateY: -4, duration: 200, ease: 'outQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      animate(ref.current, { scale: 1, translateY: 0, duration: 200, ease: 'outQuad' });
-    }
-  };
 
   return (
     <div
-      ref={ref}
-      className={className}
-      style={{ opacity: 0 }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`${className} transition-all duration-200 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'} ${!disabled && isHovered ? 'scale-[1.02] -translate-y-1' : ''}`}
+      onMouseEnter={() => !disabled && setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {children}
     </div>

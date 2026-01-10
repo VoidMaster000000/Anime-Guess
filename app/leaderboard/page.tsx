@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Trophy, ArrowLeft, Filter, TrendingUp, Users, Search, Calendar, Award, Target, Clock, X, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, fetchLeaderboard as fetchGlobalLeaderboard } from '@/hooks/useAuth';
@@ -13,36 +12,39 @@ type TimeFilter = 'all' | 'today' | 'week' | 'month';
 type SortMode = 'streak' | 'points' | 'level' | 'accuracy';
 type DifficultyFilter = 'all' | GameDifficulty;
 
-// Animated Components
+// Animated Components (CSS-based)
 function AnimatedSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
-    if (ref.current) animate(ref.current, { opacity: [0, 1], translateY: [10, 0], duration: 200, delay: delay * 0.5, ease: 'outQuad' });
+    const timer = setTimeout(() => setIsVisible(true), delay * 0.5);
+    return () => clearTimeout(timer);
   }, [delay]);
-  return <div ref={ref} className={className} style={{ opacity: 0 }}>{children}</div>;
+  return (
+    <div className={`${className} transition-all duration-200 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'}`}>
+      {children}
+    </div>
+  );
 }
 
 function HoverButton({ children, onClick, className }: { children: React.ReactNode; onClick: () => void; className: string }) {
-  const ref = useRef<HTMLButtonElement>(null);
   return (
-    <button
-      ref={ref}
-      onClick={onClick}
-      className={className}
-      onMouseEnter={() => ref.current && animate(ref.current, { scale: 1.05, duration: 80, ease: 'outQuad' })}
-      onMouseLeave={() => ref.current && animate(ref.current, { scale: 1, duration: 80, ease: 'outQuad' })}
-    >
+    <button onClick={onClick} className={`${className} transition-transform duration-100 hover:scale-105 active:scale-95`}>
       {children}
     </button>
   );
 }
 
 function StatCard({ children, delay, className }: { children: React.ReactNode; delay: number; className: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
-    if (ref.current) animate(ref.current, { opacity: [0, 1], translateY: [10, 0], duration: 200, delay: delay * 0.5, ease: 'outQuad' });
+    const timer = setTimeout(() => setIsVisible(true), delay * 0.5);
+    return () => clearTimeout(timer);
   }, [delay]);
-  return <div ref={ref} className={className} style={{ opacity: 0 }}>{children}</div>;
+  return (
+    <div className={`${className} transition-all duration-200 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'}`}>
+      {children}
+    </div>
+  );
 }
 
 // Filter Button Component

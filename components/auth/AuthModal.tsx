@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { animate } from '@/lib/animejs';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
@@ -14,56 +13,42 @@ interface AuthModalProps {
 type AuthView = 'login' | 'register';
 
 // ============================================================================
-// ANIMATED COMPONENTS
+// ANIMATED COMPONENTS (CSS-based)
 // ============================================================================
 
 function AnimatedBackdrop({
   onClose,
   className,
+  isVisible,
 }: {
   onClose: () => void;
   className: string;
+  isVisible: boolean;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        duration: 200,
-        ease: 'outQuad',
-      });
-    }
-  }, []);
-
-  return <div ref={ref} onClick={onClose} className={className} style={{ opacity: 0 }} />;
+  return (
+    <div
+      onClick={onClose}
+      className={`${className} transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+    />
+  );
 }
 
 function AnimatedModal({
   children,
   className,
   onClick,
+  isVisible,
 }: {
   children: React.ReactNode;
   className: string;
   onClick: (e: React.MouseEvent) => void;
+  isVisible: boolean;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        scale: [0.9, 1],
-        translateY: [20, 0],
-        duration: 150,
-        ease: 'outQuad',
-      });
-    }
-  }, []);
-
   return (
-    <div ref={ref} onClick={onClick} className={className} style={{ opacity: 0, transform: 'scale(0.9) translateY(20px)' }}>
+    <div
+      onClick={onClick}
+      className={`${className} transition-all duration-150 ease-out ${isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-5'}`}
+    >
       {children}
     </div>
   );
@@ -71,30 +56,11 @@ function AnimatedModal({
 
 function AnimatedHeader({
   children,
-  viewKey,
 }: {
   children: React.ReactNode;
-  viewKey: string;
 }) {
-  const ref = useRef<HTMLHeadingElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        translateY: [-10, 0],
-        duration: 150,
-        ease: 'outQuad',
-      });
-    }
-  }, [viewKey]);
-
   return (
-    <h2
-      ref={ref}
-      className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
-      style={{ opacity: 0 }}
-    >
+    <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent transition-opacity duration-150">
       {children}
     </h2>
   );
@@ -102,88 +68,31 @@ function AnimatedHeader({
 
 function AnimatedSubtitle({
   children,
-  viewKey,
 }: {
   children: React.ReactNode;
-  viewKey: string;
 }) {
-  const ref = useRef<HTMLParagraphElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        duration: 150,
-        delay: 50,
-        ease: 'outQuad',
-      });
-    }
-  }, [viewKey]);
-
   return (
-    <p ref={ref} className="mt-2 text-gray-400 text-sm" style={{ opacity: 0 }}>
+    <p className="mt-2 text-gray-400 text-sm transition-opacity duration-150">
       {children}
     </p>
   );
 }
 
-function AnimatedTabIndicator({
-  isActive,
-}: {
-  isActive: boolean;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current && isActive) {
-      animate(ref.current, {
-        opacity: [0, 1],
-        scale: [0.95, 1],
-        duration: 150,
-        ease: 'outQuad',
-      });
-    }
-  }, [isActive]);
-
+function AnimatedTabIndicator({ isActive }: { isActive: boolean }) {
   if (!isActive) return null;
 
   return (
-    <div
-      ref={ref}
-      className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-md"
-      style={{ opacity: 0 }}
-    />
+    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-md transition-all duration-150" />
   );
 }
 
 function AnimatedGradientBackground() {
-  const ref = useRef<HTMLDivElement>(null);
-  const gradients = [
-    'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
-    'radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.4) 0%, transparent 50%)',
-    'radial-gradient(circle at 0% 100%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
-    'radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.4) 0%, transparent 50%)',
-  ];
-
-  useEffect(() => {
-    if (!ref.current) return;
-
-    let currentIndex = 0;
-    const runAnimation = () => {
-      if (!ref.current) return;
-      currentIndex = (currentIndex + 1) % gradients.length;
-      ref.current.style.background = gradients[currentIndex];
-    };
-
-    const interval = setInterval(runAnimation, 2500);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div
-      ref={ref}
-      className="w-full h-full transition-all duration-1000"
-      style={{ background: gradients[0] }}
+      className="w-full h-full animate-gradient-shift"
+      style={{
+        background: 'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
+      }}
     />
   );
 }
@@ -194,11 +103,18 @@ function AnimatedGradientBackground() {
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [currentView, setCurrentView] = useState<AuthView>('login');
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Reset to login view when modal opens
+  // Animate in when modal opens
   useEffect(() => {
     if (isOpen) {
       setCurrentView('login');
+      // Small delay to trigger CSS transition
+      requestAnimationFrame(() => {
+        setIsVisible(true);
+      });
+    } else {
+      setIsVisible(false);
     }
   }, [isOpen]);
 
@@ -238,6 +154,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       <AnimatedBackdrop
         onClose={onClose}
         className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+        isVisible={isVisible}
       />
 
       {/* Modal */}
@@ -246,6 +163,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           onClick={(e) => e.stopPropagation()}
           className="relative w-full max-w-md bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900
                    border-2 border-purple-500/30 rounded-2xl shadow-2xl overflow-hidden"
+          isVisible={isVisible}
         >
           {/* Animated Background Gradient */}
           <div className="absolute inset-0 opacity-30">
@@ -266,10 +184,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div className="relative p-8 pt-12">
             {/* Header */}
             <div className="text-center mb-8">
-              <AnimatedHeader viewKey={currentView}>
+              <AnimatedHeader>
                 {currentView === 'login' ? 'Welcome Back!' : 'Create Account'}
               </AnimatedHeader>
-              <AnimatedSubtitle viewKey={`${currentView}-subtitle`}>
+              <AnimatedSubtitle>
                 {currentView === 'login'
                   ? 'Login to continue your anime journey'
                   : 'Join the ultimate anime guessing game'}

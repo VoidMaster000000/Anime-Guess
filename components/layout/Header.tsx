@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gamepad2, Trophy, ShoppingBag, Menu, X, Coins, Zap, LogIn, UserPlus, User, Package, Settings, LogOut } from "lucide-react";
-import { animate } from "@/lib/animejs";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
 
@@ -32,29 +31,10 @@ function HoverScaleTap({ children, className }: { children: React.ReactNode; cla
   );
 }
 
-// Animated spin on hover for logo (keeps the fun interaction)
+// Animated spin on hover for logo (CSS-based)
 function SpinOnHover({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (ref.current) {
-      animate(ref.current, { rotate: 360, duration: 300, ease: 'inOutQuad' });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (ref.current) {
-      ref.current.style.transform = 'rotate(0deg)';
-    }
-  };
-
   return (
-    <div
-      ref={ref}
-      className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className={`${className || ''} transition-transform duration-300 hover:rotate-[360deg]`}>
       {children}
     </div>
   );
@@ -75,29 +55,29 @@ export default function Header() {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  // Animate mobile menu
+  // Animate mobile menu with CSS
   useEffect(() => {
     if (mobileMenuRef.current) {
       if (mobileMenuOpen) {
         mobileMenuRef.current.style.display = 'block';
-        animate(mobileMenuRef.current, {
-          opacity: [0, 1],
-          height: [0, mobileMenuRef.current.scrollHeight],
-          duration: 120,
-          ease: 'outQuad',
+        mobileMenuRef.current.style.transition = 'opacity 120ms ease-out, max-height 120ms ease-out';
+        mobileMenuRef.current.style.maxHeight = '0px';
+        mobileMenuRef.current.style.opacity = '0';
+        requestAnimationFrame(() => {
+          if (mobileMenuRef.current) {
+            mobileMenuRef.current.style.maxHeight = `${mobileMenuRef.current.scrollHeight}px`;
+            mobileMenuRef.current.style.opacity = '1';
+          }
         });
       } else {
-        animate(mobileMenuRef.current, {
-          opacity: [1, 0],
-          height: [mobileMenuRef.current.scrollHeight, 0],
-          duration: 120,
-          ease: 'inQuad',
-          onComplete: () => {
-            if (mobileMenuRef.current) {
-              mobileMenuRef.current.style.display = 'none';
-            }
-          },
-        });
+        mobileMenuRef.current.style.transition = 'opacity 120ms ease-in, max-height 120ms ease-in';
+        mobileMenuRef.current.style.maxHeight = '0px';
+        mobileMenuRef.current.style.opacity = '0';
+        setTimeout(() => {
+          if (mobileMenuRef.current) {
+            mobileMenuRef.current.style.display = 'none';
+          }
+        }, 120);
       }
     }
   }, [mobileMenuOpen]);

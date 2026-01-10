@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { animate, stagger, utils } from '@/lib/animejs/anime.esm.js';
 import { UserPlus, User, Lock, Eye, EyeOff, ArrowLeft, Sparkles, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { motion, AnimatePresence, fadeInUp, staggerContainer, staggerItem, modalVariants, scaleInBounce } from '@/lib/animations';
+import { gsap, particleFloat, shake } from '@/lib/animations';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -19,9 +20,6 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
 
   const { signup, isAuthenticated } = useAuth();
@@ -30,45 +28,35 @@ export default function SignupPage() {
     if (isAuthenticated) router.push('/');
   }, [isAuthenticated, router]);
 
+  // GSAP particle animations
   useEffect(() => {
-    if (particlesRef.current) {
-      for (let i = 0; i < 35; i++) {
-        const particle = document.createElement('div');
-        const colors = ['bg-purple-500/20', 'bg-pink-500/20', 'bg-blue-500/20'];
-        particle.className = `absolute w-2 h-2 rounded-full ${colors[Math.floor(Math.random() * colors.length)]}`;
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.top = `${Math.random() * 100}%`;
-        particlesRef.current.appendChild(particle);
+    if (!particlesRef.current) return;
 
-        animate(particle, {
-          translateX: () => utils.random(-150, 150),
-          translateY: () => utils.random(-150, 150),
-          scale: [0, utils.random(0.5, 2), 0],
-          opacity: [0, 0.7, 0],
-          duration: utils.random(4000, 7000),
-          delay: utils.random(0, 3000),
-          loop: true,
-          ease: 'inOutSine',
-        });
-      }
-    }
+    const particles: HTMLDivElement[] = [];
+    const container = particlesRef.current;
+    const colors = ['bg-purple-500/20', 'bg-pink-500/20', 'bg-blue-500/20'];
 
-    if (cardRef.current) {
-      animate(cardRef.current, { translateY: [30, 0], opacity: [0, 1], duration: 300, ease: 'outQuad' });
-    }
-    if (logoRef.current) {
-      animate(logoRef.current, { scale: [0, 1], rotate: [90, 0], duration: 400, delay: 50, ease: 'outQuad' });
-    }
-    if (titleRef.current) {
-      animate(titleRef.current, { translateY: [10, 0], opacity: [0, 1], duration: 250, delay: 100, ease: 'outQuad' });
-    }
-    if (formRef.current) {
-      animate(formRef.current.querySelectorAll('.form-element'), {
-        translateX: [-20, 0], opacity: [0, 1], duration: 200, delay: stagger(30, { start: 150 }), ease: 'outQuad',
+    for (let i = 0; i < 35; i++) {
+      const particle = document.createElement('div');
+      particle.className = `absolute w-2 h-2 rounded-full ${colors[Math.floor(Math.random() * colors.length)]}`;
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      container.appendChild(particle);
+      particles.push(particle);
+
+      particleFloat(particle, {
+        x: (Math.random() - 0.5) * 300,
+        y: (Math.random() - 0.5) * 300,
+        scale: 0.5 + Math.random() * 1.5,
       });
     }
 
-    return () => { if (particlesRef.current) particlesRef.current.innerHTML = ''; };
+    return () => {
+      particles.forEach(p => {
+        gsap.killTweensOf(p);
+        p.remove();
+      });
+    };
   }, []);
 
   // Validation
@@ -95,10 +83,10 @@ export default function SignupPage() {
   const emailValid = email && !emailError;
 
   const shakeError = () => {
-    if (cardRef.current) animate(cardRef.current, { translateX: [-10, 10, -10, 10, 0], duration: 250, ease: 'inOutQuad' });
+    if (cardRef.current) {
+      shake(cardRef.current, { intensity: 10, duration: 0.4 });
+    }
   };
-  const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => animate(e.currentTarget, { scale: 1.03, duration: 100, ease: 'outQuad' });
-  const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => animate(e.currentTarget, { scale: 1, duration: 100, ease: 'outQuad' });
 
   const getInputClass = (hasError: boolean, isValid: boolean) => {
     if (hasError) return 'input-base input-error';
@@ -120,9 +108,7 @@ export default function SignupPage() {
     try {
       const result = await signup(username, email, password);
       if (result.success) {
-        if (cardRef.current) {
-          animate(cardRef.current, { scale: [1, 1.02, 0.98], opacity: [1, 1, 0], duration: 200, ease: 'inOutQuad', onComplete: () => router.push('/') });
-        } else router.push('/');
+        router.push('/');
       } else {
         setError(result.error || 'Registration failed. Please try again.');
         shakeError();
@@ -146,27 +132,64 @@ export default function SignupPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10 px-4 sm:px-0">
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-        </Link>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-4 sm:mb-6 transition-colors group text-sm sm:text-base">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Home
+          </Link>
+        </motion.div>
 
-        <div ref={cardRef} className="card-dark p-5 sm:p-8 opacity-0">
+        <motion.div
+          ref={cardRef}
+          variants={modalVariants}
+          initial="hidden"
+          animate="visible"
+          className="card-dark p-5 sm:p-8"
+        >
           {/* Logo */}
           <div className="text-center mb-4 sm:mb-6">
-            <div ref={logoRef} className="inline-flex flex-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-500 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-pink-500/30">
+            <motion.div
+              variants={scaleInBounce}
+              initial="hidden"
+              animate="visible"
+              className="inline-flex flex-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-500 via-purple-500 to-cyan-500 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-pink-500/30"
+            >
               <UserPlus className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-            </div>
-            <h1 ref={titleRef} className="text-2xl sm:text-3xl font-bold text-white mb-2 opacity-0">Create Account</h1>
-            <p className="text-sm sm:text-base text-gray-400 flex-center gap-2">
+            </motion.div>
+            <motion.h1
+              variants={fadeInUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.1 }}
+              className="text-2xl sm:text-3xl font-bold text-white mb-2"
+            >
+              Create Account
+            </motion.h1>
+            <motion.p
+              variants={fadeInUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.15 }}
+              className="text-sm sm:text-base text-gray-400 flex-center gap-2"
+            >
               <Sparkles className="w-4 h-4 text-pink-400" />
               Join the ultimate anime guessing game
-            </p>
+            </motion.p>
           </div>
 
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <motion.form
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            onSubmit={handleSubmit}
+            className="space-y-3 sm:space-y-4"
+          >
             {/* Username */}
-            <div className="form-element opacity-0">
+            <motion.div variants={staggerItem} className="form-element">
               <label htmlFor="username" className="label text-sm sm:text-base">Username</label>
               <div className="relative group">
                 <User className="icon-input" />
@@ -179,17 +202,35 @@ export default function SignupPage() {
                   placeholder="Choose a username"
                   disabled={isLoading}
                 />
-                {username && (
-                  <div className="validation-icon">
-                    {usernameValid ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
-                  </div>
-                )}
+                <AnimatePresence>
+                  {username && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      className="validation-icon"
+                    >
+                      {usernameValid ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              {username && usernameError && <p className="error-text text-xs sm:text-sm">{usernameError}</p>}
-            </div>
+              <AnimatePresence>
+                {username && usernameError && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="error-text text-xs sm:text-sm"
+                  >
+                    {usernameError}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
             {/* Email */}
-            <div className="form-element opacity-0">
+            <motion.div variants={staggerItem} className="form-element">
               <label htmlFor="email" className="label text-sm sm:text-base">Email</label>
               <div className="relative group">
                 <Mail className="icon-input" />
@@ -203,17 +244,35 @@ export default function SignupPage() {
                   disabled={isLoading}
                   required
                 />
-                {email && (
-                  <div className="validation-icon">
-                    {emailValid ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
-                  </div>
-                )}
+                <AnimatePresence>
+                  {email && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      className="validation-icon"
+                    >
+                      {emailValid ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              {email && emailError && <p className="error-text text-xs sm:text-sm">{emailError}</p>}
-            </div>
+              <AnimatePresence>
+                {email && emailError && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="error-text text-xs sm:text-sm"
+                  >
+                    {emailError}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
             {/* Password */}
-            <div className="form-element opacity-0">
+            <motion.div variants={staggerItem} className="form-element">
               <label htmlFor="password" className="label text-sm sm:text-base">Password</label>
               <div className="relative group">
                 <Lock className="icon-input" />
@@ -230,11 +289,22 @@ export default function SignupPage() {
                   {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
-              {password && passwordError && <p className="error-text text-xs sm:text-sm">{passwordError}</p>}
-            </div>
+              <AnimatePresence>
+                {password && passwordError && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="error-text text-xs sm:text-sm"
+                  >
+                    {passwordError}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
             {/* Confirm Password */}
-            <div className="form-element opacity-0">
+            <motion.div variants={staggerItem} className="form-element">
               <label htmlFor="confirmPassword" className="label text-sm sm:text-base">Confirm Password</label>
               <div className="relative group">
                 <Lock className="icon-input" />
@@ -251,27 +321,55 @@ export default function SignupPage() {
                   {showConfirmPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
-              {passwordsDontMatch && <p className="error-text text-xs sm:text-sm">Passwords do not match</p>}
-              {passwordsMatch && <p className="success-text flex items-center gap-1 text-xs sm:text-sm"><CheckCircle2 className="w-3 h-3" /> Passwords match!</p>}
-            </div>
+              <AnimatePresence>
+                {passwordsDontMatch && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="error-text text-xs sm:text-sm"
+                  >
+                    Passwords do not match
+                  </motion.p>
+                )}
+                {passwordsMatch && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="success-text flex items-center gap-1 text-xs sm:text-sm"
+                  >
+                    <CheckCircle2 className="w-3 h-3" /> Passwords match!
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
             {/* Error */}
-            {error && (
-              <div className="stat-red p-3 sm:p-4">
-                <p className="text-xs sm:text-sm text-red-400 flex items-center gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  {error}
-                </p>
-              </div>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="stat-red p-3 sm:p-4"
+                >
+                  <p className="text-xs sm:text-sm text-red-400 flex items-center gap-2">
+                    <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    {error}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Submit */}
-            <button
+            <motion.button
+              variants={staggerItem}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading || !!usernameError || !!emailError || !!passwordError || !passwordsMatch || !username || !email || !password}
-              onMouseEnter={handleButtonHover}
-              onMouseLeave={handleButtonLeave}
-              className="form-element opacity-0 w-full py-3 sm:py-4 btn btn-gradient rounded-xl text-sm sm:text-base"
+              className="form-element w-full py-3 sm:py-4 btn btn-gradient rounded-xl text-sm sm:text-base"
             >
               {isLoading ? (
                 <>
@@ -284,14 +382,19 @@ export default function SignupPage() {
                   <span>Create Account</span>
                 </>
               )}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
 
-          <p className="form-element opacity-0 mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="form-element mt-4 sm:mt-6 text-center text-gray-400 text-sm sm:text-base"
+          >
             Already have an account?{' '}
             <Link href="/login" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Login</Link>
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
     </div>
   );

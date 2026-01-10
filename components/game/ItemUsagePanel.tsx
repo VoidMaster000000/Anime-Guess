@@ -1,8 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { animate } from '@/lib/animejs';
-// Note: animate is still used in UsedOverlay component
+import { useEffect, useState } from 'react';
 import { Eye, Heart, SkipForward, HelpCircle, Package, Sparkles } from 'lucide-react';
 import { useAuth, fetchInventory, useInventoryItem, InventoryItem } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
@@ -43,28 +41,23 @@ function HoverButton({
   );
 }
 
-// Used animation overlay
+// Used animation overlay (CSS-based)
 function UsedOverlay({ show }: { show: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    if (ref.current && show) {
-      animate(ref.current, {
-        opacity: [0, 1, 0],
-        scale: [0.8, 1, 1.2],
-        duration: 500,
-        ease: 'outQuad',
-      });
+    if (show) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => setIsAnimating(false), 500);
+      return () => clearTimeout(timer);
     }
   }, [show]);
 
-  if (!show) return null;
+  if (!show && !isAnimating) return null;
 
   return (
     <div
-      ref={ref}
-      className="absolute inset-0 flex items-center justify-center rounded-lg bg-green-500/20 border border-green-500/50"
-      style={{ opacity: 0 }}
+      className={`absolute inset-0 flex items-center justify-center rounded-lg bg-green-500/20 border border-green-500/50 transition-all duration-500 ${isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}
     >
       <span className="text-green-400 font-bold">Used!</span>
     </div>

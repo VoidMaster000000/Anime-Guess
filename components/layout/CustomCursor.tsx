@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { animate } from '@/lib/animejs';
 
 interface TrailDot {
   x: number;
@@ -127,16 +126,18 @@ export default function CustomCursor() {
 
       particleContainerRef.current.appendChild(particle);
 
-      // Animate particle outward
-      animate(particle, {
-        translateX: Math.cos(angle) * velocity,
-        translateY: Math.sin(angle) * velocity,
-        opacity: [1, 0],
-        scale: [1, 0],
-        duration: 300 + Math.random() * 100,
-        ease: 'outQuad',
-        onComplete: () => particle.remove(),
+      // Animate particle outward with CSS
+      const duration = 300 + Math.random() * 100;
+      const translateX = Math.cos(angle) * velocity;
+      const translateY = Math.sin(angle) * velocity;
+
+      particle.style.transition = `all ${duration}ms ease-out`;
+      requestAnimationFrame(() => {
+        particle.style.transform = `translate(${translateX}px, ${translateY}px) scale(0)`;
+        particle.style.opacity = '0';
       });
+
+      setTimeout(() => particle.remove(), duration);
     }
   }, []);
 
@@ -153,11 +154,8 @@ export default function CustomCursor() {
   // Click animations with burst
   const handleMouseDown = useCallback((e: MouseEvent) => {
     if (cursorRingRef.current) {
-      animate(cursorRingRef.current, {
-        scale: [1, 0.7],
-        duration: 100,
-        ease: 'outQuad',
-      });
+      cursorRingRef.current.style.transition = 'transform 100ms ease-out';
+      cursorRingRef.current.style.transform = 'translate(-50%, -50%) scale(0.7)';
     }
 
     // Create click burst
@@ -166,11 +164,8 @@ export default function CustomCursor() {
 
   const handleMouseUp = useCallback(() => {
     if (cursorRingRef.current) {
-      animate(cursorRingRef.current, {
-        scale: [0.7, 1.1, 1],
-        duration: 200,
-        ease: 'outBack',
-      });
+      cursorRingRef.current.style.transition = 'transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+      cursorRingRef.current.style.transform = 'translate(-50%, -50%) scale(1)';
     }
   }, []);
 
@@ -212,18 +207,12 @@ export default function CustomCursor() {
   // Animate hover state changes
   useEffect(() => {
     if (cursorDotRef.current) {
-      animate(cursorDotRef.current, {
-        scale: isPointer ? 1.5 : 1,
-        duration: 80,
-        ease: 'outQuad',
-      });
+      cursorDotRef.current.style.transition = 'transform 80ms ease-out';
+      cursorDotRef.current.style.transform = `translate(-50%, -50%) scale(${isPointer ? 1.5 : 1})`;
     }
     if (cursorRingRef.current) {
-      animate(cursorRingRef.current, {
-        scale: isPointer ? 1.4 : 1,
-        duration: 80,
-        ease: 'outQuad',
-      });
+      cursorRingRef.current.style.transition = 'transform 80ms ease-out';
+      cursorRingRef.current.style.transform = `translate(-50%, -50%) scale(${isPointer ? 1.4 : 1})`;
     }
   }, [isPointer]);
 
