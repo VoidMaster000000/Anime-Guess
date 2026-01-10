@@ -115,7 +115,7 @@ function AnimatedMenuItem({
 export default function CustomContextMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isMobile, setIsMobile] = useState(false);
+  const [isUsingTouch, setIsUsingTouch] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -124,17 +124,32 @@ export default function CustomContextMenu() {
   const gameStatus = useGameStore((state) => state.gameStatus);
   const resetGame = useGameStore((state) => state.resetGame);
 
-  // Detect mobile/touch devices
+  // Detect actual touch usage (not just capability)
+  // Many Windows devices report touch capability but use mouse
   useEffect(() => {
-    const checkMobile = () => {
-      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      const isSmallScreen = window.innerWidth < 768;
-      setIsMobile(isTouchDevice || isSmallScreen);
+    let lastInputWasTouch = false;
+
+    const handleTouchStart = () => {
+      lastInputWasTouch = true;
+      setIsUsingTouch(true);
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const handleMouseMove = (e: MouseEvent) => {
+      // Only count as mouse if it's not from a touch event
+      // Touch events also trigger mouse events, but with movementX/Y = 0
+      if (!lastInputWasTouch && (e.movementX !== 0 || e.movementY !== 0)) {
+        setIsUsingTouch(false);
+      }
+      lastInputWasTouch = false;
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const closeMenu = useCallback(() => {
@@ -152,8 +167,9 @@ export default function CustomContextMenu() {
   }, []);
 
   const handleContextMenu = useCallback((e: MouseEvent) => {
-    // On mobile, allow native context menu (long-press behavior)
-    if (isMobile) return;
+    // On touch devices, allow native context menu (long-press behavior)
+    // But on Windows with mouse, show custom menu
+    if (isUsingTouch) return;
 
     e.preventDefault();
 
@@ -163,7 +179,7 @@ export default function CustomContextMenu() {
 
     setPosition({ x, y });
     setIsOpen(true);
-  }, [isMobile]);
+  }, [isUsingTouch]);
 
   const handleClick = useCallback(() => {
     if (isOpen) closeMenu();
