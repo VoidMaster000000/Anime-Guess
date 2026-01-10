@@ -157,11 +157,15 @@ export default function LeaderboardPage() {
   }, [filteredEntries, globalStats]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Background */}
-      <div className="page-bg">
-        <div className="bg-glow-purple top-0 left-1/4" />
-        <div className="bg-glow-blue bottom-0 right-1/4" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+      {/* Gaming Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="bg-hex-pattern" />
+        <div className="orb-gaming orb-purple -top-32 left-1/4" />
+        <div className="orb-gaming orb-cyan bottom-0 right-1/4" />
+        <div className="orb-gaming orb-pink top-1/2 -left-32" />
+        <div className="scan-line" />
+        <div className="tech-lines" />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
@@ -239,8 +243,8 @@ export default function LeaderboardPage() {
             )}
           </div>
 
-          {/* Time Filters */}
-          <div className="card p-3 sm:p-4 mb-3 sm:mb-4">
+          {/* Time Filters - Gaming Card */}
+          <div className="card-gaming p-3 sm:p-4 mb-3 sm:mb-4 rounded-xl">
             <div className="flex items-center gap-2 mb-2 sm:mb-3">
               <Calendar className="w-5 h-5 text-gray-400" />
               <span className="text-gray-400 text-sm font-medium">Time Period:</span>
@@ -257,8 +261,8 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Sort & Difficulty */}
-          <div className="card p-3 sm:p-4">
+          {/* Sort & Difficulty - Gaming Card */}
+          <div className="card-gaming-alt p-3 sm:p-4 rounded-xl">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="flex items-center gap-2 flex-shrink-0">

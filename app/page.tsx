@@ -184,11 +184,22 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white overflow-hidden relative">
-      {/* Background gradient - static on mobile for performance */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20 sm:animate-pulse" />
+      {/* Gaming Background Elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        {/* Hex pattern overlay */}
+        <div className="bg-hex-pattern" />
 
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+        {/* Floating orbs - asymmetric positioning */}
+        <div className="orb-gaming orb-purple -top-20 -left-20" />
+        <div className="orb-gaming orb-cyan top-1/3 -right-32" />
+        <div className="orb-gaming orb-pink bottom-20 left-1/4" />
+
+        {/* Scanning line effect */}
+        <div className="scan-line" />
+
+        {/* Tech lines decoration */}
+        <div className="tech-lines" />
+      </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         <AnimatePresence mode="wait">
@@ -202,19 +213,33 @@ export default function GamePage() {
               exit="exit"
               className="flex items-center justify-center min-h-[calc(100vh-4rem)]"
             >
-              <div className="text-center space-y-8">
+              <div className="w-full space-y-8 sm:space-y-12">
+                {/* Asymmetric Title Section */}
                 <motion.div
                   variants={fadeInUp}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: 0.2 }}
+                  className="relative"
                 >
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4 px-2">
-                    Anime Guess Game
-                  </h1>
-                  <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto px-4">
-                    Test your anime knowledge! Guess the anime from character images revealed quadrant by quadrant.
-                  </p>
+                  {/* Title card with gaming style - offset left */}
+                  <div className="card-gaming p-6 sm:p-8 md:p-10 max-w-3xl offset-left rounded-r-2xl glow-pulse">
+                    <div className="corner-accent corner-accent-tl top-2 left-2" />
+                    <div className="corner-accent corner-accent-br bottom-2 right-6" />
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gradient mb-4">
+                      Anime Guess Game
+                    </h1>
+                    <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl">
+                      Test your anime knowledge! Guess the anime from character images revealed quadrant by quadrant.
+                    </p>
+                  </div>
+
+                  {/* Decorative element - offset right */}
+                  <div className="hidden lg:block absolute -right-4 top-1/2 -translate-y-1/2">
+                    <div className="w-32 h-32 border-2 border-cyan-500/30 rotate-45 relative">
+                      <div className="absolute inset-4 border border-purple-500/30" />
+                    </div>
+                  </div>
                 </motion.div>
 
                 <DifficultySelect onSelect={handleDifficultySelect} />
@@ -277,12 +302,12 @@ export default function GamePage() {
                 </motion.div>
               )}
 
-              {/* Main Game Area */}
+              {/* Main Game Area - Asymmetric Layout */}
               <motion.div
                 variants={staggerContainer}
                 initial="hidden"
                 animate="visible"
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6"
+                className="grid-asymmetric"
               >
                 {/* Left Column - Character Image */}
                 <motion.div variants={staggerItem} className="space-y-3 sm:space-y-4">
@@ -293,14 +318,14 @@ export default function GamePage() {
                         revealedQuadrants={hintsRevealed}
                       />
 
-                      {/* Character Name Reference - simplified for mobile performance */}
+                      {/* Character Name Reference - Gaming Card Style */}
                       <motion.div
                         variants={fadeInUp}
-                        className="card p-4"
+                        className="card-gaming p-4 rounded-xl holographic"
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <Sparkles className="w-4 h-4 text-purple-400" />
-                          <span className="text-sm font-medium text-zinc-400">Character</span>
+                          <span className="text-sm font-medium text-zinc-400 uppercase tracking-wider">Character</span>
                         </div>
                         <p className="text-lg font-semibold text-white">
                           {currentCharacter.name.full}
@@ -334,8 +359,9 @@ export default function GamePage() {
                 <motion.div variants={staggerItem} className="space-y-3 sm:space-y-4">
                   <motion.div
                     variants={fadeInUp}
-                    className="card card-padding relative z-20"
+                    className="card-gaming-alt p-4 sm:p-6 rounded-xl relative z-20 border-neon"
                   >
+                    <div className="corner-accent corner-accent-tr top-2 right-2" />
                     <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gradient">
                       Guess the Anime!
                     </h2>
@@ -354,33 +380,36 @@ export default function GamePage() {
                     <ItemUsagePanel />
                   </div>
 
-                  {/* Game Tips - Hidden on small mobile, visible on larger screens */}
+                  {/* Game Tips - Gaming style card with cut corner */}
                   <motion.div
                     variants={fadeInUp}
-                    className="hidden sm:block stat-blue card-padding relative z-10"
+                    className="hidden sm:block card-hexagon p-4 sm:p-6 border border-cyan-500/20 relative z-10"
                   >
-                    <div className="flex items-center gap-2 mb-3">
-                      <Award className="w-5 h-5 text-blue-400" />
-                      <h3 className="text-base sm:text-lg font-semibold text-blue-300">Pro Tips</h3>
+                    <div className="stripe-decoration text-cyan-500" />
+                    <div className="relative">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Award className="w-5 h-5 text-cyan-400" />
+                        <h3 className="text-base sm:text-lg font-semibold text-cyan-300 uppercase tracking-wider">Pro Tips</h3>
+                      </div>
+                      <ul className="space-y-2 text-xs sm:text-sm text-zinc-300">
+                        <li className="flex items-start gap-2">
+                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span>Fewer hints used = more points earned!</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span>Both English and Romaji titles are accepted</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span>Press Enter to submit your guess</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span>Build your streak for maximum points!</span>
+                        </li>
+                      </ul>
                     </div>
-                    <ul className="space-y-2 text-xs sm:text-sm text-zinc-300">
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-400 mt-1">•</span>
-                        <span>Fewer hints used = more points earned!</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-400 mt-1">•</span>
-                        <span>Both English and Romaji titles are accepted</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-400 mt-1">•</span>
-                        <span>Press Enter to submit your guess</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-400 mt-1">•</span>
-                        <span>Build your streak for maximum points!</span>
-                      </li>
-                    </ul>
                   </motion.div>
                 </motion.div>
               </motion.div>
@@ -416,8 +445,7 @@ export default function GamePage() {
         </AnimatePresence>
       </div>
 
-      {/* Background ambient effects */}
-      <BackgroundEffects />
+      {/* Background ambient effects - Gaming style handled above */}
 
       {/* Anti-Cheat Warning Overlay */}
       <AntiCheatWarning

@@ -91,12 +91,15 @@ export default function LoginPage() {
 
   return (
     <div className="page-container flex-center">
-      {/* Background */}
-      <div className="page-bg">
+      {/* Gaming Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="bg-hex-pattern" />
         <div ref={particlesRef} className="absolute inset-0" />
-        <div className="bg-glow-purple top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] blur-[120px]" />
-        <div className="bg-glow-pink bottom-0 left-0 w-[600px] h-[600px] blur-[100px]" />
-        <div className="bg-glow-blue top-1/2 right-0 w-[500px] h-[500px] blur-[100px]" />
+        <div className="orb-gaming orb-purple -top-32 -left-32" />
+        <div className="orb-gaming orb-cyan bottom-0 right-0" />
+        <div className="orb-gaming orb-pink top-1/2 -left-20" />
+        <div className="scan-line" />
+        <div className="tech-lines" />
       </div>
 
       <div className="w-full max-w-md relative z-10 px-4 sm:px-6 md:px-0">
@@ -112,14 +115,16 @@ export default function LoginPage() {
           </Link>
         </motion.div>
 
-        {/* Card */}
+        {/* Card - Gaming Style */}
         <motion.div
           ref={cardRef}
           variants={modalVariants}
           initial="hidden"
           animate="visible"
-          className="card-dark p-5 sm:p-6 md:p-8"
+          className="card-gaming p-5 sm:p-6 md:p-8 rounded-2xl border-neon relative"
         >
+          <div className="corner-accent corner-accent-tl top-3 left-3" />
+          <div className="corner-accent corner-accent-br bottom-3 right-3" />
           {/* Logo */}
           <div className="text-center mb-6 sm:mb-8">
             <motion.div

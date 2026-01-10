@@ -123,12 +123,15 @@ export default function SignupPage() {
 
   return (
     <div className="page-container flex-center">
-      {/* Background */}
-      <div className="page-bg">
+      {/* Gaming Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="bg-hex-pattern" />
         <div ref={particlesRef} className="absolute inset-0" />
-        <div className="bg-glow-pink top-0 right-1/4 w-[900px] h-[900px] blur-[150px]" />
-        <div className="bg-glow-purple bottom-0 left-1/4 w-[700px] h-[700px] blur-[120px]" />
-        <div className="bg-glow-cyan top-1/3 left-0 w-[400px] h-[400px] blur-[100px]" />
+        <div className="orb-gaming orb-pink -top-20 right-0" />
+        <div className="orb-gaming orb-purple bottom-20 -left-20" />
+        <div className="orb-gaming orb-cyan top-1/3 -right-32" />
+        <div className="scan-line" />
+        <div className="tech-lines" />
       </div>
 
       <div className="w-full max-w-md relative z-10 px-4 sm:px-6 md:px-0">
@@ -148,8 +151,10 @@ export default function SignupPage() {
           variants={modalVariants}
           initial="hidden"
           animate="visible"
-          className="card-dark p-5 sm:p-6 md:p-8"
+          className="card-gaming-alt p-5 sm:p-6 md:p-8 rounded-2xl border-neon-pink relative"
         >
+          <div className="corner-accent corner-accent-tr top-3 right-3" />
+          <div className="corner-accent corner-accent-bl bottom-3 left-3" />
           {/* Logo */}
           <div className="text-center mb-4 sm:mb-5 md:mb-6">
             <motion.div
