@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ShoppingBag, Coins, CheckCircle2, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, ShoppingBag, Coins, CheckCircle2, XCircle, Sparkles, Star, Zap, Gift, TrendingUp, Package } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { SHOP_ITEMS } from '@/store/gameStore';
 import { useAuth, purchaseItem as purchaseItemApi } from '@/hooks/useAuth';
-import { ShopItemType } from '@/types';
+import { motion, AnimatePresence, staggerContainer, staggerItem, scaleInBounce } from '@/lib/animations';
 import UpgradeCard from '@/components/shop/UpgradeCard';
 
 interface Notification {
@@ -13,39 +14,78 @@ interface Notification {
   message: string;
 }
 
-// CSS-based animated wrapper
-function AnimatedSection({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const [isVisible, setIsVisible] = useState(false);
+// Floating Coin Animation
+function FloatingCoins() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ y: '100%', x: `${15 + i * 15}%`, opacity: 0, rotate: 0 }}
+          animate={{
+            y: [null, '-20%'],
+            opacity: [0, 0.6, 0],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 8 + i * 2,
+            repeat: Infinity,
+            delay: i * 1.5,
+            ease: 'linear',
+          }}
+          className="absolute"
+        >
+          <Coins className="w-6 h-6 text-yellow-500/30" />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
+// Notification Toast with Animation
+function NotificationToast({ notification, onClose }: { notification: Notification; onClose: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay);
+    const timer = setTimeout(onClose, 3000);
     return () => clearTimeout(timer);
-  }, [delay]);
+  }, [onClose]);
 
   return (
-    <div
-      className={`${className} transition-all duration-300 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+    <motion.div
+      initial={{ opacity: 0, y: -50, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.9 }}
+      className={`
+        fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl max-w-md
+        ${notification.type === 'success'
+          ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/10 border-green-500/30'
+          : 'bg-gradient-to-r from-red-500/20 to-rose-500/10 border-red-500/30'
+        }
+      `}
     >
-      {children}
-    </div>
+      <div className="flex items-center gap-3">
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 300 }}
+        >
+          {notification.type === 'success' ? (
+            <CheckCircle2 className="w-6 h-6 text-green-400" />
+          ) : (
+            <XCircle className="w-6 h-6 text-red-400" />
+          )}
+        </motion.div>
+        <p className={notification.type === 'success' ? 'text-green-200' : 'text-red-200'}>
+          {notification.message}
+        </p>
+      </div>
+    </motion.div>
   );
 }
 
 export default function ShopPage() {
   const router = useRouter();
-
-  // Use auth hook for MongoDB-backed authentication
   const { isAuthenticated, user, refreshUser } = useAuth();
 
-  // Use MongoDB coins only
   const displayCoins = user ? user.profile.coins : 0;
 
   const [notification, setNotification] = useState<Notification | null>(null);
@@ -71,214 +111,268 @@ export default function ShopPage() {
     }
   }, [displayCoins, animatedCoins]);
 
-  // Auto-hide notification
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => {
-        setNotification(null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [notification]);
-
   const handlePurchase = async (item: typeof SHOP_ITEMS[0]) => {
-    // Check if user is authenticated with MongoDB
     if (!isAuthenticated || !user) {
-      setNotification({
-        type: 'error',
-        message: 'Please login to purchase items.',
-      });
+      setNotification({ type: 'error', message: 'Please login to purchase items.' });
       return;
     }
 
-    // Check if user has enough coins
     if (displayCoins < item.cost) {
-      setNotification({
-        type: 'error',
-        message: 'Not enough coins.',
-      });
+      setNotification({ type: 'error', message: 'Not enough coins!' });
       return;
     }
 
     setIsPurchasing(true);
 
     try {
-      // Use MongoDB API for purchase
       const result = await purchaseItemApi(item.id, 1);
 
       if (result.success) {
-        // Refresh user data to get updated coins
         await refreshUser();
-
-        setNotification({
-          type: 'success',
-          message: `${item.name} added to inventory! Use it during gameplay.`,
-        });
+        setNotification({ type: 'success', message: `${item.name} added to inventory!` });
       } else {
-        setNotification({
-          type: 'error',
-          message: result.error || 'Purchase failed. Please try again.',
-        });
+        setNotification({ type: 'error', message: result.error || 'Purchase failed. Please try again.' });
       }
     } catch (error) {
       console.error('Purchase error:', error);
-      setNotification({
-        type: 'error',
-        message: 'Network error. Please try again.',
-      });
+      setNotification({ type: 'error', message: 'Network error. Please try again.' });
     } finally {
       setIsPurchasing(false);
     }
   };
 
   const isItemDisabled = (item: typeof SHOP_ITEMS[0]): boolean => {
-    // Check if user is authenticated with MongoDB
     if (!isAuthenticated || !user) return true;
-
-    // Check if currently purchasing
     if (isPurchasing) return true;
-
-    // Check coins
     if (displayCoins < item.cost) return true;
-
-    // All items are consumables and can be purchased
     return false;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white relative">
+      {/* Floating Coins Background */}
+      <FloatingCoins />
+
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
-        {/* Header */}
-        <AnimatedSection className="mb-6 sm:mb-8">
-          <div className="flex items-center justify-between mb-4 sm:mb-5 md:mb-6 gap-3">
-            <button
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Header Navigation */}
+          <motion.div variants={staggerItem} className="flex items-center justify-between mb-6">
+            <motion.button
+              whileHover={{ scale: 1.05, x: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => router.back()}
-              className="btn btn-secondary text-sm sm:text-base"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-purple-500/30 hover:text-white transition-all"
             >
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-medium hidden sm:inline">Back to Game</span>
-              <span className="font-medium sm:hidden">Back</span>
-            </button>
+              <ArrowLeft className="w-5 h-5" />
+              <span className="hidden sm:inline font-medium">Back to Game</span>
+              <span className="sm:hidden font-medium">Back</span>
+            </motion.button>
 
-            {/* Coins Display */}
-            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-6 py-2 sm:py-3 stat-yellow">
-              <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
-              <div className="flex flex-col">
-                <span className="text-[10px] sm:text-xs text-zinc-400">Your Coins</span>
-                <span className="text-lg sm:text-2xl font-bold text-yellow-500 tabular-nums">
-                  {Math.round(animatedCoins)}
-                </span>
+            {/* Coins Display - Hero Style */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-2xl" />
+              <div className="relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-amber-500/10 border border-yellow-500/30">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                >
+                  <Coins className="w-7 h-7 text-yellow-400" />
+                </motion.div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider">Your Balance</span>
+                  <span className="text-2xl font-black text-yellow-400 tabular-nums">
+                    {Math.round(animatedCoins).toLocaleString()}
+                  </span>
+                </div>
+                <Sparkles className="w-4 h-4 text-yellow-500/50" />
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Hero Section */}
+          <motion.div variants={staggerItem} className="text-center mb-8">
+            <div className="flex-center gap-3 mb-3">
+              <motion.div variants={scaleInBounce} className="relative">
+                <div className="absolute inset-0 bg-purple-500/30 blur-xl rounded-full" />
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                  <ShoppingBag className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                </div>
+              </motion.div>
+              <div className="text-left">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black">
+                  <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                    Power-Up Shop
+                  </span>
+                </h1>
+                <p className="text-zinc-400 text-sm sm:text-base mt-1">
+                  Boost your gameplay with special items
+                </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Title */}
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="p-2 sm:p-3 stat-purple">
-              <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-4xl font-bold text-white">Shop</h1>
-              <p className="text-xs sm:text-base text-zinc-400 mt-0.5 sm:mt-1">
-                Purchase upgrades and power-ups to enhance your gameplay
-              </p>
-            </div>
-          </div>
+          {/* Auth Status */}
+          <motion.div variants={staggerItem} className="mb-6">
+            {!isAuthenticated ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-xl bg-gradient-to-r from-orange-500/20 to-amber-500/10 border border-orange-500/30"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <div>
+                    <p className="text-orange-300 font-medium">Login Required</p>
+                    <p className="text-orange-400/70 text-sm">Sign in to purchase items from the shop</p>
+                  </div>
+                  <Link href="/login" className="ml-auto px-4 py-2 rounded-lg bg-orange-500/20 border border-orange-500/30 text-orange-300 text-sm font-medium hover:bg-orange-500/30 transition-all">
+                    Login
+                  </Link>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-xl bg-gradient-to-r from-purple-500/20 to-cyan-500/10 border border-purple-500/30"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                    <Package className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-purple-300 font-medium">Items Synced to Your Account</p>
+                    <p className="text-purple-400/70 text-sm">Use them during gameplay from the Quick Use panel</p>
+                  </div>
+                  <Link href="/inventory" className="px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-300 text-sm font-medium hover:bg-purple-500/30 transition-all flex items-center gap-2">
+                    <Package className="w-4 h-4" />
+                    Inventory
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
 
-          {/* Auth status indicator */}
-          {!isAuthenticated && (
-            <div className="mt-4 px-4 py-2 stat-orange">
-              <p className="text-orange-400 text-sm">
-                Please login to purchase items from the shop.
-              </p>
-            </div>
-          )}
-          {isAuthenticated && (
-            <div className="mt-4 px-4 py-2 stat-purple">
-              <p className="text-purple-400 text-sm">
-                Items are synced to your account! Use them during gameplay from the Quick Use panel.
-              </p>
-            </div>
-          )}
-        </AnimatedSection>
+          {/* Quick Stats */}
+          <motion.div variants={staggerItem} className="grid grid-cols-3 gap-3 mb-8">
+            {[
+              { icon: Gift, label: 'Items Available', value: SHOP_ITEMS.length, color: 'purple' },
+              { icon: Star, label: 'Special Offers', value: '0', color: 'yellow' },
+              { icon: TrendingUp, label: 'Best Value', value: 'Hints', color: 'green' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * i }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                className={`p-3 sm:p-4 rounded-xl bg-gradient-to-br from-${stat.color}-500/20 to-${stat.color}-600/10 border border-${stat.color}-500/30 text-center`}
+              >
+                <stat.icon className={`w-5 h-5 text-${stat.color}-400 mx-auto mb-1`} />
+                <p className={`text-lg sm:text-xl font-bold text-${stat.color}-400`}>{stat.value}</p>
+                <p className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider">{stat.label}</p>
+              </motion.div>
+            ))}
+          </motion.div>
 
-        {/* Shop Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8">
-          {SHOP_ITEMS.map((item, index) => (
-            <AnimatedSection
-              key={item.id}
-              delay={index * 100}
-            >
-              <UpgradeCard
-                item={item}
-                onPurchase={() => handlePurchase(item)}
-                disabled={isItemDisabled(item)}
-              />
-            </AnimatedSection>
-          ))}
-        </div>
+          {/* Shop Items Grid */}
+          <motion.div variants={staggerItem} className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              <h2 className="text-xl font-bold text-white">Available Items</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
+              {SHOP_ITEMS.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <UpgradeCard
+                    item={item}
+                    onPurchase={() => handlePurchase(item)}
+                    disabled={isItemDisabled(item)}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
 
-        {/* Info Section */}
-        <AnimatedSection delay={400} className="card card-padding">
-          <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">How to Earn Coins</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5 text-xs sm:text-sm text-zinc-400">
-            <div>
-              <div className="font-semibold text-purple-400 mb-1">Correct Guesses</div>
-              <p>Earn coins by correctly guessing characters. Use fewer hints for more coins!</p>
+          {/* How to Earn Coins Section */}
+          <motion.div
+            variants={staggerItem}
+            className="rounded-2xl bg-zinc-900/50 border border-zinc-800/50 overflow-hidden"
+          >
+            <div className="p-4 sm:p-6 border-b border-zinc-800/50 bg-gradient-to-r from-yellow-500/10 to-amber-500/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                  <Coins className="w-5 h-5 text-yellow-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-white">How to Earn Coins</h2>
+                  <p className="text-zinc-400 text-sm">Multiple ways to grow your balance</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="font-semibold text-purple-400 mb-1">Difficulty Bonuses</div>
-              <p>Higher difficulty levels provide coin bonuses for greater rewards.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 p-4 sm:p-6">
+              {[
+                {
+                  icon: '🎯',
+                  title: 'Correct Guesses',
+                  description: 'Earn coins by correctly guessing characters. Use fewer hints for more coins!',
+                  color: 'purple',
+                },
+                {
+                  icon: '⚡',
+                  title: 'Difficulty Bonuses',
+                  description: 'Higher difficulty levels provide coin bonuses for greater rewards.',
+                  color: 'orange',
+                },
+                {
+                  icon: '🔥',
+                  title: 'Build Streaks',
+                  description: 'Maintain winning streaks to earn XP and level up for bonus coins!',
+                  color: 'cyan',
+                },
+              ].map((tip, i) => (
+                <motion.div
+                  key={tip.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  className={`p-4 rounded-xl bg-gradient-to-br from-${tip.color}-500/10 to-${tip.color}-600/5 border border-${tip.color}-500/20 hover:border-${tip.color}-500/40 transition-all`}
+                >
+                  <span className="text-2xl mb-2 block">{tip.icon}</span>
+                  <h3 className={`font-bold text-${tip.color}-400 mb-1`}>{tip.title}</h3>
+                  <p className="text-zinc-400 text-sm">{tip.description}</p>
+                </motion.div>
+              ))}
             </div>
-            <div>
-              <div className="font-semibold text-purple-400 mb-1">Build Streaks</div>
-              <p>Maintain winning streaks to earn XP and level up for bonus coins!</p>
-            </div>
-          </div>
-        </AnimatedSection>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Notification Toast */}
-      {notification && (
-        <NotificationToast notification={notification} />
-      )}
-    </div>
-  );
-}
-
-// Helper Component
-function NotificationToast({ notification }: { notification: { type: 'success' | 'error'; message: string } }) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Trigger animation on next frame
-    requestAnimationFrame(() => setIsVisible(true));
-  }, []);
-
-  return (
-    <div
-      className={`fixed top-8 left-1/2 z-50 px-6 py-4 rounded-xl shadow-2xl border max-w-md transition-all duration-150 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5'}`}
-      style={{
-        transform: `translateX(-50%) ${isVisible ? 'translateY(0)' : 'translateY(-20px)'}`,
-        background: notification.type === 'success'
-          ? 'linear-gradient(to right, rgb(16 185 129 / 0.1), rgb(5 150 105 / 0.1))'
-          : 'linear-gradient(to right, rgb(239 68 68 / 0.1), rgb(220 38 38 / 0.1))',
-        borderColor: notification.type === 'success'
-          ? 'rgb(16 185 129 / 0.3)'
-          : 'rgb(239 68 68 / 0.3)',
-      }}
-    >
-      <div className="flex items-center gap-3">
-        {notification.type === 'success' ? (
-          <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
-        ) : (
-          <XCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
+      <AnimatePresence>
+        {notification && (
+          <NotificationToast
+            notification={notification}
+            onClose={() => setNotification(null)}
+          />
         )}
-        <p className={notification.type === 'success' ? 'text-green-300' : 'text-red-300'}>
-          {notification.message}
-        </p>
-      </div>
+      </AnimatePresence>
     </div>
   );
 }
