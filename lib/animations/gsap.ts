@@ -3,7 +3,7 @@
 import gsap from 'gsap';
 
 // ============================================================================
-// GSAP UTILITY FUNCTIONS
+// GSAP UTILITY FUNCTIONS - FAST ANIMATIONS
 // ============================================================================
 
 /**
@@ -21,11 +21,11 @@ export const fadeIn = (
     onComplete?: () => void;
   } = {}
 ) => {
-  const { duration = 0.4, delay = 0, y = 20, x = 0, scale = 1, ease = 'power2.out', onComplete } = options;
+  const { duration = 0.15, delay = 0, y = 10, x = 0, scale = 1, ease = 'power2.out', onComplete } = options;
 
   return gsap.fromTo(
     element,
-    { opacity: 0, y, x, scale: scale === 1 ? 1 : 0.9 },
+    { opacity: 0, y, x, scale: scale === 1 ? 1 : 0.95 },
     { opacity: 1, y: 0, x: 0, scale: 1, duration, delay, ease, onComplete }
   );
 };
@@ -45,7 +45,7 @@ export const fadeOut = (
     onComplete?: () => void;
   } = {}
 ) => {
-  const { duration = 0.3, delay = 0, y = -20, x = 0, scale = 1, ease = 'power2.in', onComplete } = options;
+  const { duration = 0.1, delay = 0, y = -10, x = 0, scale = 1, ease = 'power2.in', onComplete } = options;
 
   return gsap.to(element, {
     opacity: 0,
@@ -73,7 +73,7 @@ export const staggerIn = (
     onComplete?: () => void;
   } = {}
 ) => {
-  const { duration = 0.4, stagger = 0.1, y = 20, x = 0, ease = 'power2.out', onComplete } = options;
+  const { duration = 0.15, stagger = 0.03, y = 10, x = 0, ease = 'power2.out', onComplete } = options;
 
   return gsap.fromTo(
     elements,
@@ -93,7 +93,7 @@ export const scalePop = (
     ease?: string;
   } = {}
 ) => {
-  const { duration = 0.3, scale = 1.1, ease = 'power2.out' } = options;
+  const { duration = 0.12, scale = 1.08, ease = 'power2.out' } = options;
 
   return gsap.to(element, {
     scale,
@@ -114,7 +114,7 @@ export const shake = (
     intensity?: number;
   } = {}
 ) => {
-  const { duration = 0.4, intensity = 10 } = options;
+  const { duration = 0.2, intensity = 8 } = options;
 
   return gsap.to(element, {
     x: intensity,
@@ -136,7 +136,7 @@ export const pulse = (
     repeat?: number;
   } = {}
 ) => {
-  const { duration = 0.6, scale = 1.05, repeat = -1 } = options;
+  const { duration = 0.3, scale = 1.04, repeat = -1 } = options;
 
   return gsap.to(element, {
     scale,
@@ -158,7 +158,7 @@ export const spin = (
     ease?: string;
   } = {}
 ) => {
-  const { duration = 0.5, rotation = 360, ease = 'power2.out' } = options;
+  const { duration = 0.2, rotation = 360, ease = 'power2.out' } = options;
 
   return gsap.to(element, {
     rotation,
@@ -177,7 +177,7 @@ export const float = (
     y?: number;
   } = {}
 ) => {
-  const { duration = 2, y = -10 } = options;
+  const { duration = 1, y = -6 } = options;
 
   return gsap.to(element, {
     y,
@@ -202,11 +202,11 @@ export const particleFloat = (
   } = {}
 ) => {
   const {
-    duration = 4 + Math.random() * 3,
-    x = (Math.random() - 0.5) * 200,
-    y = (Math.random() - 0.5) * 200,
+    duration = 2 + Math.random() * 1.5,
+    x = (Math.random() - 0.5) * 150,
+    y = (Math.random() - 0.5) * 150,
     scale = 0.5 + Math.random(),
-    delay = Math.random() * 2
+    delay = Math.random() * 0.5
   } = options;
 
   return gsap.fromTo(

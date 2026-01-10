@@ -93,14 +93,14 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.2 }}
         className="text-center mb-10 sm:mb-14"
       >
         <div className="inline-flex items-center gap-3 mb-4">
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.05 }}
             className="relative"
           >
             <div className="absolute inset-0 bg-purple-500/30 blur-xl rounded-full" />
@@ -137,7 +137,7 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.25 }}
         className="text-center mt-8 sm:mt-10"
       >
         <p className="text-zinc-500 text-sm flex items-center justify-center gap-2">
@@ -166,10 +166,10 @@ function DifficultyCard({
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
-        duration: 0.5,
-        delay: index * 0.1,
+        duration: 0.2,
+        delay: index * 0.04,
         type: 'spring',
-        stiffness: 100,
+        stiffness: 200,
       }}
       className="relative group"
     >
@@ -184,7 +184,7 @@ function DifficultyCard({
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 + index * 0.1, type: 'spring' }}
+            transition={{ delay: 0.15 + index * 0.04, type: 'spring' }}
             className="absolute -top-3 left-1/2 -translate-x-1/2 z-20"
           >
             <div className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full text-xs font-bold text-black flex items-center gap-1 shadow-lg shadow-yellow-500/30">
@@ -195,13 +195,13 @@ function DifficultyCard({
         )}
 
         {/* Card container */}
-        <div className={`relative overflow-hidden rounded-2xl h-full transition-shadow duration-300 ${difficulty.shadowColor} group-hover:shadow-2xl`}>
+        <div className={`relative overflow-hidden rounded-2xl h-full transition-shadow duration-150 ${difficulty.shadowColor} group-hover:shadow-2xl`}>
           {/* Animated gradient border */}
           <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.gradient} opacity-100`} />
           <div className="absolute inset-[2px] bg-zinc-900 rounded-2xl" />
 
           {/* Background glow effect */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+          <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-200`} />
 
           {/* Content */}
           <div className="relative p-5 sm:p-6 h-full flex flex-col">
@@ -209,7 +209,7 @@ function DifficultyCard({
             <div className="mb-5">
               <motion.div
                 whileHover={{ rotate: [0, -10, 10, 0] }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.2 }}
                 className="relative inline-block"
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.gradient} blur-xl opacity-50 rounded-2xl scale-150`} />
@@ -284,7 +284,7 @@ function DifficultyCard({
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r ${difficulty.gradient} shadow-lg ${difficulty.shadowColor} transition-all duration-300 group-hover:shadow-xl flex items-center justify-center gap-2`}
+              className={`w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r ${difficulty.gradient} shadow-lg ${difficulty.shadowColor} transition-all duration-150 group-hover:shadow-xl flex items-center justify-center gap-2`}
             >
               <span>Select</span>
               <motion.span
@@ -299,7 +299,7 @@ function DifficultyCard({
         </div>
 
         {/* Outer glow on hover */}
-        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${difficulty.gradient} opacity-0 group-hover:opacity-30 blur-2xl -z-10 transition-opacity duration-500`} />
+        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${difficulty.gradient} opacity-0 group-hover:opacity-30 blur-2xl -z-10 transition-opacity duration-200`} />
       </motion.div>
     </motion.div>
   );

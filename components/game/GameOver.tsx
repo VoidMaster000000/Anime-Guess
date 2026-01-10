@@ -46,8 +46,8 @@ function ConfettiEffect({ isNewRecord }: { isNewRecord: boolean }) {
           y: randomY,
           scale: Math.random() * 0.5 + 0.5,
           rotation: randomRotate,
-          duration: 1.2,
-          delay: i * 0.02,
+          duration: 0.5,
+          delay: i * 0.01,
           ease: 'power2.out'
         }
       );
@@ -92,7 +92,7 @@ function StatCard({ icon, label, value, colorClass, bgClass, borderClass, delay 
     if (valueRef.current) {
       gsap.fromTo(valueRef.current,
         { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, delay: delay + 0.2, ease: 'back.out(2)' }
+        { scale: 1, opacity: 1, duration: 0.2, delay: delay + 0.05, ease: 'back.out(2)' }
       );
     }
   }, [delay]);
@@ -101,7 +101,7 @@ function StatCard({ icon, label, value, colorClass, bgClass, borderClass, delay 
     <motion.div
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay, duration: 0.4, type: 'spring' }}
+      transition={{ delay, duration: 0.15, type: 'spring' }}
       className={`relative overflow-hidden rounded-2xl ${bgClass} ${borderClass} border p-4 sm:p-5`}
     >
       {/* Background glow */}
@@ -198,7 +198,7 @@ export default function GameOver({
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25, duration: 0.2 }}
           className="relative w-full max-w-lg my-8"
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
@@ -218,7 +218,7 @@ export default function GameOver({
                 <motion.button
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
+                  transition={{ delay: 0.1 }}
                   onClick={onClose}
                   className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-600 transition-all"
                 >
@@ -232,7 +232,7 @@ export default function GameOver({
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.03 }}
                   className="relative inline-block mb-4"
                 >
                   <div className={`absolute inset-0 ${isNewRecord ? 'bg-yellow-500/30' : 'bg-purple-500/30'} blur-2xl rounded-full scale-150`} />
@@ -249,7 +249,7 @@ export default function GameOver({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
+                  transition={{ delay: 0.05 }}
                 >
                   <h2 className="text-3xl sm:text-4xl font-black mb-2">
                     <span className={`${isNewRecord ? 'bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400' : 'bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400'} bg-clip-text text-transparent`}>
@@ -261,7 +261,7 @@ export default function GameOver({
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: 'spring' }}
+                    transition={{ delay: 0.08, type: 'spring' }}
                     className="inline-flex items-center gap-2"
                   >
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${performance.bg} ${performance.border} border ${performance.color} flex items-center gap-1`}>
@@ -281,7 +281,7 @@ export default function GameOver({
                   colorClass="text-orange-400"
                   bgClass="bg-orange-500/10"
                   borderClass="border-orange-500/30"
-                  delay={0.3}
+                  delay={0.1}
                 />
                 <StatCard
                   icon={<Star className="w-8 h-8 fill-yellow-400" />}
@@ -290,7 +290,7 @@ export default function GameOver({
                   colorClass="text-yellow-400"
                   bgClass="bg-yellow-500/10"
                   borderClass="border-yellow-500/30"
-                  delay={0.4}
+                  delay={0.13}
                 />
               </div>
 
@@ -299,7 +299,7 @@ export default function GameOver({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.15 }}
                   className="mb-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/30"
                 >
                   <div className="flex items-center justify-between">
@@ -361,7 +361,7 @@ export default function GameOver({
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.18 }}
                 className="flex gap-3"
               >
                 {!isSaved && !isAuthenticated && (

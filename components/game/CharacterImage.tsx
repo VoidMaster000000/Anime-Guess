@@ -179,7 +179,7 @@ function AnimatedQuadrant({
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: quadrantIndex * 0.05, duration: 0.3 }}
+      transition={{ delay: quadrantIndex * 0.02, duration: 0.12 }}
       className="relative overflow-hidden"
     >
       {/* Background image (blurred version) */}
@@ -196,12 +196,12 @@ function AnimatedQuadrant({
 
       {/* Blur overlay */}
       <div
-        className={`absolute inset-0 backdrop-blur-[24px] bg-zinc-900/40 transition-all duration-700 ease-out ${isRevealed ? 'opacity-0 scale-110' : 'opacity-100'}`}
+        className={`absolute inset-0 backdrop-blur-[24px] bg-zinc-900/40 transition-all duration-200 ease-out ${isRevealed ? 'opacity-0 scale-110' : 'opacity-100'}`}
       />
 
       {/* Revealed image */}
       <div
-        className={`absolute inset-0 bg-cover transition-all duration-700 ease-out ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+        className={`absolute inset-0 bg-cover transition-all duration-200 ease-out ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
         style={{
           backgroundImage: `url(${imageUrl})`,
           backgroundPosition: `${bgPositionX} ${bgPositionY}`,
@@ -225,7 +225,7 @@ function AnimatedQuadrant({
         <motion.div
           initial={{ x: '-100%', opacity: 0.8 }}
           animate={{ x: '200%', opacity: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
         />
       )}
@@ -245,8 +245,8 @@ function ProgressIndicator({ revealed, total }: { revealed: number; total: numbe
           key={i}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: i * 0.1 }}
-          className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+          transition={{ delay: i * 0.03 }}
+          className={`w-2.5 h-2.5 rounded-full transition-all duration-150 ${
             i < revealed
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg shadow-purple-500/50'
               : 'bg-zinc-700'
@@ -312,7 +312,7 @@ export default function CharacterImage({
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: isContainerVisible ? 1 : 0, scale: isContainerVisible ? 1 : 0.9 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
         className="relative aspect-square"
       >
         {/* Outer glow effect */}
@@ -394,7 +394,7 @@ export default function CharacterImage({
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.1 }}
             className="px-3 py-1 bg-zinc-900/90 border border-purple-500/30 rounded-full flex items-center gap-1.5 backdrop-blur-sm"
           >
             <Sparkles className="w-3 h-3 text-purple-400" />
@@ -407,7 +407,7 @@ export default function CharacterImage({
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.5, type: 'spring' }}
+            transition={{ delay: 0.15, type: 'spring', duration: 0.2 }}
             className="absolute top-3 right-3 z-20"
           >
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/40 rounded-full backdrop-blur-sm">
@@ -421,7 +421,7 @@ export default function CharacterImage({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.12 }}
           className="absolute -bottom-10 left-1/2 -translate-x-1/2"
         >
           <div className="flex items-center gap-3 px-4 py-2 bg-zinc-900/90 border border-zinc-700/50 rounded-full backdrop-blur-sm">
@@ -432,8 +432,8 @@ export default function CharacterImage({
                   key={i}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  className={`w-3 h-3 rounded-sm transition-all duration-300 ${
+                  transition={{ delay: 0.15 + i * 0.03 }}
+                  className={`w-3 h-3 rounded-sm transition-all duration-150 ${
                     i < revealedQuadrants
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500 shadow-sm shadow-purple-500/50'
                       : 'bg-zinc-700'

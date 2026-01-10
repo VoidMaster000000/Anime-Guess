@@ -73,7 +73,7 @@ function AnimatedHeart({ index, lives, lostLife, maxLives }: { index: number; li
           scale: 0,
           opacity: 0,
           rotate: 180,
-          duration: 0.5,
+          duration: 0.2,
           ease: 'back.in(2)',
         }
       );
@@ -118,7 +118,7 @@ function AnimatedNumber({ value, className, prefix = '', suffix = '' }: { value:
       // Pop animation
       gsap.fromTo(numberRef.current,
         { scale: 1.3, opacity: 0.7 },
-        { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2)' }
+        { scale: 1, opacity: 1, duration: 0.12, ease: 'back.out(2)' }
       );
       setDisplayValue(value);
     }
@@ -153,7 +153,7 @@ function StatCard({ icon, label, value, suffix = '', colorClass, bgClass, border
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.02, y: -2 }}
-      className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-300 ${bgClass} ${borderClass} hover:${glowClass}`}
+      className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-150 ${bgClass} ${borderClass} hover:${glowClass}`}
     >
       {children}
       <div className={`flex-shrink-0 ${colorClass}`}>
@@ -181,7 +181,7 @@ export default function GameStats({ lives, streak, points, highStreak, maxLives 
   useEffect(() => {
     if (lives < prevLives) {
       setLostLife(true);
-      setTimeout(() => setLostLife(false), 600);
+      setTimeout(() => setLostLife(false), 250);
     }
     setPrevLives(lives);
   }, [lives, prevLives]);
@@ -190,7 +190,7 @@ export default function GameStats({ lives, streak, points, highStreak, maxLives 
   useEffect(() => {
     if (streak > prevStreakRef.current && streak % 5 === 0 && streak > 0) {
       setShowStreakBonus(true);
-      setTimeout(() => setShowStreakBonus(false), 2000);
+      setTimeout(() => setShowStreakBonus(false), 1200);
     }
     prevStreakRef.current = streak;
   }, [streak]);
@@ -245,7 +245,7 @@ export default function GameStats({ lives, streak, points, highStreak, maxLives 
             {/* Center Stats */}
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
               {/* Streak */}
-              <div className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-300 ${streakTier.bg} ${streakTier.border}`}>
+              <div className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-150 ${streakTier.bg} ${streakTier.border}`}>
                 <StreakFireEffect streak={streak} />
                 <div className="relative z-10 flex items-center gap-2 sm:gap-3">
                   <div className="relative">

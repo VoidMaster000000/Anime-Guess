@@ -50,10 +50,10 @@
   --font-nav: 'Nasalization', system-ui, sans-serif;
 
   /* Custom Animations */
-  --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-glow: glow 2s ease-in-out infinite alternate;
-  --animate-float: float 3s ease-in-out infinite;
-  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-pulse-slow: pulse-slow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-glow: glow 1s ease-in-out infinite alternate;
+  --animate-float: float 1.5s ease-in-out infinite;
+  --animate-shimmer: shimmer 1s linear infinite;
 }
 
 /* Custom Scrollbar */
@@ -186,15 +186,15 @@
 
 /* Apply animations via utility classes */
 .animate-pulse-slow {
-  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse-slow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .animate-glow {
-  animation: glow 2s ease-in-out infinite alternate;
+  animation: glow 1s ease-in-out infinite alternate;
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 1.5s ease-in-out infinite;
 }
 
 .animate-shimmer {
@@ -205,7 +205,7 @@
     transparent
   );
   background-size: 1000px 100%;
-  animation: shimmer 2s linear infinite;
+  animation: shimmer 1s linear infinite;
 }
 
 /* Fade in up animation for page sections */
@@ -647,12 +647,12 @@
 
 .scan-line {
   @apply absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent pointer-events-none;
-  animation: scan-line 12s linear infinite;
+  animation: scan-line 6s linear infinite;
 }
 
 /* ---------- Gaming Glows ---------- */
 .glow-pulse {
-  animation: glow-pulse 3s ease-in-out infinite;
+  animation: glow-pulse 1.5s ease-in-out infinite;
 }
 
 @keyframes glow-pulse {
@@ -665,7 +665,7 @@
 }
 
 .glow-flicker {
-  animation: glow-flicker 3s ease-in-out infinite;
+  animation: glow-flicker 1.5s ease-in-out infinite;
 }
 
 @keyframes glow-flicker {
@@ -692,7 +692,7 @@
     rgba(255, 255, 255, 0.1) 55%,
     transparent 60%
   );
-  animation: holographic-shine 3s ease-in-out infinite;
+  animation: holographic-shine 1.5s ease-in-out infinite;
 }
 
 @keyframes holographic-shine {
@@ -748,7 +748,7 @@
 .orb-gaming {
   @apply absolute rounded-full pointer-events-none;
   filter: blur(80px);
-  animation: float-orb 25s ease-in-out infinite;
+  animation: float-orb 12s ease-in-out infinite;
 }
 
 @keyframes float-orb {

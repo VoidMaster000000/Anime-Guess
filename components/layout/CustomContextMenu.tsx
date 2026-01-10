@@ -49,11 +49,11 @@ function AnimatedMenuItem({
     <motion.button
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.03, duration: 0.15 }}
+      transition={{ delay: index * 0.015, duration: 0.08 }}
       onClick={onClick}
       disabled={item.disabled}
       className={`group relative w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg mx-1 overflow-hidden
-        transition-all duration-150
+        transition-all duration-100
         ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
           : 'active:scale-[0.98]'
@@ -338,7 +338,7 @@ export default function CustomContextMenu() {
           y: isVisible ? 0 : -10
         }}
         exit={{ opacity: 0, scale: 0.9, y: -10 }}
-        transition={{ duration: 0.15, ease: 'easeOut' }}
+        transition={{ duration: 0.1, ease: 'easeOut' }}
         className="fixed z-[100] min-w-[220px]"
         style={{
           left: position.x,
