@@ -492,23 +492,23 @@
 
 /* ---------- Asymmetric Cards ---------- */
 .card-gaming {
-  @apply relative bg-gray-900/80 backdrop-blur-sm border border-purple-500/30 overflow-hidden;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+  @apply relative bg-gray-900/70 backdrop-blur-sm border border-purple-500/20 overflow-hidden;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
 }
 
 .card-gaming::before {
   content: '';
-  @apply absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-500 via-pink-500 to-cyan-500;
+  @apply absolute top-0 left-0 w-0.5 h-full bg-gradient-to-b from-purple-500/70 via-pink-500/70 to-cyan-500/70;
 }
 
 .card-gaming-alt {
-  @apply relative bg-gray-900/80 backdrop-blur-sm border border-cyan-500/30 overflow-hidden;
-  clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px);
+  @apply relative bg-gray-900/70 backdrop-blur-sm border border-cyan-500/20 overflow-hidden;
+  clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
 }
 
 .card-gaming-alt::before {
   content: '';
-  @apply absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-cyan-500 via-purple-500 to-pink-500;
+  @apply absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-cyan-500/70 via-purple-500/70 to-pink-500/70;
 }
 
 .card-hexagon {
@@ -531,27 +531,27 @@
 }
 
 .border-neon {
-  @apply border-2 border-purple-500/50;
+  @apply border border-purple-500/40;
   box-shadow:
-    inset 0 0 15px rgba(168, 85, 247, 0.1),
-    0 0 15px rgba(168, 85, 247, 0.3),
-    0 0 30px rgba(168, 85, 247, 0.1);
+    inset 0 0 12px rgba(168, 85, 247, 0.05),
+    0 0 10px rgba(168, 85, 247, 0.15),
+    0 0 20px rgba(168, 85, 247, 0.05);
 }
 
 .border-neon-cyan {
-  @apply border-2 border-cyan-500/50;
+  @apply border border-cyan-500/40;
   box-shadow:
-    inset 0 0 15px rgba(34, 211, 238, 0.1),
-    0 0 15px rgba(34, 211, 238, 0.3),
-    0 0 30px rgba(34, 211, 238, 0.1);
+    inset 0 0 12px rgba(34, 211, 238, 0.05),
+    0 0 10px rgba(34, 211, 238, 0.15),
+    0 0 20px rgba(34, 211, 238, 0.05);
 }
 
 .border-neon-pink {
-  @apply border-2 border-pink-500/50;
+  @apply border border-pink-500/40;
   box-shadow:
-    inset 0 0 15px rgba(236, 72, 153, 0.1),
-    0 0 15px rgba(236, 72, 153, 0.3),
-    0 0 30px rgba(236, 72, 153, 0.1);
+    inset 0 0 12px rgba(236, 72, 153, 0.05),
+    0 0 10px rgba(236, 72, 153, 0.15),
+    0 0 20px rgba(236, 72, 153, 0.05);
 }
 
 /* ---------- Off-Center Positioning ---------- */
@@ -573,13 +573,13 @@
 
 /* ---------- Gaming Decorative Elements ---------- */
 .corner-accent {
-  @apply absolute w-8 h-8;
+  @apply absolute w-6 h-6;
 }
 
 .corner-accent::before,
 .corner-accent::after {
   content: '';
-  @apply absolute bg-gradient-to-r from-purple-500 to-pink-500;
+  @apply absolute bg-gradient-to-r from-purple-500/60 to-pink-500/60;
 }
 
 .corner-accent-tl::before {
@@ -622,43 +622,45 @@
   );
 }
 
-/* Tech lines decoration */
+/* Tech lines decoration - subtle horizontal accents */
 .tech-lines {
   @apply absolute inset-0 pointer-events-none overflow-hidden;
 }
 
 .tech-lines::before {
   content: '';
-  @apply absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent;
+  @apply absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/15 to-transparent;
 }
 
 .tech-lines::after {
   content: '';
-  @apply absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent;
+  @apply absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/15 to-transparent;
 }
 
-/* Scanning line effect */
+/* Scanning line effect - subtle sweep */
 @keyframes scan-line {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
 }
 
 .scan-line {
-  @apply absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent pointer-events-none;
-  animation: scan-line 8s linear infinite;
+  @apply absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent pointer-events-none;
+  animation: scan-line 12s linear infinite;
 }
 
 /* ---------- Gaming Glows ---------- */
 .glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
+  animation: glow-pulse 3s ease-in-out infinite;
 }
 
 @keyframes glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), 0 0 30px rgba(168, 85, 247, 0.1);
   }
   50% {
-    box-shadow: 0 0 30px rgba(168, 85, 247, 0.6), 0 0 60px rgba(168, 85, 247, 0.3);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(168, 85, 247, 0.15);
   }
 }
 
@@ -729,35 +731,35 @@
 
 /* ---------- Dynamic Background Elements ---------- */
 .bg-grid-gaming {
-  @apply absolute inset-0 pointer-events-none opacity-[0.02];
+  @apply absolute inset-0 pointer-events-none opacity-[0.015];
   background-image:
-    linear-gradient(rgba(168, 85, 247, 0.5) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(168, 85, 247, 0.5) 1px, transparent 1px);
-  background-size: 50px 50px;
-}
-
-.bg-hex-pattern {
-  @apply absolute inset-0 pointer-events-none opacity-[0.03];
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23a855f7' stroke-width='0.5'/%3E%3C/svg%3E");
+    linear-gradient(rgba(168, 85, 247, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.3) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 
-/* Floating orbs with different positions */
+.bg-hex-pattern {
+  @apply absolute inset-0 pointer-events-none opacity-[0.015];
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23a855f7' stroke-width='0.3'/%3E%3C/svg%3E");
+  background-size: 50px 50px;
+}
+
+/* Floating orbs - subtle ambient lighting */
 .orb-gaming {
-  @apply absolute rounded-full blur-3xl pointer-events-none;
-  animation: float-orb 15s ease-in-out infinite;
+  @apply absolute rounded-full pointer-events-none;
+  filter: blur(80px);
+  animation: float-orb 25s ease-in-out infinite;
 }
 
 @keyframes float-orb {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(30px, -30px) scale(1.1); }
-  50% { transform: translate(-20px, 20px) scale(0.9); }
-  75% { transform: translate(20px, 10px) scale(1.05); }
+  33% { transform: translate(15px, -10px) scale(1.02); }
+  66% { transform: translate(-10px, 15px) scale(0.98); }
 }
 
-.orb-purple { @apply bg-purple-500/20 w-64 h-64 md:w-96 md:h-96; }
-.orb-cyan { @apply bg-cyan-500/15 w-48 h-48 md:w-72 md:h-72; animation-delay: -5s; }
-.orb-pink { @apply bg-pink-500/15 w-56 h-56 md:w-80 md:h-80; animation-delay: -10s; }
+.orb-purple { @apply bg-purple-500/[0.08] w-72 h-72 md:w-[28rem] md:h-[28rem]; }
+.orb-cyan { @apply bg-cyan-500/[0.06] w-56 h-56 md:w-80 md:h-80; animation-delay: -8s; }
+.orb-pink { @apply bg-pink-500/[0.06] w-64 h-64 md:w-96 md:h-96; animation-delay: -16s; }
 
 /* ============================================================================
    BASE STYLES
