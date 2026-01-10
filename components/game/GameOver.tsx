@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Trophy, Flame, Star, Play, Save, X } from 'lucide-react';
-import { motion, AnimatePresence, modalVariants, backdropVariants, scaleInBounce, staggerContainer, staggerItem, fadeInUp } from '@/lib/animations';
+import { Trophy, Flame, Star, Play, Save, X, Crown, Sparkles, Target, Zap, Award } from 'lucide-react';
+import { motion, AnimatePresence } from '@/lib/animations';
 import { gsap } from '@/lib/animations';
 
 interface GameOverProps {
@@ -18,7 +18,7 @@ interface GameOverProps {
 }
 
 // ============================================================================
-// CONFETTI COMPONENT WITH GSAP
+// CONFETTI EFFECT
 // ============================================================================
 
 function ConfettiEffect({ isNewRecord }: { isNewRecord: boolean }) {
@@ -28,24 +28,26 @@ function ConfettiEffect({ isNewRecord }: { isNewRecord: boolean }) {
     if (!isNewRecord || !confettiRef.current) return;
 
     const particles = confettiRef.current.children;
-    const colors = ['#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'];
+    const colors = ['#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#22c55e', '#06b6d4'];
 
     Array.from(particles).forEach((particle, i) => {
       const el = particle as HTMLElement;
-      el.style.backgroundColor = colors[i % 4];
+      el.style.backgroundColor = colors[i % colors.length];
 
-      const randomX = (Math.random() - 0.5) * 400;
-      const randomY = (Math.random() - 0.5) * 400;
+      const randomX = (Math.random() - 0.5) * 500;
+      const randomY = (Math.random() - 0.5) * 500;
+      const randomRotate = Math.random() * 720 - 360;
 
       gsap.fromTo(el,
-        { opacity: 1, x: 0, y: 0, scale: 0 },
+        { opacity: 1, x: 0, y: 0, scale: 0, rotation: 0 },
         {
           opacity: 0,
           x: randomX,
           y: randomY,
-          scale: 1,
-          duration: 0.8,
-          delay: i * 0.025,
+          scale: Math.random() * 0.5 + 0.5,
+          rotation: randomRotate,
+          duration: 1.2,
+          delay: i * 0.02,
           ease: 'power2.out'
         }
       );
@@ -55,14 +57,68 @@ function ConfettiEffect({ isNewRecord }: { isNewRecord: boolean }) {
   if (!isNewRecord) return null;
 
   return (
-    <div ref={confettiRef} className="absolute inset-0 pointer-events-none overflow-hidden">
-      {Array.from({ length: 20 }).map((_, i) => (
+    <div ref={confettiRef} className="absolute inset-0 pointer-events-none overflow-hidden z-50">
+      {Array.from({ length: 30 }).map((_, i) => (
         <div
           key={i}
-          className="absolute w-2 h-2 rounded-full left-1/2 top-1/2"
+          className="absolute w-3 h-3 rounded-full left-1/2 top-1/2"
+          style={{
+            clipPath: i % 3 === 0 ? 'polygon(50% 0%, 100% 100%, 0% 100%)' : i % 3 === 1 ? 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' : undefined
+          }}
         />
       ))}
     </div>
+  );
+}
+
+// ============================================================================
+// ANIMATED STAT CARD
+// ============================================================================
+
+interface StatCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+  colorClass: string;
+  bgClass: string;
+  borderClass: string;
+  delay: number;
+}
+
+function StatCard({ icon, label, value, colorClass, bgClass, borderClass, delay }: StatCardProps) {
+  const valueRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (valueRef.current) {
+      gsap.fromTo(valueRef.current,
+        { scale: 0, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, delay: delay + 0.2, ease: 'back.out(2)' }
+      );
+    }
+  }, [delay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, duration: 0.4, type: 'spring' }}
+      className={`relative overflow-hidden rounded-2xl ${bgClass} ${borderClass} border p-4 sm:p-5`}
+    >
+      {/* Background glow */}
+      <div className={`absolute inset-0 ${bgClass} opacity-50 blur-xl`} />
+
+      <div className="relative flex flex-col items-center text-center">
+        <div className={`mb-2 ${colorClass}`}>
+          {icon}
+        </div>
+        <div ref={valueRef} className={`text-3xl sm:text-4xl font-black ${colorClass} tabular-nums`}>
+          {typeof value === 'number' ? value.toLocaleString() : value}
+        </div>
+        <div className="text-xs text-zinc-400 uppercase tracking-wider mt-1 font-medium">
+          {label}
+        </div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -83,6 +139,7 @@ export default function GameOver({
 }: GameOverProps) {
   const [guestUsername, setGuestUsername] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Auto-save for authenticated users
   useEffect(() => {
@@ -107,194 +164,233 @@ export default function GameOver({
 
   const isNewRecord = finalStreak === highStreak && finalStreak > 0;
 
+  // Performance rating
+  const getPerformanceRating = () => {
+    if (finalStreak >= 20) return { label: 'LEGENDARY', color: 'text-yellow-400', bg: 'bg-yellow-500/20', border: 'border-yellow-500/50' };
+    if (finalStreak >= 15) return { label: 'EPIC', color: 'text-purple-400', bg: 'bg-purple-500/20', border: 'border-purple-500/50' };
+    if (finalStreak >= 10) return { label: 'EXCELLENT', color: 'text-cyan-400', bg: 'bg-cyan-500/20', border: 'border-cyan-500/50' };
+    if (finalStreak >= 5) return { label: 'GREAT', color: 'text-green-400', bg: 'bg-green-500/20', border: 'border-green-500/50' };
+    if (finalStreak >= 3) return { label: 'GOOD', color: 'text-blue-400', bg: 'bg-blue-500/20', border: 'border-blue-500/50' };
+    return { label: 'NICE TRY', color: 'text-zinc-400', bg: 'bg-zinc-500/20', border: 'border-zinc-500/50' };
+  };
+
+  const performance = getPerformanceRating();
+
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      {/* Backdrop overlay */}
+      {/* Backdrop */}
       <motion.div
         key="backdrop"
-        variants={backdropVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/85 backdrop-blur-md z-40"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
         <motion.div
+          ref={modalRef}
           key="modal"
-          variants={modalVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="relative w-full max-w-md"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          className="relative w-full max-w-lg my-8"
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
-          {/* Gradient border container */}
-          <div className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 p-[2px] rounded-2xl">
-            <div className="bg-gray-900 rounded-2xl p-5 sm:p-6 md:p-8">
+          {/* Outer glow */}
+          <div className="absolute -inset-2 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-cyan-500/30 rounded-3xl blur-xl opacity-60" />
+
+          {/* Main card */}
+          <div className="relative overflow-hidden">
+            {/* Gradient border */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-2xl" />
+            <div className="absolute inset-[2px] bg-zinc-900 rounded-2xl" />
+
+            {/* Content */}
+            <div className="relative p-5 sm:p-6 md:p-8">
               {/* Close button */}
               {onClose && (
-                <button
+                <motion.button
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
                   onClick={onClose}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-600 transition-all"
                 >
-                  <X className="w-6 h-6" />
-                </button>
+                  <X className="w-4 h-4" />
+                </motion.button>
               )}
 
               {/* Header */}
               <div className="text-center mb-6 sm:mb-8">
+                {/* Trophy/Crown icon */}
                 <motion.div
-                  variants={scaleInBounce}
-                  initial="hidden"
-                  animate="visible"
-                  className="inline-block mb-4"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+                  className="relative inline-block mb-4"
                 >
-                  <Trophy className="w-16 h-16 text-yellow-500" />
+                  <div className={`absolute inset-0 ${isNewRecord ? 'bg-yellow-500/30' : 'bg-purple-500/30'} blur-2xl rounded-full scale-150`} />
+                  <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center ${isNewRecord ? 'bg-gradient-to-br from-yellow-500 to-amber-600' : 'bg-gradient-to-br from-purple-500 to-pink-600'}`}>
+                    {isNewRecord ? (
+                      <Crown className="w-10 h-10 text-white" />
+                    ) : (
+                      <Trophy className="w-10 h-10 text-white" />
+                    )}
+                  </div>
                 </motion.div>
-                <motion.h2
-                  variants={fadeInUp}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: 0.1 }}
-                  className="text-3xl font-bold text-white mb-2"
+
+                {/* Title */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  {isNewRecord ? 'New Record!' : 'Game Over'}
-                </motion.h2>
-                <motion.p
-                  variants={fadeInUp}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: 0.15 }}
-                  className="text-gray-400"
-                >
-                  {isNewRecord ? 'Congratulations on your best streak!' : 'Nice try! Better luck next time!'}
-                </motion.p>
+                  <h2 className="text-3xl sm:text-4xl font-black mb-2">
+                    <span className={`${isNewRecord ? 'bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400' : 'bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400'} bg-clip-text text-transparent`}>
+                      {isNewRecord ? 'New Record!' : 'Game Over'}
+                    </span>
+                  </h2>
+
+                  {/* Performance badge */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: 'spring' }}
+                    className="inline-flex items-center gap-2"
+                  >
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${performance.bg} ${performance.border} border ${performance.color} flex items-center gap-1`}>
+                      <Sparkles className="w-3 h-3" />
+                      {performance.label}
+                    </span>
+                  </motion.div>
+                </motion.div>
               </div>
 
-              {/* Stats */}
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8"
-              >
-                {/* Final Streak */}
-                <motion.div
-                  variants={staggerItem}
-                  className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 text-center"
-                >
-                  <Flame className="w-8 h-8 text-orange-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-orange-500">{finalStreak}</div>
-                  <div className="text-xs text-gray-400 mt-1">Final Streak</div>
-                </motion.div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <StatCard
+                  icon={<Flame className="w-8 h-8" />}
+                  label="Final Streak"
+                  value={finalStreak}
+                  colorClass="text-orange-400"
+                  bgClass="bg-orange-500/10"
+                  borderClass="border-orange-500/30"
+                  delay={0.3}
+                />
+                <StatCard
+                  icon={<Star className="w-8 h-8 fill-yellow-400" />}
+                  label="Points Earned"
+                  value={finalPoints}
+                  colorClass="text-yellow-400"
+                  bgClass="bg-yellow-500/10"
+                  borderClass="border-yellow-500/30"
+                  delay={0.4}
+                />
+              </div>
 
-                {/* Final Points */}
-                <motion.div
-                  variants={staggerItem}
-                  className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-center"
-                >
-                  <Star className="w-8 h-8 text-yellow-500 fill-yellow-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-yellow-500">{finalPoints}</div>
-                  <div className="text-xs text-gray-400 mt-1">Points Earned</div>
-                </motion.div>
-              </motion.div>
-
-              {/* High Streak Display */}
+              {/* Best Streak */}
               {highStreak > 0 && (
                 <motion.div
-                  variants={fadeInUp}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: 0.25 }}
-                  className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 mb-6 text-center"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="mb-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/30"
                 >
-                  <div className="text-sm text-gray-400">
-                    Your Best Streak: <span className="text-purple-400 font-bold">{highStreak}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Award className="w-5 h-5 text-purple-400" />
+                      <span className="text-sm text-zinc-400">Your Best Streak</span>
+                    </div>
+                    <span className="text-xl font-bold text-purple-400">{highStreak}</span>
                   </div>
                 </motion.div>
               )}
 
-              {/* Username Input - Only for guests */}
+              {/* Username Input - Guests only */}
               <AnimatePresence>
                 {!isSaved && !isAuthenticated && (
-                  <motion.div
-                    variants={fadeInUp}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="mb-6"
-                  >
-                    <label className="block text-sm text-gray-400 mb-2">
-                      Save your score to the leaderboard
-                    </label>
-                    <input
-                      type="text"
-                      value={guestUsername}
-                      onChange={(e) => setGuestUsername(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                      placeholder="Enter your username..."
-                      maxLength={20}
-                      className="w-full px-4 py-3 bg-gray-800 border-2 border-purple-500/30 rounded-xl text-white placeholder-gray-500 outline-none transition-all focus:border-purple-500"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Saved confirmation */}
-              <AnimatePresence>
-                {isSaved && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-center"
+                    className="mb-6 overflow-hidden"
                   >
-                    <p className="text-green-400 font-medium">Score saved successfully!</p>
+                    <label className="block text-sm text-zinc-400 mb-2 font-medium">
+                      Save your score to the leaderboard
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={guestUsername}
+                        onChange={(e) => setGuestUsername(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                        placeholder="Enter your username..."
+                        maxLength={20}
+                        className="w-full px-4 py-3 bg-zinc-800/50 border-2 border-zinc-700/50 rounded-xl text-white placeholder-zinc-500 outline-none transition-all focus:border-purple-500 focus:bg-zinc-800/80"
+                      />
+                      <Target className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Saved Confirmation */}
+              <AnimatePresence>
+                {isSaved && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl"
+                  >
+                    <div className="flex items-center gap-2 text-emerald-400">
+                      <Zap className="w-5 h-5" />
+                      <p className="font-medium">Score saved successfully!</p>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
               {/* Action Buttons */}
               <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
                 className="flex gap-3"
               >
                 {!isSaved && !isAuthenticated && (
                   <motion.button
-                    variants={staggerItem}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSave}
                     disabled={!guestUsername.trim()}
-                    className="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 px-5 py-3.5 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-800/50 disabled:text-zinc-600 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-zinc-700/50"
                   >
                     <Save className="w-5 h-5" />
-                    Save Score
+                    <span>Save</span>
                   </motion.button>
                 )}
 
                 <motion.button
-                  variants={staggerItem}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handlePlayAgain}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-5 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30"
                 >
                   <Play className="w-5 h-5" />
-                  Play Again
+                  <span>Play Again</span>
                 </motion.button>
               </motion.div>
             </div>
           </div>
 
-          {/* Animated particles (confetti effect) */}
+          {/* Confetti */}
           <ConfettiEffect isNewRecord={isNewRecord} />
         </motion.div>
       </div>

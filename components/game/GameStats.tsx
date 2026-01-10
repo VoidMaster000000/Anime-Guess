@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, Flame, Star, Trophy } from 'lucide-react';
+import { Heart, Flame, Star, Trophy, Zap, Shield } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from '@/lib/animations';
 import { gsap } from '@/lib/animations';
@@ -14,123 +14,156 @@ interface GameStatsProps {
 }
 
 // ============================================================================
-// PARTICLE TRAIL EFFECT FOR STREAK (CSS-only on mobile for performance)
+// STREAK FIRE EFFECT - Enhanced visual feedback
 // ============================================================================
 
-function StreakParticles({ streak }: { streak: number }) {
+function StreakFireEffect({ streak }: { streak: number }) {
   const intensity = Math.floor(streak / 5);
-  const isActive = streak >= 5;
+  const isActive = streak >= 3;
 
   if (!isActive) return null;
 
-  // Use CSS animation only - no JS particle system for better mobile performance
   const getGlowColor = () => {
-    if (intensity >= 5) return 'rgba(251, 191, 36, 0.6)'; // Gold
-    if (intensity >= 4) return 'rgba(34, 211, 238, 0.6)'; // Cyan
-    if (intensity >= 3) return 'rgba(192, 132, 252, 0.6)'; // Purple
-    if (intensity >= 2) return 'rgba(239, 68, 68, 0.6)'; // Red
-    return 'rgba(249, 115, 22, 0.6)'; // Orange
+    if (intensity >= 5) return 'from-yellow-400/60 to-orange-500/40'; // Gold
+    if (intensity >= 4) return 'from-cyan-400/60 to-blue-500/40'; // Cyan
+    if (intensity >= 3) return 'from-purple-400/60 to-pink-500/40'; // Purple
+    if (intensity >= 2) return 'from-red-400/60 to-orange-500/40'; // Red
+    return 'from-orange-400/60 to-amber-500/40'; // Orange
   };
 
   return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none rounded-lg"
-      style={{ zIndex: 0 }}
-    >
-      {/* Simple CSS glow effect instead of particles */}
+    <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
       <div
-        className="absolute inset-0 animate-pulse"
-        style={{
-          background: `radial-gradient(ellipse at center bottom, ${getGlowColor()}, transparent 70%)`,
-          animationDuration: `${Math.max(1.5 - intensity * 0.1, 0.8)}s`,
-        }}
+        className={`absolute inset-0 bg-gradient-to-t ${getGlowColor()} animate-pulse`}
+        style={{ animationDuration: `${Math.max(1.5 - intensity * 0.1, 0.6)}s` }}
       />
-    </div>
-  );
-}
-
-// Glowing flame effect that intensifies with streak (CSS-only for performance)
-function GlowingFlame({ streak }: { streak: number }) {
-  const intensity = Math.floor(streak / 5);
-  const isActive = streak >= 5;
-
-  // Color based on intensity
-  const getFlameColor = () => {
-    if (intensity >= 5) return 'text-yellow-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]';
-    if (intensity >= 4) return 'text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.7)]';
-    if (intensity >= 3) return 'text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.7)]';
-    if (intensity >= 2) return 'text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.7)]';
-    return 'text-orange-500 drop-shadow-[0_0_6px_rgba(249,115,22,0.6)]';
-  };
-
-  return (
-    <div className={`relative ${isActive ? 'animate-pulse' : ''}`}>
-      <Flame className={`w-5 h-5 ${isActive ? getFlameColor() : 'text-orange-500'}`} />
-      {isActive && (
-        <Flame
-          className={`absolute inset-0 w-5 h-5 ${getFlameColor()} blur-sm`}
-          style={{ opacity: 0.5 }}
-        />
-      )}
+      {/* Fire particles effect */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2">
+        {[...Array(Math.min(intensity + 2, 6))].map((_, i) => (
+          <div
+            key={i}
+            className="absolute bottom-0 w-1 bg-gradient-to-t from-orange-500 to-transparent rounded-full animate-pulse opacity-60"
+            style={{
+              height: `${20 + Math.random() * 30}%`,
+              left: `${15 + i * 15}%`,
+              animationDelay: `${i * 0.1}s`,
+              animationDuration: `${0.8 + Math.random() * 0.4}s`,
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
 // ============================================================================
-// ANIMATED HELPER COMPONENTS (CSS-based)
+// ANIMATED HEART WITH GSAP
 // ============================================================================
 
-function AnimatedHeart({ index, lives, lostLife }: { index: number; lives: number; lostLife: boolean }) {
+function AnimatedHeart({ index, lives, lostLife, maxLives }: { index: number; lives: number; lostLife: boolean; maxLives: number }) {
   const heartRef = useRef<HTMLDivElement>(null);
   const shouldAnimate = lostLife && index === lives;
+  const isActive = index < lives;
 
   useEffect(() => {
     if (shouldAnimate && heartRef.current) {
       gsap.fromTo(heartRef.current,
-        { scale: 1, opacity: 1 },
-        { scale: 0, opacity: 0, duration: 0.4, ease: 'back.in(2)' }
+        { scale: 1.5, opacity: 1, rotate: 0 },
+        {
+          scale: 0,
+          opacity: 0,
+          rotate: 180,
+          duration: 0.5,
+          ease: 'back.in(2)',
+        }
       );
     }
   }, [shouldAnimate]);
 
   return (
-    <div ref={heartRef}>
-      {index < lives ? (
-        <Heart className="w-6 h-6 fill-red-500 text-red-500" />
+    <motion.div
+      ref={heartRef}
+      initial={false}
+      animate={{
+        scale: isActive ? 1 : 0.8,
+      }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className="relative"
+    >
+      {isActive ? (
+        <div className="relative">
+          <Heart className="w-6 h-6 sm:w-7 sm:h-7 fill-red-500 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+          {/* Pulse effect on active hearts */}
+          <div className="absolute inset-0 animate-ping">
+            <Heart className="w-6 h-6 sm:w-7 sm:h-7 text-red-500/30" />
+          </div>
+        </div>
       ) : (
-        <Heart className="w-6 h-6 text-gray-700" />
+        <Heart className="w-6 h-6 sm:w-7 sm:h-7 text-zinc-700" />
       )}
-    </div>
+    </motion.div>
   );
 }
 
-function AnimatedNumber({ value, className }: { value: number; className: string }) {
+// ============================================================================
+// ANIMATED NUMBER COUNTER
+// ============================================================================
+
+function AnimatedNumber({ value, className, prefix = '', suffix = '' }: { value: number; className: string; prefix?: string; suffix?: string }) {
   const numberRef = useRef<HTMLSpanElement>(null);
   const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
     if (displayValue !== value && numberRef.current) {
-      // Animate out
-      gsap.to(numberRef.current, {
-        opacity: 0,
-        y: -10,
-        duration: 0.15,
-        onComplete: () => {
-          setDisplayValue(value);
-          // Animate in
-          gsap.fromTo(numberRef.current,
-            { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 0.15 }
-          );
-        }
-      });
+      // Pop animation
+      gsap.fromTo(numberRef.current,
+        { scale: 1.3, opacity: 0.7 },
+        { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2)' }
+      );
+      setDisplayValue(value);
     }
   }, [value, displayValue]);
 
   return (
     <span ref={numberRef} className={className}>
-      {displayValue}
+      {prefix}{displayValue.toLocaleString()}{suffix}
     </span>
+  );
+}
+
+// ============================================================================
+// STAT CARD COMPONENT
+// ============================================================================
+
+interface StatCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  suffix?: string;
+  colorClass: string;
+  bgClass: string;
+  borderClass: string;
+  glowClass: string;
+  children?: React.ReactNode;
+}
+
+function StatCard({ icon, label, value, suffix = '', colorClass, bgClass, borderClass, glowClass, children }: StatCardProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-300 ${bgClass} ${borderClass} hover:${glowClass}`}
+    >
+      {children}
+      <div className={`flex-shrink-0 ${colorClass}`}>
+        {icon}
+      </div>
+      <div className="flex flex-col min-w-0">
+        <span className="text-[10px] sm:text-xs text-zinc-400 uppercase tracking-wider font-medium">{label}</span>
+        <AnimatedNumber value={value} suffix={suffix} className={`text-lg sm:text-xl font-bold tabular-nums ${colorClass}`} />
+      </div>
+    </motion.div>
   );
 }
 
@@ -141,83 +174,142 @@ function AnimatedNumber({ value, className }: { value: number; className: string
 export default function GameStats({ lives, streak, points, highStreak, maxLives }: GameStatsProps) {
   const [prevLives, setPrevLives] = useState(lives);
   const [lostLife, setLostLife] = useState(false);
+  const [showStreakBonus, setShowStreakBonus] = useState(false);
+  const prevStreakRef = useRef(streak);
 
+  // Track life loss
   useEffect(() => {
     if (lives < prevLives) {
       setLostLife(true);
-      setTimeout(() => setLostLife(false), 500);
+      setTimeout(() => setLostLife(false), 600);
     }
     setPrevLives(lives);
   }, [lives, prevLives]);
 
-  return (
-    <div className="w-full bg-gray-900/80 backdrop-blur-sm border-b-2 border-purple-500/30 px-4 sm:px-6 py-3 sm:py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4 md:gap-6 flex-wrap">
-        {/* Lives */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            {Array.from({ length: maxLives }).map((_, index) => (
-              <AnimatedHeart key={index} index={index} lives={lives} lostLife={lostLife} />
-            ))}
-          </div>
-          <span className="text-gray-400 text-sm font-medium">
-            {lives}/{maxLives}
-          </span>
-        </div>
+  // Track streak milestones
+  useEffect(() => {
+    if (streak > prevStreakRef.current && streak % 5 === 0 && streak > 0) {
+      setShowStreakBonus(true);
+      setTimeout(() => setShowStreakBonus(false), 2000);
+    }
+    prevStreakRef.current = streak;
+  }, [streak]);
 
-        {/* Current Streak with Particle Effect */}
-        <div className={`relative flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 ${
-          streak >= 5
-            ? streak >= 25
-              ? 'bg-yellow-500/20 border-yellow-500/50'
-              : streak >= 20
-                ? 'bg-cyan-500/20 border-cyan-500/50'
-                : streak >= 15
-                  ? 'bg-purple-500/20 border-purple-500/50'
-                  : streak >= 10
-                    ? 'bg-red-500/20 border-red-500/50'
-                    : 'bg-orange-500/20 border-orange-500/50'
-            : 'bg-orange-500/10 border-orange-500/30'
-        }`}>
-          <StreakParticles streak={streak} />
-          <GlowingFlame streak={streak} />
-          <div className="flex flex-col relative z-10">
-            <span className="text-xs text-gray-400">Streak</span>
-            <AnimatedNumber
-              value={streak}
-              className={`text-lg font-bold ${
-                streak >= 25
-                  ? 'text-yellow-400'
-                  : streak >= 20
-                    ? 'text-cyan-400'
-                    : streak >= 15
-                      ? 'text-purple-400'
-                      : streak >= 10
-                        ? 'text-red-500'
-                        : 'text-orange-500'
-              }`}
+  // Calculate streak tier for visual effects
+  const getStreakTier = () => {
+    if (streak >= 25) return { color: 'text-yellow-400', bg: 'bg-yellow-500/20', border: 'border-yellow-500/50', glow: 'shadow-yellow-500/30', name: 'LEGENDARY' };
+    if (streak >= 20) return { color: 'text-cyan-400', bg: 'bg-cyan-500/20', border: 'border-cyan-500/50', glow: 'shadow-cyan-500/30', name: 'EPIC' };
+    if (streak >= 15) return { color: 'text-purple-400', bg: 'bg-purple-500/20', border: 'border-purple-500/50', glow: 'shadow-purple-500/30', name: 'RARE' };
+    if (streak >= 10) return { color: 'text-red-400', bg: 'bg-red-500/20', border: 'border-red-500/50', glow: 'shadow-red-500/30', name: 'HOT' };
+    if (streak >= 5) return { color: 'text-orange-400', bg: 'bg-orange-500/20', border: 'border-orange-500/50', glow: 'shadow-orange-500/30', name: 'WARM' };
+    return { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30', glow: 'shadow-orange-500/20', name: '' };
+  };
+
+  const streakTier = getStreakTier();
+
+  return (
+    <div className="w-full">
+      {/* Main Stats Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-zinc-900/90 backdrop-blur-md border-b-2 border-purple-500/30 rounded-xl sm:rounded-2xl overflow-hidden"
+      >
+        {/* Animated gradient border effect */}
+        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 animate-pulse" />
+
+        <div className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
+            {/* Lives Section */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30">
+                <Shield className="w-4 h-4 text-red-400" />
+                <span className="text-xs text-red-400 font-medium">HP</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: maxLives }).map((_, index) => (
+                  <AnimatedHeart
+                    key={index}
+                    index={index}
+                    lives={lives}
+                    lostLife={lostLife}
+                    maxLives={maxLives}
+                  />
+                ))}
+              </div>
+              <span className="text-zinc-500 text-sm font-medium ml-1">
+                {lives}/{maxLives}
+              </span>
+            </div>
+
+            {/* Center Stats */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
+              {/* Streak */}
+              <div className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-300 ${streakTier.bg} ${streakTier.border}`}>
+                <StreakFireEffect streak={streak} />
+                <div className="relative z-10 flex items-center gap-2 sm:gap-3">
+                  <div className="relative">
+                    <Flame className={`w-5 h-5 sm:w-6 sm:h-6 ${streakTier.color} ${streak >= 5 ? 'animate-pulse' : ''}`} />
+                    {streak >= 10 && (
+                      <Flame className={`absolute inset-0 w-5 h-5 sm:w-6 sm:h-6 ${streakTier.color} blur-sm opacity-60`} />
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] sm:text-xs text-zinc-400 uppercase tracking-wider">Streak</span>
+                      {streakTier.name && (
+                        <span className={`text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded ${streakTier.bg} ${streakTier.color}`}>
+                          {streakTier.name}
+                        </span>
+                      )}
+                    </div>
+                    <AnimatedNumber value={streak} className={`text-xl sm:text-2xl font-black tabular-nums ${streakTier.color}`} />
+                  </div>
+                </div>
+
+                {/* Streak bonus notification */}
+                <AnimatePresence>
+                  {showStreakBonus && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                      animate={{ opacity: 1, y: -40, scale: 1 }}
+                      exit={{ opacity: 0, y: -60, scale: 0.8 }}
+                      className="absolute top-0 left-1/2 -translate-x-1/2 whitespace-nowrap"
+                    >
+                      <div className={`px-3 py-1 rounded-full ${streakTier.bg} border ${streakTier.border} ${streakTier.color} text-xs font-bold flex items-center gap-1`}>
+                        <Zap className="w-3 h-3" />
+                        {streak} STREAK BONUS!
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Points */}
+              <StatCard
+                icon={<Star className="w-5 h-5 sm:w-6 sm:h-6 fill-yellow-400" />}
+                label="Points"
+                value={points}
+                colorClass="text-yellow-400"
+                bgClass="bg-yellow-500/10"
+                borderClass="border-yellow-500/30"
+                glowClass="shadow-yellow-500/20"
+              />
+            </div>
+
+            {/* High Streak */}
+            <StatCard
+              icon={<Trophy className="w-5 h-5 sm:w-6 sm:h-6" />}
+              label="Best"
+              value={highStreak}
+              colorClass="text-purple-400"
+              bgClass="bg-purple-500/10"
+              borderClass="border-purple-500/30"
+              glowClass="shadow-purple-500/20"
             />
           </div>
         </div>
-
-        {/* Points */}
-        <div className="flex items-center gap-2 bg-yellow-500/10 px-4 py-2 rounded-lg border border-yellow-500/30">
-          <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-400">Points</span>
-            <AnimatedNumber value={points} className="text-lg font-bold text-yellow-500" />
-          </div>
-        </div>
-
-        {/* High Streak */}
-        <div className="flex items-center gap-2 bg-purple-500/10 px-4 py-2 rounded-lg border border-purple-500/30">
-          <Trophy className="w-5 h-5 text-purple-500" />
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-400">Best</span>
-            <AnimatedNumber value={highStreak} className="text-lg font-bold text-purple-500" />
-          </div>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
