@@ -7,9 +7,23 @@ import { motion, AnimatePresence, type Variants } from 'motion/react';
 // ============================================================================
 
 export const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -10 },
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.15,
+      ease: 'easeOut',
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -5,
+    transition: {
+      duration: 0.1,
+      ease: 'easeIn',
+    },
+  },
 };
 
 export const fadeInDown: Variants = {
