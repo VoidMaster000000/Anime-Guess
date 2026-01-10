@@ -34,16 +34,6 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white">
-      {/* Gaming Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="bg-hex-pattern" />
-        <div className="orb-gaming orb-purple -top-20 -left-20" />
-        <div className="orb-gaming orb-cyan top-1/3 -right-32" />
-        <div className="orb-gaming orb-pink bottom-20 left-1/4" />
-        <div className="scan-line" />
-        <div className="tech-lines" />
-      </div>
-
       {/* Stats Bar */}
       <GameStats
         lives={lives}

@@ -205,16 +205,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-      {/* Gaming Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="bg-hex-pattern" />
-        <div className="orb-gaming orb-purple -top-20 -left-20" />
-        <div className="orb-gaming orb-cyan bottom-0 right-0" />
-        <div className="orb-gaming orb-pink top-1/2 -right-32" />
-        <div className="scan-line" />
-        <div className="tech-lines" />
-      </div>
-
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-4xl">
         {/* Header */}

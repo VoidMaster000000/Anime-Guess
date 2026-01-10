@@ -91,16 +91,8 @@ export default function LoginPage() {
 
   return (
     <div className="page-container flex-center">
-      {/* Gaming Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="bg-hex-pattern" />
-        <div ref={particlesRef} className="absolute inset-0" />
-        <div className="orb-gaming orb-purple -top-32 -left-32" />
-        <div className="orb-gaming orb-cyan bottom-0 right-0" />
-        <div className="orb-gaming orb-pink top-1/2 -left-20" />
-        <div className="scan-line" />
-        <div className="tech-lines" />
-      </div>
+      {/* Particle container for GSAP animations */}
+      <div ref={particlesRef} className="fixed inset-0 pointer-events-none z-0" />
 
       <div className="w-full max-w-md relative z-10 px-4 sm:px-6 md:px-0">
         {/* Back Button */}

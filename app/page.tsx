@@ -16,7 +16,7 @@ import {
 } from '@/components/game';
 import { Loader2, Timer, Sparkles, Award } from 'lucide-react';
 import { motion, AnimatePresence, fadeInUp, scaleIn, staggerContainer, staggerItem } from '@/lib/animations';
-import { gsap, particleFloat } from '@/lib/animations';
+import { gsap } from '@/lib/animations';
 
 export default function GamePage() {
   const {
@@ -184,23 +184,7 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white overflow-hidden relative">
-      {/* Gaming Background Elements */}
-      <div className="fixed inset-0 pointer-events-none">
-        {/* Hex pattern overlay */}
-        <div className="bg-hex-pattern" />
-
-        {/* Floating orbs - asymmetric positioning */}
-        <div className="orb-gaming orb-purple -top-20 -left-20" />
-        <div className="orb-gaming orb-cyan top-1/3 -right-32" />
-        <div className="orb-gaming orb-pink bottom-20 left-1/4" />
-
-        {/* Scanning line effect */}
-        <div className="scan-line" />
-
-        {/* Tech lines decoration */}
-        <div className="tech-lines" />
-      </div>
-
+      {/* Background handled globally by BackgroundVisuals component */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         <AnimatePresence mode="wait">
           {/* MENU STATE - Difficulty Selection */}
@@ -566,45 +550,3 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
   );
 }
 
-function BackgroundEffects() {
-  const particlesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!particlesRef.current) return;
-
-    const particles: HTMLDivElement[] = [];
-    const container = particlesRef.current;
-    const colors = ['bg-purple-500/10', 'bg-pink-500/10', 'bg-blue-500/10'];
-
-    // Create floating particles
-    for (let i = 0; i < 15; i++) {
-      const particle = document.createElement('div');
-      particle.className = `absolute w-3 h-3 rounded-full ${colors[Math.floor(Math.random() * colors.length)]}`;
-      particle.style.left = `${Math.random() * 100}%`;
-      particle.style.top = `${Math.random() * 100}%`;
-      container.appendChild(particle);
-      particles.push(particle);
-
-      particleFloat(particle, {
-        x: (Math.random() - 0.5) * 200,
-        y: (Math.random() - 0.5) * 200,
-        scale: 0.5 + Math.random() * 1.5,
-      });
-    }
-
-    return () => {
-      particles.forEach(p => {
-        gsap.killTweensOf(p);
-        p.remove();
-      });
-    };
-  }, []);
-
-  return (
-    <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden hidden sm:block">
-      <div ref={particlesRef} className="absolute inset-0" />
-      <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-purple-600/15 to-transparent rounded-full blur-3xl opacity-40" />
-      <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-blue-600/15 to-transparent rounded-full blur-3xl opacity-40" />
-    </div>
-  );
-}
