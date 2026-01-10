@@ -7,7 +7,7 @@ import { useAuth, fetchLeaderboard as fetchGlobalLeaderboard } from '@/hooks/use
 import LeaderboardRow from '@/components/leaderboard/LeaderboardRow';
 import type { LeaderboardEntry } from '@/types';
 import { GameDifficulty } from '@/types';
-import { motion, AnimatePresence, fadeInUp, staggerContainer, staggerItem, scaleInBounce } from '@/lib/animations';
+import { motion, AnimatePresence } from '@/lib/animations';
 
 type TimeFilter = 'all' | 'today' | 'week' | 'month';
 type SortMode = 'streak' | 'points' | 'level' | 'accuracy';
@@ -227,14 +227,14 @@ export default function LeaderboardPage() {
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
 
         {/* Header */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="mb-6 sm:mb-8"
-        >
+        <div className="mb-6 sm:mb-8">
           {/* Navigation */}
-          <motion.div variants={staggerItem} className="flex items-center justify-between mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex items-center justify-between mb-6"
+          >
             <motion.button
               whileHover={{ scale: 1.05, x: -2 }}
               whileTap={{ scale: 0.95 }}
@@ -257,10 +257,17 @@ export default function LeaderboardPage() {
           </motion.div>
 
           {/* Title Section */}
-          <motion.div variants={staggerItem} className="text-center mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-center mb-8"
+          >
             <div className="flex-center gap-3 mb-3">
               <motion.div
-                variants={scaleInBounce}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, type: 'spring', stiffness: 260 }}
                 className="relative"
               >
                 <div className="absolute inset-0 bg-yellow-500/30 blur-xl rounded-full" />
@@ -272,7 +279,9 @@ export default function LeaderboardPage() {
                 </span>
               </h1>
               <motion.div
-                variants={scaleInBounce}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, type: 'spring', stiffness: 260 }}
                 className="relative"
               >
                 <div className="absolute inset-0 bg-yellow-500/30 blur-xl rounded-full" />
@@ -301,7 +310,12 @@ export default function LeaderboardPage() {
           </motion.div>
 
           {/* Stats Grid */}
-          <motion.div variants={staggerItem} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6"
+          >
             {[
               { icon: Users, label: 'Players', value: stats.totalEntries, color: 'purple', gradient: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/30' },
               { icon: TrendingUp, label: 'Best Streak', value: stats.highestStreak, color: 'orange', gradient: 'from-orange-500/20 to-orange-600/10', border: 'border-orange-500/30' },
@@ -312,7 +326,7 @@ export default function LeaderboardPage() {
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * i }}
+                transition={{ delay: 0.3 + i * 0.05 }}
                 whileHover={{ scale: 1.02, y: -2 }}
                 className={`p-4 rounded-xl bg-gradient-to-br ${stat.gradient} border ${stat.border} backdrop-blur-sm`}
               >
@@ -330,7 +344,12 @@ export default function LeaderboardPage() {
           </motion.div>
 
           {/* Search */}
-          <motion.div variants={staggerItem} className="mb-4 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="mb-4 relative"
+          >
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
             <input
               type="text"
@@ -355,7 +374,12 @@ export default function LeaderboardPage() {
           </motion.div>
 
           {/* Filters */}
-          <motion.div variants={staggerItem} className="space-y-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.35 }}
+            className="space-y-3"
+          >
             {/* Time Filter */}
             <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
               <div className="flex items-center gap-2 mb-3">
@@ -407,7 +431,7 @@ export default function LeaderboardPage() {
               </div>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Podium Section - Top 3 */}
         {!isLoading && topThree.length >= 3 && !searchQuery && (
