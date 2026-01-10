@@ -400,7 +400,7 @@ export default function CustomContextMenu() {
             <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
 
             {/* Menu Items */}
-            <div className="py-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+            <div className="py-2">
               {menuItems.map((item, index) => (
                 <div key={index}>
                   {item.divider && index > 0 && (
