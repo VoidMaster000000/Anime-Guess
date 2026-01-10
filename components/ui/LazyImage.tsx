@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { motion, AnimatePresence } from '@/lib/animations';
 
 interface LazyImageProps {
   src: string;
@@ -83,54 +84,73 @@ export default function LazyImage({
       style={{ width: fill ? '100%' : width, height: fill ? '100%' : height }}
     >
       {/* Placeholder/Loading state */}
-      {!isLoaded && !hasError && (
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ backgroundColor: placeholderColor }}
-        >
-          {/* Animated loading skeleton */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div
-              className="absolute inset-0 -translate-x-full animate-shimmer"
+      <AnimatePresence>
+        {!isLoaded && !hasError && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ backgroundColor: placeholderColor }}
+          >
+            {/* Animated loading skeleton */}
+            <motion.div
+              className="absolute inset-0 overflow-hidden"
+              initial={{ x: '-100%' }}
+              animate={{ x: '200%' }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
               style={{
                 background:
                   'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
               }}
             />
-          </div>
-          {/* Loading spinner */}
-          <LoadingSpinner />
-        </div>
-      )}
+            {/* Loading spinner */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Error state */}
-      {hasError && (
-        <div
-          className="absolute inset-0 flex items-center justify-center bg-zinc-800"
-        >
-          <div className="text-center text-zinc-500">
-            <svg
-              className="w-12 h-12 mx-auto mb-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            <p className="text-sm">Failed to load</p>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {hasError && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 flex items-center justify-center bg-zinc-800"
+          >
+            <div className="text-center text-zinc-500">
+              <svg
+                className="w-12 h-12 mx-auto mb-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="text-sm">Failed to load</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Actual image */}
       {isInView && !hasError && (
-        <div
-          className={`absolute inset-0 transition-all duration-200 ease-out ${isLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-105 blur-sm'}`}
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 0, scale: 1.05, filter: 'blur(8px)' }}
+          animate={isLoaded ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : {}}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           {fill ? (
             <Image
@@ -157,15 +177,8 @@ export default function LazyImage({
               priority={priority}
             />
           )}
-        </div>
+        </motion.div>
       )}
     </div>
-  );
-}
-
-// Loading spinner component (CSS-based)
-function LoadingSpinner() {
-  return (
-    <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
   );
 }

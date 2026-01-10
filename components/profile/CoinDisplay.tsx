@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Coins, Plus, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { motion, AnimatePresence } from '@/lib/animations';
 
 // ============================================================================
 // TYPES
@@ -46,53 +47,6 @@ const SIZE_CONFIG = {
     buttonPadding: 'p-3',
   },
 };
-
-// ============================================================================
-// ANIMATED COMPONENTS (CSS-based)
-// ============================================================================
-
-function AnimatedContainer({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className: string;
-}) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setIsVisible(true));
-  }, []);
-
-  return (
-    <div
-      className={`${className} transition-all duration-400 ease-out ${
-        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-      }`}
-    >
-      {children}
-    </div>
-  );
-}
-
-function HoverButton({
-  children,
-  onClick,
-  className,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  className: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`${className} transition-transform duration-150 hover:scale-105 active:scale-95`}
-    >
-      {children}
-    </button>
-  );
-}
 
 // ============================================================================
 // COMPONENT
@@ -191,21 +145,34 @@ export default function CoinDisplay({
   };
 
   return (
-    <AnimatedContainer className={`relative bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-xl border border-yellow-500/20 ${config.container} flex items-center gap-3`}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={`relative bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-xl border border-yellow-500/20 ${config.container} flex items-center gap-3`}
+    >
       {/* Coin Icon with shine effect */}
       <div className="relative">
-        <div ref={coinIconRef}>
+        <motion.div
+          ref={coinIconRef}
+          animate={isIncreasing ? { scale: [1, 1.3, 1], rotate: [0, 15, 0] } : {}}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           <Coins className={`${config.coinIcon} text-yellow-500`} />
-        </div>
+        </motion.div>
 
         {/* Pulse effect on increase */}
-        {isIncreasing && (
-          <div
-            ref={pulseRef}
-            className="absolute inset-0 rounded-full border-2 border-yellow-500"
-            style={{ opacity: 0 }}
-          />
-        )}
+        <AnimatePresence>
+          {isIncreasing && (
+            <motion.div
+              initial={{ scale: 1, opacity: 1 }}
+              animate={{ scale: 2, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="absolute inset-0 rounded-full border-2 border-yellow-500"
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Coin Amount */}
@@ -213,63 +180,48 @@ export default function CoinDisplay({
         <span className={`${config.labelText} text-zinc-400 leading-tight`}>
           Coins
         </span>
-        <span
+        <motion.span
           ref={amountRef}
+          animate={isIncreasing ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ duration: 0.3 }}
           className={`${config.amountText} font-bold text-yellow-500 tabular-nums leading-tight`}
         >
           {Math.floor(displayCoins).toLocaleString()}
-        </span>
+        </motion.span>
       </div>
 
       {/* Add Button */}
       {showAddButton && (
-        <HoverButton
+        <motion.button
           onClick={handleAddClick}
-          className={`${config.buttonPadding} bg-yellow-500/20 hover:bg-yellow-500/30 rounded-lg border border-yellow-500/30 hover:border-yellow-500/50 transition-all duration-200 flex-shrink-0`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`${config.buttonPadding} bg-yellow-500/20 hover:bg-yellow-500/30 rounded-lg border border-yellow-500/30 hover:border-yellow-500/50 transition-colors duration-200 flex-shrink-0`}
         >
           <Plus className={`${config.plusIcon} text-yellow-500`} />
-        </HoverButton>
+        </motion.button>
       )}
 
       {/* Floating coins animation on increase */}
-      {isIncreasing && (
-        <FloatingCoins count={3} />
-      )}
-    </AnimatedContainer>
-  );
-}
-
-// Floating coins component (CSS-based)
-function FloatingCoins({ count }: { count: number }) {
-  return (
-    <>
-      {[...Array(count)].map((_, i) => (
-        <FloatingCoin key={i} index={i} />
-      ))}
-    </>
-  );
-}
-
-function FloatingCoin({ index }: { index: number }) {
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsAnimating(true), index * 100);
-    return () => clearTimeout(timer);
-  }, [index]);
-
-  return (
-    <div
-      className="absolute left-4 top-1/2 pointer-events-none transition-all duration-[800ms] ease-out"
-      style={{
-        opacity: isAnimating ? 0 : 1,
-        transform: isAnimating
-          ? `translateY(${-50 - index * 10}px) translateX(${(index - 1) * 20}px) scale(0.5)`
-          : `translateY(0) translateX(${(index - 1) * 20}px) scale(1)`,
-      }}
-    >
-      <TrendingUp className="w-4 h-4 text-yellow-500" />
-    </div>
+      <AnimatePresence>
+        {isIncreasing && (
+          <>
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 1, y: 0, x: (i - 1) * 20, scale: 1 }}
+                animate={{ opacity: 0, y: -50 - i * 10, x: (i - 1) * 20, scale: 0.5 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
+                className="absolute left-4 top-1/2 pointer-events-none"
+              >
+                <TrendingUp className="w-4 h-4 text-yellow-500" />
+              </motion.div>
+            ))}
+          </>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -284,15 +236,7 @@ interface CoinTransactionProps {
 }
 
 export function CoinTransaction({ amount, type, onComplete }: CoinTransactionProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isSpinning, setIsSpinning] = useState(false);
-
   useEffect(() => {
-    requestAnimationFrame(() => {
-      setIsVisible(true);
-      setIsSpinning(true);
-    });
-
     const timer = setTimeout(() => {
       onComplete?.();
     }, 2000);
@@ -301,22 +245,27 @@ export function CoinTransaction({ amount, type, onComplete }: CoinTransactionPro
   }, [onComplete]);
 
   return (
-    <div
-      className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl border flex items-center gap-3 transition-all duration-300 ease-out ${
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.8 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl border flex items-center gap-3 ${
         type === 'gain'
           ? 'bg-green-500/20 border-green-500/50'
           : 'bg-red-500/20 border-red-500/50'
-      } ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-5 scale-80'}`}
+      }`}
     >
-      <div
-        className="transition-transform duration-600 ease-out"
-        style={{ transform: isSpinning ? `rotate(${type === 'gain' ? 360 : -360}deg)` : 'rotate(0deg)' }}
+      <motion.div
+        initial={{ rotate: 0 }}
+        animate={{ rotate: type === 'gain' ? 360 : -360 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <Coins className={`w-6 h-6 ${type === 'gain' ? 'text-green-400' : 'text-red-400'}`} />
-      </div>
+      </motion.div>
       <span className={`text-xl font-bold ${type === 'gain' ? 'text-green-400' : 'text-red-400'}`}>
         {type === 'gain' ? '+' : '-'}{amount.toLocaleString()}
       </span>
-    </div>
+    </motion.div>
   );
 }

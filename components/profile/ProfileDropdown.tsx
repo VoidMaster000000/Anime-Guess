@@ -14,32 +14,11 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { motion, AnimatePresence, fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 
 interface ProfileDropdownProps {
   onNavigate?: (page: 'profile' | 'inventory' | 'settings') => void;
   onLogout?: () => void;
-}
-
-// CSS-based dropdown panel
-function DropdownPanel({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="absolute right-0 mt-2 w-72 bg-bg-card border border-bg-card/50 rounded-xl shadow-2xl overflow-hidden z-50
-        animate-dropdown-in"
-    >
-      {children}
-    </div>
-  );
-}
-
-// CSS-based progress bar
-function AnimatedProgress({ progress }: { progress: number }) {
-  return (
-    <div
-      className="h-full bg-gradient-to-r from-accent to-accent-purple transition-all duration-300 ease-out"
-      style={{ width: `${progress}%` }}
-    />
-  );
 }
 
 export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdownProps) {
@@ -104,7 +83,6 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
     if (onNavigate) {
       onNavigate(page);
     } else {
-      // Default navigation using router
       router.push(`/${page}`);
     }
     setIsOpen(false);
@@ -115,8 +93,10 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Profile Button */}
-      <button
+      <motion.button
         onClick={() => setIsOpen(!isOpen)}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         className="flex items-center space-x-3 px-4 py-2 rounded-lg bg-bg-card border border-accent/20 hover:border-accent/40 transition-all duration-200"
       >
         <div className="flex items-center space-x-2">
@@ -141,138 +121,175 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
         </div>
 
         {/* Chevron */}
-        <ChevronDown
-          className={`w-4 h-4 text-text-secondary transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown className="w-4 h-4 text-text-secondary" />
+        </motion.div>
+      </motion.button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
-        <DropdownPanel>
-          {/* Profile Header */}
-          <div className="p-4 bg-gradient-to-br from-accent/10 to-accent-purple/10 border-b border-accent/20">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-accent-purple flex items-center justify-center overflow-hidden">
-                {user.avatarImage ? (
-                  <img
-                    src={user.avatarImage}
-                    alt={user.username}
-                    className="w-full h-full object-cover"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute right-0 mt-2 w-72 bg-bg-card border border-bg-card/50 rounded-xl shadow-2xl overflow-hidden z-50"
+          >
+            {/* Profile Header */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.05 }}
+              className="p-4 bg-gradient-to-br from-accent/10 to-accent-purple/10 border-b border-accent/20"
+            >
+              <div className="flex items-center space-x-3 mb-3">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+                  className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-accent-purple flex items-center justify-center overflow-hidden"
+                >
+                  {user.avatarImage ? (
+                    <img
+                      src={user.avatarImage}
+                      alt={user.username}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 text-white" />
+                  )}
+                </motion.div>
+                <div className="flex-1">
+                  <p className="font-bold text-text-primary">{user.username}</p>
+                  {user.email && (
+                    <p className="text-xs text-text-secondary">{user.email}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Level Progress */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-text-secondary">Level {level}</span>
+                  <span className="text-accent font-semibold">{Math.round(progress)}%</span>
+                </div>
+                <div className="w-full h-2 bg-bg-primary rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-accent to-accent-purple"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
                   />
-                ) : (
-                  <User className="w-6 h-6 text-white" />
-                )}
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="font-bold text-text-primary">{user.username}</p>
-                {user.email && (
-                  <p className="text-xs text-text-secondary">{user.email}</p>
-                )}
-              </div>
-            </div>
+            </motion.div>
 
-            {/* Level Progress */}
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-text-secondary">Level {level}</span>
-                <span className="text-accent font-semibold">{Math.round(progress)}%</span>
-              </div>
-              <div className="w-full h-2 bg-bg-primary rounded-full overflow-hidden">
-                <AnimatedProgress progress={progress} />
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="p-4 grid grid-cols-2 gap-3 border-b border-bg-card/50">
-            {/* Coins */}
-            <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-              <Coins className="w-4 h-4 text-yellow-500" />
-              <div>
-                <p className="text-xs text-text-secondary">Coins</p>
-                <p className="text-sm font-bold text-yellow-500">{coins}</p>
-              </div>
-            </div>
-
-            {/* Highest Streak */}
-            <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
-              <Zap className="w-4 h-4 text-orange-500" />
-              <div>
-                <p className="text-xs text-text-secondary">Best Streak</p>
-                <p className="text-sm font-bold text-orange-500">{stats.highestStreak}</p>
-              </div>
-            </div>
-
-            {/* Games Played */}
-            <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <Trophy className="w-4 h-4 text-blue-500" />
-              <div>
-                <p className="text-xs text-text-secondary">Games</p>
-                <p className="text-sm font-bold text-blue-500">{stats.gamesPlayed}</p>
-              </div>
-            </div>
-
-            {/* Accuracy */}
-            <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20">
-              <BarChart3 className="w-4 h-4 text-green-500" />
-              <div>
-                <p className="text-xs text-text-secondary">Accuracy</p>
-                <p className="text-sm font-bold text-green-500">
-                  {stats.gamesPlayed > 0
-                    ? Math.round((stats.correctGuesses / (stats.correctGuesses + stats.wrongGuesses)) * 100)
-                    : 0}
-                  %
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Menu Items */}
-          <div className="p-2">
-            <button
-              onClick={() => handleNavigation('profile')}
-              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-bg-primary transition-colors group"
+            {/* Stats Grid */}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className="p-4 grid grid-cols-2 gap-3 border-b border-bg-card/50"
             >
-              <User className="w-4 h-4 text-text-secondary group-hover:text-accent" />
-              <span className="text-sm text-text-primary group-hover:text-accent">
-                Profile
-              </span>
-            </button>
+              {/* Coins */}
+              <motion.div
+                variants={staggerItem}
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20"
+              >
+                <Coins className="w-4 h-4 text-yellow-500" />
+                <div>
+                  <p className="text-xs text-text-secondary">Coins</p>
+                  <p className="text-sm font-bold text-yellow-500">{coins}</p>
+                </div>
+              </motion.div>
 
-            <button
-              onClick={() => handleNavigation('inventory')}
-              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-bg-primary transition-colors group"
-            >
-              <Package className="w-4 h-4 text-text-secondary group-hover:text-accent" />
-              <span className="text-sm text-text-primary group-hover:text-accent">
-                Inventory
-              </span>
-            </button>
+              {/* Highest Streak */}
+              <motion.div
+                variants={staggerItem}
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20"
+              >
+                <Zap className="w-4 h-4 text-orange-500" />
+                <div>
+                  <p className="text-xs text-text-secondary">Best Streak</p>
+                  <p className="text-sm font-bold text-orange-500">{stats.highestStreak}</p>
+                </div>
+              </motion.div>
 
-            <button
-              onClick={() => handleNavigation('settings')}
-              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-bg-primary transition-colors group"
-            >
-              <Settings className="w-4 h-4 text-text-secondary group-hover:text-accent" />
-              <span className="text-sm text-text-primary group-hover:text-accent">
-                Settings
-              </span>
-            </button>
+              {/* Games Played */}
+              <motion.div
+                variants={staggerItem}
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20"
+              >
+                <Trophy className="w-4 h-4 text-blue-500" />
+                <div>
+                  <p className="text-xs text-text-secondary">Games</p>
+                  <p className="text-sm font-bold text-blue-500">{stats.gamesPlayed}</p>
+                </div>
+              </motion.div>
 
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-red-500/10 transition-colors group"
+              {/* Accuracy */}
+              <motion.div
+                variants={staggerItem}
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20"
+              >
+                <BarChart3 className="w-4 h-4 text-green-500" />
+                <div>
+                  <p className="text-xs text-text-secondary">Accuracy</p>
+                  <p className="text-sm font-bold text-green-500">
+                    {stats.gamesPlayed > 0
+                      ? Math.round((stats.correctGuesses / (stats.correctGuesses + stats.wrongGuesses)) * 100)
+                      : 0}
+                    %
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Menu Items */}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className="p-2"
             >
-              <LogOut className="w-4 h-4 text-text-secondary group-hover:text-red-500" />
-              <span className="text-sm text-text-primary group-hover:text-red-500">
-                Logout
-              </span>
-            </button>
-          </div>
-        </DropdownPanel>
-      )}
+              {[
+                { page: 'profile' as const, icon: User, label: 'Profile' },
+                { page: 'inventory' as const, icon: Package, label: 'Inventory' },
+                { page: 'settings' as const, icon: Settings, label: 'Settings' },
+              ].map((item) => (
+                <motion.button
+                  key={item.page}
+                  variants={staggerItem}
+                  whileHover={{ x: 4, backgroundColor: "rgba(0,0,0,0.2)" }}
+                  onClick={() => handleNavigation(item.page)}
+                  className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors group"
+                >
+                  <item.icon className="w-4 h-4 text-text-secondary group-hover:text-accent" />
+                  <span className="text-sm text-text-primary group-hover:text-accent">
+                    {item.label}
+                  </span>
+                </motion.button>
+              ))}
+
+              <motion.button
+                variants={staggerItem}
+                whileHover={{ x: 4, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+                onClick={handleLogout}
+                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors group"
+              >
+                <LogOut className="w-4 h-4 text-text-secondary group-hover:text-red-500" />
+                <span className="text-sm text-text-primary group-hover:text-red-500">
+                  Logout
+                </span>
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

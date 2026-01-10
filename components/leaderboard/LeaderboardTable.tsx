@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Trophy, Medal, Crown } from 'lucide-react';
 import type { LeaderboardEntry } from '@/types';
 import { GameDifficulty } from '@/types';
+import { motion } from '@/lib/animations';
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[];
@@ -106,30 +106,31 @@ function AnimatedTableRow({
   isCurrentUser: boolean;
   delay: number;
 }) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
   const rankIcon = getRankIcon(rank);
 
   return (
-    <tr
+    <motion.tr
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: delay / 1000, ease: "easeOut" }}
+      whileHover={{ backgroundColor: "rgba(55, 65, 81, 0.3)" }}
       className={`
-        transition-all duration-300 ease-out
         ${getRankStyle(rank)}
         ${isCurrentUser ? 'ring-2 ring-blue-500/50' : ''}
-        hover:bg-gray-700/30 border-l-4
-        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}
+        border-l-4
       `}
     >
       {/* Rank */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           {rankIcon ? (
-            rankIcon
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: delay / 1000 + 0.1 }}
+            >
+              {rankIcon}
+            </motion.div>
           ) : (
             <span className="text-gray-400 font-semibold text-lg w-6 text-center">
               {rank}
@@ -148,7 +149,14 @@ function AnimatedTableRow({
           >
             {entry.username}
             {isCurrentUser && (
-              <span className="ml-2 text-xs text-blue-400">(You)</span>
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                className="ml-2 text-xs text-blue-400"
+              >
+                (You)
+              </motion.span>
             )}
           </span>
         </div>
@@ -168,24 +176,34 @@ function AnimatedTableRow({
       {/* Streak */}
       <td className="px-6 py-4 whitespace-nowrap text-center">
         <div className="flex items-center justify-center gap-2">
-          <span className="text-2xl font-bold text-orange-500">
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20, delay: delay / 1000 + 0.15 }}
+            className="text-2xl font-bold text-orange-500"
+          >
             {entry.streak}
-          </span>
+          </motion.span>
         </div>
       </td>
 
       {/* Points */}
       <td className="px-6 py-4 whitespace-nowrap text-center">
-        <span className="text-lg font-semibold text-yellow-500">
+        <motion.span
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20, delay: delay / 1000 + 0.2 }}
+          className="text-lg font-semibold text-yellow-500"
+        >
           {entry.points.toLocaleString()}
-        </span>
+        </motion.span>
       </td>
 
       {/* Date */}
       <td className="px-6 py-4 whitespace-nowrap text-right">
         <span className="text-sm text-gray-400">{formatDate(entry.date)}</span>
       </td>
-    </tr>
+    </motion.tr>
   );
 }
 

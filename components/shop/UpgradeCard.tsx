@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Coins, Eye, SkipForward, Heart, HelpCircle } from 'lucide-react';
 import type { ShopItem } from '@/types';
+import { motion, cardHover } from '@/lib/animations';
 
 interface UpgradeCardProps {
   item: ShopItem;
@@ -19,38 +19,18 @@ const iconMap = {
   'coins': Coins,
 };
 
-function HoverCard({
-  children,
-  className,
-  disabled,
-}: {
-  children: React.ReactNode;
-  className: string;
-  disabled: boolean;
-}) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setIsVisible(true));
-  }, []);
-
-  return (
-    <div
-      className={`${className} transition-all duration-200 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'} ${!disabled && isHovered ? 'scale-[1.02] -translate-y-1' : ''}`}
-      onMouseEnter={() => !disabled && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {children}
-    </div>
-  );
-}
-
 export default function UpgradeCard({ item, onPurchase, disabled, owned }: UpgradeCardProps) {
   const IconComponent = iconMap[item.icon as keyof typeof iconMap] || HelpCircle;
 
   return (
-    <HoverCard disabled={disabled} className="relative">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      variants={!disabled ? cardHover : undefined}
+      whileHover={!disabled ? "hover" : undefined}
+      whileTap={!disabled ? "tap" : undefined}
+      className="relative"
+    >
       {/* Gradient border effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-2xl blur-sm" />
 
@@ -60,21 +40,31 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
         ${!disabled ? 'hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20' : 'opacity-60'}
       `}>
         {/* Icon */}
-        <div className={`
-          w-16 h-16 rounded-xl flex items-center justify-center mb-4
-          bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20
-        `}>
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+          className={`
+            w-16 h-16 rounded-xl flex items-center justify-center mb-4
+            bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20
+          `}
+        >
           <IconComponent className="w-8 h-8 text-purple-400" />
-        </div>
+        </motion.div>
 
         {/* Content */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xl font-bold text-white">{item.name}</h3>
             {owned !== undefined && owned > 0 && (
-              <span className="px-2 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg text-sm text-purple-300">
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                className="px-2 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg text-sm text-purple-300"
+              >
                 Owned: {owned}
-              </span>
+              </motion.span>
             )}
           </div>
           <p className="text-zinc-400 text-sm leading-relaxed">{item.description}</p>
@@ -87,9 +77,11 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
             <span className="text-2xl font-bold text-yellow-500">{item.cost}</span>
           </div>
 
-          <button
+          <motion.button
             onClick={onPurchase}
             disabled={disabled}
+            whileHover={!disabled ? { scale: 1.05 } : undefined}
+            whileTap={!disabled ? { scale: 0.95 } : undefined}
             className={`
               px-6 py-2.5 rounded-lg font-semibold text-sm
               transition-all duration-200 flex items-center gap-2
@@ -100,7 +92,7 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
             `}
           >
             Purchase
-          </button>
+          </motion.button>
         </div>
 
         {/* Max owned indicator */}
@@ -111,14 +103,16 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
               <span>{owned} / {item.maxOwned}</span>
             </div>
             <div className="mt-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300"
-                style={{ width: `${(owned / item.maxOwned) * 100}%` }}
+              <motion.div
+                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${(owned / item.maxOwned) * 100}%` }}
+                transition={{ duration: 0.5, delay: 0.2 }}
               />
             </div>
           </div>
         )}
       </div>
-    </HoverCard>
+    </motion.div>
   );
 }

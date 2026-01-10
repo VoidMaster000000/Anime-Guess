@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Crown, Medal, Flame, Star, TrendingUp, Infinity, User } from 'lucide-react';
 import type { LeaderboardEntry } from '@/types';
 import { GameDifficulty } from '@/types';
 import LazyImage from '@/components/ui/LazyImage';
+import { motion } from '@/lib/animations';
 
 interface LeaderboardRowProps {
   entry: LeaderboardEntry;
@@ -115,33 +115,6 @@ const formatDate = (dateString: string): string => {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-function AnimatedRow({
-  children,
-  rank,
-  className,
-}: {
-  children: React.ReactNode;
-  rank: number;
-  className: string;
-}) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), rank * 15);
-    return () => clearTimeout(timer);
-  }, [rank]);
-
-  return (
-    <div
-      className={`${className} transition-all duration-150 ease-out ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'
-      }`}
-    >
-      {children}
-    </div>
-  );
-}
-
 export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: LeaderboardRowProps) {
   const rankIcon = getRankIcon(rank);
   const level = entry.level?.current || 1;
@@ -151,12 +124,15 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
   const accuracy = entry.accuracy || 0;
 
   return (
-    <AnimatedRow
-      rank={rank}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: rank * 0.03, duration: 0.3 }}
+      whileHover={{ scale: 1.01 }}
       className={`
         relative overflow-hidden rounded-lg border-2 transition-all duration-300
         ${getRankStyle(rank)}
-        ${isCurrentUser ? 'ring-2 ring-blue-500/60 scale-[1.02]' : 'hover:scale-[1.01]'}
+        ${isCurrentUser ? 'ring-2 ring-blue-500/60 scale-[1.02]' : ''}
         hover:shadow-xl
         ${rank <= 3 ? 'shadow-lg' : ''}
       `}
@@ -171,9 +147,14 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
           {/* Rank */}
           <div className="flex-shrink-0 w-8 sm:w-12 md:w-14 text-center">
             {rankIcon ? (
-              <div className="flex items-center justify-center">
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20, delay: rank * 0.03 + 0.1 }}
+                className="flex items-center justify-center"
+              >
                 {rankIcon}
-              </div>
+              </motion.div>
             ) : (
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-400">
                 {rank}
@@ -183,7 +164,12 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
 
           {/* Avatar */}
           <div className="flex-shrink-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600 flex items-center justify-center text-xl sm:text-2xl md:text-3xl shadow-lg overflow-hidden">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: rank * 0.03 + 0.15 }}
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600 flex items-center justify-center text-xl sm:text-2xl md:text-3xl shadow-lg overflow-hidden"
+            >
               {avatarImage ? (
                 <LazyImage
                   src={avatarImage}
@@ -198,7 +184,7 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
               ) : (
                 <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-gray-400" />
               )}
-            </div>
+            </motion.div>
           </div>
 
           {/* User Info */}
@@ -208,9 +194,14 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
                 {entry.username}
               </h3>
               {isCurrentUser && (
-                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-blue-500/20 text-blue-400 rounded border border-blue-500/30 flex-shrink-0">
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-blue-500/20 text-blue-400 rounded border border-blue-500/30 flex-shrink-0"
+                >
                   YOU
-                </span>
+                </motion.span>
               )}
             </div>
 
@@ -240,9 +231,14 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
                 <Flame className="w-4 h-4 text-orange-500" />
                 <span className="text-xs text-gray-400 font-medium">Streak</span>
               </div>
-              <div className="text-xl font-bold text-orange-500">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: rank * 0.03 + 0.2 }}
+                className="text-xl font-bold text-orange-500"
+              >
                 {entry.streak}
-              </div>
+              </motion.div>
             </div>
 
             {/* Points */}
@@ -251,9 +247,14 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
                 <Star className="w-4 h-4 text-yellow-500" />
                 <span className="text-xs text-gray-400 font-medium">Points</span>
               </div>
-              <div className="text-xl font-bold text-yellow-500">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: rank * 0.03 + 0.25 }}
+                className="text-xl font-bold text-yellow-500"
+              >
                 {entry.points.toLocaleString()}
-              </div>
+              </motion.div>
             </div>
 
             {/* Accuracy */}
@@ -262,9 +263,14 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
                 <TrendingUp className="w-4 h-4 text-green-500" />
                 <span className="text-xs text-gray-400 font-medium">Accuracy</span>
               </div>
-              <div className="text-xl font-bold text-green-500">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: rank * 0.03 + 0.3 }}
+                className="text-xl font-bold text-green-500"
+              >
                 {accuracy}%
-              </div>
+              </motion.div>
             </div>
           </div>
 
@@ -303,6 +309,6 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
           </div>
         </div>
       </div>
-    </AnimatedRow>
+    </motion.div>
   );
 }

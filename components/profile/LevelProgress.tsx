@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Infinity as InfinityIcon, TrendingUp, Crown, Star, Zap, Flame, Diamond, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { motion, AnimatePresence } from '@/lib/animations';
 
 // ============================================================================
 // TYPES
@@ -184,7 +185,7 @@ const SIZE_CONFIG = {
 };
 
 // ============================================================================
-// ANIMATED COMPONENTS (CSS-based)
+// ANIMATED COMPONENTS (Motion-based)
 // ============================================================================
 
 function AnimatedContainer({
@@ -194,18 +195,15 @@ function AnimatedContainer({
   children: React.ReactNode;
   className: string;
 }) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
   return (
-    <div
-      className={`${className} transition-all duration-300 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -597,7 +595,7 @@ function PulsingGlow({ level, glowColor }: { level: number; glowColor: string })
   );
 }
 
-// Premium Level Badge (CSS-based animations)
+// Premium Level Badge (Motion-based animations)
 function PremiumLevelBadge({
   level,
   size,
@@ -607,29 +605,10 @@ function PremiumLevelBadge({
   size: 'sm' | 'md' | 'lg';
   isMaxLevel: boolean;
 }) {
-  const shineRef = useRef<HTMLDivElement>(null);
   const config = SIZE_CONFIG[size];
   const tier = getLevelTier(level);
   const TierIcon = tier.icon;
   const tierIndex = Math.floor(level / 5);
-
-  // Shine animation using CSS transitions
-  useEffect(() => {
-    if (!shineRef.current) return;
-
-    const runShine = () => {
-      if (!shineRef.current) return;
-      shineRef.current.style.transition = 'none';
-      shineRef.current.style.transform = 'translateX(-100%) rotate(25deg)';
-      void shineRef.current.offsetHeight;
-      shineRef.current.style.transition = 'transform 1s ease-in-out';
-      shineRef.current.style.transform = 'translateX(200%) rotate(25deg)';
-    };
-
-    runShine();
-    const interval = setInterval(runShine, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div
@@ -675,13 +654,12 @@ function PremiumLevelBadge({
         />
 
         {/* Shine effect */}
-        <div
-          ref={shineRef}
+        <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-          style={{
-            transform: 'translateX(-100%) rotate(25deg)',
-            width: '50%',
-          }}
+          style={{ width: '50%' }}
+          initial={{ x: '-100%', rotate: 25 }}
+          animate={{ x: '200%', rotate: 25 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "easeInOut", repeatDelay: 2 }}
         />
 
         {/* Level number or icon */}
@@ -749,55 +727,24 @@ function AnimatedProgressBar({
   isMaxLevel: boolean;
   className: string;
 }) {
-  const shineRef = useRef<HTMLDivElement>(null);
-  const [animatedWidth, setAnimatedWidth] = useState(0);
-
-  // Animate width on mount and progress change
-  useEffect(() => {
-    const targetWidth = isMaxLevel ? 100 : progress;
-    // Small delay to trigger CSS transition
-    requestAnimationFrame(() => {
-      setAnimatedWidth(targetWidth);
-    });
-  }, [progress, isMaxLevel]);
-
-  // Continuous shine animation using CSS transition
-  useEffect(() => {
-    if (!shineRef.current) return;
-
-    const runShine = () => {
-      if (!shineRef.current) return;
-
-      // Reset position instantly
-      shineRef.current.style.transition = 'none';
-      shineRef.current.style.transform = 'translateX(-100%)';
-
-      // Force reflow
-      shineRef.current.offsetHeight;
-
-      // Animate to end position
-      shineRef.current.style.transition = 'transform 2s ease-in-out';
-      shineRef.current.style.transform = 'translateX(200%)';
-    };
-
-    runShine();
-    const interval = setInterval(runShine, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  const targetWidth = isMaxLevel ? 100 : progress;
 
   return (
     <div className={className}>
-      <div
-        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full relative overflow-hidden transition-all duration-500 ease-out"
-        style={{ width: `${animatedWidth}%` }}
+      <motion.div
+        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full relative overflow-hidden"
+        initial={{ width: 0 }}
+        animate={{ width: `${targetWidth}%` }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
         {/* Shine effect */}
-        <div
-          ref={shineRef}
+        <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-          style={{ transform: 'translateX(-100%)' }}
+          initial={{ x: '-100%' }}
+          animate={{ x: '200%' }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
         />
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -912,32 +859,35 @@ interface LevelUpCelebrationProps {
 }
 
 export function LevelUpCelebration({ newLevel, onComplete }: LevelUpCelebrationProps) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Trigger animation on mount
-    requestAnimationFrame(() => {
-      setIsVisible(true);
-    });
-  }, []);
-
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
       onClick={onComplete}
     >
-      <div
-        className={`bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500 rounded-2xl p-8 text-center transition-all duration-300 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+      <motion.div
+        initial={{ opacity: 0, y: 50, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 50, scale: 0.9 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500 rounded-2xl p-8 text-center"
       >
-        <div className="text-6xl mb-4 animate-bounce">
+        <motion.div
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 0.6, repeat: Infinity }}
+          className="text-6xl mb-4"
+        >
           🎉
-        </div>
+        </motion.div>
         <h2 className="text-4xl font-bold text-white mb-2">Level Up!</h2>
         <p className="text-2xl text-purple-400 mb-4">
           You've reached <span className="font-bold text-white">Level {newLevel}</span>
         </p>
         <p className="text-zinc-400 text-sm">Click anywhere to continue</p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
