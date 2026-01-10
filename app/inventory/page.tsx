@@ -255,10 +255,14 @@ export default function InventoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-      {/* Background decoration */}
-      <div className="page-bg">
-        <div className="bg-glow-purple top-0 left-1/4" />
-        <div className="bg-glow-pink bottom-0 right-1/4" />
+      {/* Gaming Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="bg-hex-pattern" />
+        <div className="orb-gaming orb-purple -top-32 left-1/4" />
+        <div className="orb-gaming orb-cyan bottom-20 -right-20" />
+        <div className="orb-gaming orb-pink top-1/3 -left-20" />
+        <div className="scan-line" />
+        <div className="tech-lines" />
       </div>
 
       {/* Content */}

@@ -33,7 +33,17 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white">
+      {/* Gaming Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="bg-hex-pattern" />
+        <div className="orb-gaming orb-purple -top-20 -left-20" />
+        <div className="orb-gaming orb-cyan top-1/3 -right-32" />
+        <div className="orb-gaming orb-pink bottom-20 left-1/4" />
+        <div className="scan-line" />
+        <div className="tech-lines" />
+      </div>
+
       {/* Stats Bar */}
       <GameStats
         lives={lives}
@@ -43,7 +53,7 @@ export default function DemoPage() {
         highStreak={12}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12 space-y-8 sm:space-y-10 md:space-y-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12 space-y-8 sm:space-y-10 md:space-y-12">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
