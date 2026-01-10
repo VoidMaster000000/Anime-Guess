@@ -77,7 +77,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       />
 
       {/* Header Section with Avatar */}
-      <div className="relative pt-8 pb-4 px-6 bg-gradient-to-b from-purple-600/20 to-transparent">
+      <div className="relative pt-6 sm:pt-8 pb-3 sm:pb-4 px-4 sm:px-6 bg-gradient-to-b from-purple-600/20 to-transparent">
         <div className="flex items-center gap-4">
           {/* Avatar */}
           <motion.div
@@ -127,7 +127,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       </div>
 
       {/* XP Progress Bar */}
-      <div className="px-6 pb-4 relative">
+      <div className="px-4 sm:px-6 pb-3 sm:pb-4 relative">
         <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
           <span>Level {level}</span>
           <span>{currentXp} / {requiredXp} XP</span>
@@ -144,7 +144,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       </div>
 
       {/* Coins Display */}
-      <div className="px-6 pb-4 relative">
+      <div className="px-4 sm:px-6 pb-3 sm:pb-4 relative">
         <motion.div
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
@@ -162,15 +162,15 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       </div>
 
       {/* Stats Grid */}
-      <div className="px-6 pb-6 relative">
-        <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">
+      <div className="px-4 sm:px-6 pb-4 sm:pb-6 relative">
+        <h3 className="text-sm font-semibold text-gray-400 mb-2 sm:mb-3 uppercase tracking-wider">
           Quick Stats
         </h3>
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-3 gap-3"
+          className="grid grid-cols-3 gap-2 sm:gap-3"
         >
           {/* Games Played */}
           <motion.div
@@ -215,7 +215,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       </div>
 
       {/* Action Buttons */}
-      <div className="px-6 pb-6 flex gap-3 relative">
+      <div className="px-4 sm:px-6 pb-4 sm:pb-6 flex gap-2 sm:gap-3 relative">
         <motion.button
           onClick={onEditProfile}
           whileHover={{ scale: 1.03 }}
@@ -251,7 +251,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="px-6 pb-6 border-t border-purple-500/20 pt-4 relative"
+        className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-purple-500/20 pt-3 sm:pt-4 relative"
       >
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex justify-between">

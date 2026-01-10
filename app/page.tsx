@@ -501,7 +501,7 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
       {/* Success message */}
       <div
         ref={contentRef}
-        className="relative text-center space-y-6 p-8"
+        className="relative text-center space-y-4 sm:space-y-6 p-6 sm:p-8"
       >
         <motion.div
           animate={{ y: [0, -20, 0] }}

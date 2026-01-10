@@ -43,7 +43,7 @@ export default function DemoPage() {
         highStreak={12}
       />
 
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12 space-y-8 sm:space-y-10 md:space-y-12">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -53,29 +53,29 @@ export default function DemoPage() {
         </div>
 
         {/* Character Image Section */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Character Image</h2>
-          <div className="flex flex-col items-center gap-6">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold">Character Image</h2>
+          <div className="flex flex-col items-center gap-4 sm:gap-5 md:gap-6">
             <CharacterImage
               imageUrl="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&h=400&fit=crop"
               revealedQuadrants={revealedQuadrants}
             />
-            <div className="flex gap-4">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4">
               <button
                 onClick={() => setRevealedQuadrants(Math.max(0, revealedQuadrants - 1))}
-                className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold"
+                className="px-4 sm:px-5 md:px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-sm sm:text-base"
               >
                 Hide Quadrant
               </button>
               <button
                 onClick={() => setRevealedQuadrants(Math.min(4, revealedQuadrants + 1))}
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold"
+                className="px-4 sm:px-5 md:px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-sm sm:text-base"
               >
                 Reveal Quadrant
               </button>
               <button
                 onClick={() => setRevealedQuadrants(0)}
-                className="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold"
+                className="px-4 sm:px-5 md:px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold text-sm sm:text-base"
               >
                 Reset
               </button>
@@ -85,16 +85,16 @@ export default function DemoPage() {
         </section>
 
         {/* Guess Input Section */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Guess Input</h2>
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold">Guess Input</h2>
           <div className="flex justify-center">
             <GuessInput onGuess={handleGuess} disabled={false} />
           </div>
         </section>
 
         {/* Hint Button Section */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Hint Button</h2>
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold">Hint Button</h2>
           <div className="flex justify-center">
             <HintButton
               hintsRevealed={revealedQuadrants}
@@ -106,36 +106,36 @@ export default function DemoPage() {
         </section>
 
         {/* Stats Controls */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Stats Controls</h2>
-          <div className="flex gap-4 justify-center flex-wrap">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold">Stats Controls</h2>
+          <div className="flex gap-2 sm:gap-3 md:gap-4 justify-center flex-wrap">
             <button
               onClick={() => setLives(Math.max(0, lives - 1))}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg"
+              className="px-3 sm:px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm sm:text-base"
             >
               Lose Life
             </button>
             <button
               onClick={() => setLives(Math.min(5, lives + 1))}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg"
+              className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm sm:text-base"
             >
               Gain Life
             </button>
             <button
               onClick={() => setStreak((prev) => prev + 1)}
-              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg"
+              className="px-3 sm:px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm sm:text-base"
             >
               Increase Streak
             </button>
             <button
               onClick={() => setPoints((prev) => prev + 100)}
-              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg"
+              className="px-3 sm:px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-sm sm:text-base"
             >
               Add Points
             </button>
             <button
               onClick={() => setShowGameOver(true)}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg"
+              className="px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm sm:text-base"
             >
               Show Game Over
             </button>
@@ -143,8 +143,8 @@ export default function DemoPage() {
         </section>
 
         {/* Difficulty Select */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-center">Difficulty Selection</h2>
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-center">Difficulty Selection</h2>
           <DifficultySelect onSelect={handleDifficultySelect} />
         </section>
       </div>
