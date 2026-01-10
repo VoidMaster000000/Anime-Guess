@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
@@ -15,7 +15,12 @@ import {
   Home,
   Package,
   RefreshCw,
+  Sparkles,
+  Crown,
+  Zap,
+  ChevronRight,
 } from 'lucide-react';
+import { motion, AnimatePresence } from '@/lib/animations';
 
 interface MenuItem {
   label: string;
@@ -24,57 +29,107 @@ interface MenuItem {
   disabled?: boolean;
   divider?: boolean;
   highlight?: boolean;
+  badge?: string;
 }
 
-// Animated menu item with CSS hover effects
+// ============================================================================
+// ANIMATED MENU ITEM
+// ============================================================================
+
 function AnimatedMenuItem({
   item,
   onClick,
+  index,
 }: {
   item: MenuItem;
   onClick: () => void;
+  index: number;
 }) {
   return (
-    <button
+    <motion.button
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.03, duration: 0.15 }}
       onClick={onClick}
       disabled={item.disabled}
-      className={`group w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg mx-1
-        transition-all duration-100
+      className={`group relative w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg mx-1 overflow-hidden
+        transition-all duration-150
         ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
-          : 'active:scale-[0.98] hover:translate-x-1.5 hover:scale-[1.02]'
+          : 'active:scale-[0.98]'
         }
         ${item.disabled
           ? ''
           : item.highlight
-            ? 'text-purple-400 hover:bg-purple-500/20 hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-            : 'text-zinc-300 hover:bg-zinc-800 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]'
+            ? 'text-purple-400 hover:text-purple-300'
+            : 'text-zinc-300 hover:text-white'
         }`}
       style={{ width: 'calc(100% - 8px)' }}
     >
-      <span
-        className={`inline-flex transition-transform duration-150 ${item.disabled ? 'opacity-50' : 'group-hover:scale-110'}`}
-      >
-        {item.icon}
-      </span>
-      <span className="text-sm group-hover:tracking-wide transition-all duration-150">
-        {item.label}
-      </span>
-      {/* Hover indicator line */}
+      {/* Hover background effect */}
       {!item.disabled && (
-        <span className={`ml-auto w-0 h-0.5 rounded-full transition-all duration-200 group-hover:w-3
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200
+          ${item.highlight
+            ? 'bg-gradient-to-r from-purple-500/20 via-pink-500/15 to-transparent'
+            : 'bg-gradient-to-r from-zinc-700/50 to-transparent'
+          }`}
+        />
+      )}
+
+      {/* Left accent line on hover */}
+      {!item.disabled && (
+        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 group-hover:h-6 transition-all duration-200 rounded-full
           ${item.highlight ? 'bg-purple-400' : 'bg-zinc-500'}`}
         />
       )}
-    </button>
+
+      {/* Icon */}
+      <span
+        className={`relative inline-flex transition-all duration-150 ${
+          item.disabled
+            ? 'opacity-40'
+            : 'group-hover:scale-110 group-hover:translate-x-0.5'
+        }`}
+      >
+        {item.icon}
+      </span>
+
+      {/* Label */}
+      <span className="relative flex-1 text-sm font-medium">
+        {item.label}
+      </span>
+
+      {/* Badge */}
+      {item.badge && (
+        <span className={`relative px-1.5 py-0.5 text-[10px] font-bold rounded ${
+          item.highlight
+            ? 'bg-purple-500/30 text-purple-300 border border-purple-500/50'
+            : 'bg-zinc-700 text-zinc-400'
+        }`}>
+          {item.badge}
+        </span>
+      )}
+
+      {/* Arrow indicator */}
+      {!item.disabled && (
+        <ChevronRight className={`relative w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all duration-200
+          ${item.highlight ? 'text-purple-400' : 'text-zinc-500'}`}
+        />
+      )}
+    </motion.button>
   );
 }
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 export default function CustomContextMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isUsingTouch, setIsUsingTouch] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -82,8 +137,7 @@ export default function CustomContextMenu() {
   const gameStatus = useGameStore((state) => state.gameStatus);
   const resetGame = useGameStore((state) => state.resetGame);
 
-  // Detect actual touch usage (not just capability)
-  // Many Windows devices report touch capability but use mouse
+  // Detect actual touch usage
   useEffect(() => {
     let lastInputWasTouch = false;
 
@@ -93,8 +147,6 @@ export default function CustomContextMenu() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Only count as mouse if it's not from a touch event
-      // Touch events also trigger mouse events, but with movementX/Y = 0
       if (!lastInputWasTouch && (e.movementX !== 0 || e.movementY !== 0)) {
         setIsUsingTouch(false);
       }
@@ -112,24 +164,31 @@ export default function CustomContextMenu() {
 
   const closeMenu = useCallback(() => {
     setIsVisible(false);
-    // Wait for CSS transition to complete before unmounting
-    setTimeout(() => setIsOpen(false), 100);
+    setTimeout(() => setIsOpen(false), 150);
   }, []);
 
   const handleContextMenu = useCallback((e: MouseEvent) => {
-    // On touch devices, allow native context menu (long-press behavior)
-    // But on Windows with mouse, show custom menu
     if (isUsingTouch) return;
 
     e.preventDefault();
 
-    // Calculate position, ensuring menu stays within viewport
-    const x = Math.min(e.clientX, window.innerWidth - 220);
-    const y = Math.min(e.clientY, window.innerHeight - 400);
+    // Calculate menu dimensions (approximate)
+    const menuWidth = 240;
+    const menuHeight = 420;
 
-    setPosition({ x, y });
+    // Calculate position, ensuring menu stays within viewport
+    let x = e.clientX;
+    let y = e.clientY;
+
+    if (x + menuWidth > window.innerWidth) {
+      x = window.innerWidth - menuWidth - 10;
+    }
+    if (y + menuHeight > window.innerHeight) {
+      y = window.innerHeight - menuHeight - 10;
+    }
+
+    setPosition({ x: Math.max(10, x), y: Math.max(10, y) });
     setIsOpen(true);
-    // Trigger animation on next frame
     requestAnimationFrame(() => setIsVisible(true));
   }, [isUsingTouch]);
 
@@ -141,7 +200,6 @@ export default function CustomContextMenu() {
     if (e.key === 'Escape' && isOpen) closeMenu();
   }, [isOpen, closeMenu]);
 
-  // Disable image dragging
   const handleDragStart = useCallback((e: DragEvent) => {
     if (e.target instanceof HTMLImageElement) {
       e.preventDefault();
@@ -162,7 +220,6 @@ export default function CustomContextMenu() {
     };
   }, [handleContextMenu, handleClick, handleKeyDown, handleDragStart]);
 
-
   const handleMenuClick = (action: () => void) => {
     action();
     closeMenu();
@@ -178,6 +235,7 @@ export default function CustomContextMenu() {
       icon: <Gamepad2 className="w-4 h-4" />,
       onClick: () => router.push('/'),
       highlight: true,
+      badge: 'GO',
     });
   } else if (gameStatus === 'menu') {
     menuItems.push({
@@ -257,53 +315,125 @@ export default function CustomContextMenu() {
     onClick: () => window.location.reload(),
   });
 
+  // Get user level for display
+  const userLevel = user?.profile?.level || 1;
+  const getLevelColor = () => {
+    if (userLevel >= 50) return 'from-yellow-400 to-amber-500';
+    if (userLevel >= 30) return 'from-purple-400 to-pink-500';
+    if (userLevel >= 15) return 'from-cyan-400 to-blue-500';
+    if (userLevel >= 5) return 'from-green-400 to-emerald-500';
+    return 'from-zinc-400 to-zinc-500';
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div
-      className={`fixed z-[100] min-w-[200px] bg-zinc-900/95 backdrop-blur-xl border border-zinc-700/50 rounded-xl shadow-2xl overflow-hidden transition-all duration-100 ease-out ${
-        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-      }`}
-      style={{
-        left: position.x,
-        top: position.y,
-        transformOrigin: 'top left',
-      }}
-    >
-      {/* Header */}
-      <div className="px-3 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-zinc-700/50">
-        <div className="flex items-center gap-2">
-          <Gamepad2 className="w-4 h-4 text-purple-400" />
-          <span className="text-sm font-semibold text-white">Anime Guess</span>
-        </div>
-        {isAuthenticated && user && (
-          <p className="text-xs text-zinc-400 mt-0.5">
-            {user.username} • Lv {user.profile?.level || 1}
-          </p>
-        )}
-      </div>
+    <AnimatePresence>
+      <motion.div
+        ref={menuRef}
+        initial={{ opacity: 0, scale: 0.9, y: -10 }}
+        animate={{
+          opacity: isVisible ? 1 : 0,
+          scale: isVisible ? 1 : 0.9,
+          y: isVisible ? 0 : -10
+        }}
+        exit={{ opacity: 0, scale: 0.9, y: -10 }}
+        transition={{ duration: 0.15, ease: 'easeOut' }}
+        className="fixed z-[100] min-w-[220px]"
+        style={{
+          left: position.x,
+          top: position.y,
+          transformOrigin: 'top left',
+        }}
+      >
+        {/* Outer glow */}
+        <div className="absolute -inset-1 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-cyan-500/20 rounded-2xl blur-lg opacity-60" />
 
-      {/* Menu Items */}
-      <div className="py-1">
-        {menuItems.map((item, index) => (
-          <div key={index}>
-            {item.divider && index > 0 && (
-              <div className="my-1 border-t border-zinc-700/50" />
-            )}
-            <AnimatedMenuItem
-              item={item}
-              onClick={() => !item.disabled && handleMenuClick(item.onClick)}
-            />
+        {/* Main container */}
+        <div className="relative overflow-hidden rounded-xl">
+          {/* Gradient border */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/50 via-pink-500/50 to-cyan-500/50 rounded-xl" />
+          <div className="absolute inset-[1px] bg-zinc-900/98 backdrop-blur-xl rounded-xl" />
+
+          {/* Content */}
+          <div className="relative">
+            {/* Header */}
+            <div className="relative px-4 py-3 overflow-hidden">
+              {/* Header background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/15 via-pink-500/10 to-transparent" />
+
+              {/* Animated sparkles */}
+              <div className="absolute top-2 right-3 opacity-50">
+                <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+              </div>
+
+              <div className="relative flex items-center gap-3">
+                {/* Logo icon with glow */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-purple-500/40 blur-lg rounded-lg" />
+                  <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                    <Gamepad2 className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+
+                {/* Title and user info */}
+                <div className="flex-1">
+                  <h3 className="text-sm font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                    Anime Guess
+                  </h3>
+                  {isAuthenticated && user ? (
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-zinc-400">{user.username}</span>
+                      <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded bg-gradient-to-r ${getLevelColor()} text-black flex items-center gap-0.5`}>
+                        {userLevel >= 30 && <Crown className="w-2.5 h-2.5" />}
+                        Lv.{userLevel}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-zinc-500 mt-0.5">Guest Mode</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
+
+            {/* Menu Items */}
+            <div className="py-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+              {menuItems.map((item, index) => (
+                <div key={index}>
+                  {item.divider && index > 0 && (
+                    <div className="my-1.5 mx-3 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" />
+                  )}
+                  <AnimatedMenuItem
+                    item={item}
+                    onClick={() => !item.disabled && handleMenuClick(item.onClick)}
+                    index={index}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
+
+            {/* Footer */}
+            <div className="px-4 py-2 bg-zinc-900/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="w-3 h-3 text-zinc-600" />
+                  <span className="text-[10px] text-zinc-600 font-medium">ESC to close</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] text-zinc-600">Online</span>
+                </div>
+              </div>
+            </div>
           </div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div className="px-3 py-1.5 bg-zinc-800/50 border-t border-zinc-700/50">
-        <p className="text-[10px] text-zinc-500 text-center">
-          Press ESC or click to close
-        </p>
-      </div>
-    </div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
