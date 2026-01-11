@@ -179,23 +179,13 @@ export default function LeaderboardPage() {
     loadLeaderboard();
   }, [loadLeaderboard]);
 
+  // Server already filters by timeFilter and difficultyFilter
+  // Client only handles search and sorting
   const filteredEntries = useMemo(() => {
     let entries = [...globalEntries];
-    if (timeFilter !== 'all') {
-      const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      entries = entries.filter((entry) => {
-        const entryDate = new Date(entry.date);
-        if (timeFilter === 'today') return entryDate >= todayStart;
-        if (timeFilter === 'week') return entryDate >= weekStart;
-        if (timeFilter === 'month') return entryDate >= monthStart;
-        return true;
-      });
-    }
-    if (difficultyFilter !== 'all') entries = entries.filter((e) => e.difficulty === difficultyFilter);
+    // Search filter (client-side only)
     if (searchQuery.trim()) entries = entries.filter((e) => e.username.toLowerCase().includes(searchQuery.toLowerCase()));
+    // Sort entries
     entries.sort((a, b) => {
       if (sortMode === 'streak') return b.streak !== a.streak ? b.streak - a.streak : b.points - a.points;
       if (sortMode === 'points') return b.points !== a.points ? b.points - a.points : b.streak - a.streak;
@@ -204,7 +194,7 @@ export default function LeaderboardPage() {
       return 0;
     });
     return entries;
-  }, [globalEntries, timeFilter, difficultyFilter, searchQuery, sortMode]);
+  }, [globalEntries, searchQuery, sortMode]);
 
   const stats = useMemo(() => {
     return {
