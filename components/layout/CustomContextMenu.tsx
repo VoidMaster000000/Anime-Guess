@@ -70,7 +70,7 @@ function AnimatedMenuItem({
     >
       {/* Hover background effect */}
       {!item.disabled && (
-        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-200
+        <div className={`absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-all duration-200
           ${item.highlight
             ? 'bg-gradient-to-r from-purple-500/30 via-pink-500/20 to-transparent'
             : 'bg-gradient-to-r from-zinc-600/40 via-zinc-700/30 to-transparent'
@@ -80,7 +80,7 @@ function AnimatedMenuItem({
 
       {/* Left accent line on hover */}
       {!item.disabled && (
-        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 group-hover:h-7 transition-all duration-200 rounded-full
+        <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[3px] h-0 group-hover:h-7 transition-all duration-200 rounded-full
           ${item.highlight
             ? 'bg-gradient-to-b from-purple-400 to-pink-400 shadow-[0_0_8px_rgba(168,85,247,0.5)]'
             : 'bg-zinc-400 group-hover:bg-zinc-300'}`}
@@ -89,11 +89,11 @@ function AnimatedMenuItem({
 
       {/* Icon */}
       <span
-        className={`relative inline-flex transition-all duration-150 ${
+        className={`relative z-10 inline-flex transition-all duration-150 ${
           item.disabled
             ? 'opacity-40'
             : item.highlight
-              ? 'group-hover:scale-115 group-hover:translate-x-0.5 group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]'
+              ? 'group-hover:scale-[1.15] group-hover:translate-x-0.5 group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]'
               : 'group-hover:scale-110 group-hover:translate-x-0.5 group-hover:text-white'
         }`}
       >
@@ -101,13 +101,13 @@ function AnimatedMenuItem({
       </span>
 
       {/* Label */}
-      <span className="relative flex-1 text-sm font-medium">
+      <span className="relative z-10 flex-1 text-sm font-medium">
         {item.label}
       </span>
 
       {/* Badge */}
       {item.badge && (
-        <span className={`relative px-1.5 py-0.5 text-[10px] font-bold rounded ${
+        <span className={`relative z-10 px-1.5 py-0.5 text-[10px] font-bold rounded ${
           item.highlight
             ? 'bg-purple-500/30 text-purple-300 border border-purple-500/50'
             : 'bg-zinc-700 text-zinc-400'
@@ -119,7 +119,7 @@ function AnimatedMenuItem({
       {/* Arrow indicator */}
       {!item.disabled && (
         <ChevronRight
-          className={`relative w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-70 group-hover:translate-x-0 transition-all duration-200
+          className={`relative z-10 w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-70 group-hover:translate-x-0 transition-all duration-200
           ${item.highlight ? 'text-purple-300' : 'text-zinc-400'}`}
           aria-hidden="true"
         />
