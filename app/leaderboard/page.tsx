@@ -302,10 +302,10 @@ export default function LeaderboardPage() {
             className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6"
           >
             {[
-              { icon: Users, label: 'Players', value: stats.totalEntries, color: 'purple', gradient: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/30' },
-              { icon: TrendingUp, label: 'Best Streak', value: stats.highestStreak, color: 'orange', gradient: 'from-orange-500/20 to-orange-600/10', border: 'border-orange-500/30' },
-              { icon: Trophy, label: 'Top Points', value: stats.totalPoints.toLocaleString(), color: 'yellow', gradient: 'from-yellow-500/20 to-yellow-600/10', border: 'border-yellow-500/30' },
-              { icon: Target, label: 'Avg Accuracy', value: `${stats.avgAccuracy}%`, color: 'green', gradient: 'from-green-500/20 to-green-600/10', border: 'border-green-500/30' },
+              { icon: Users, label: 'Players', value: stats.totalEntries, bgIcon: 'bg-purple-500/20', textIcon: 'text-purple-400', textValue: 'text-purple-400', gradient: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/30' },
+              { icon: TrendingUp, label: 'Best Streak', value: stats.highestStreak, bgIcon: 'bg-orange-500/20', textIcon: 'text-orange-400', textValue: 'text-orange-400', gradient: 'from-orange-500/20 to-orange-600/10', border: 'border-orange-500/30' },
+              { icon: Trophy, label: 'Top Points', value: stats.totalPoints.toLocaleString(), bgIcon: 'bg-yellow-500/20', textIcon: 'text-yellow-400', textValue: 'text-yellow-400', gradient: 'from-yellow-500/20 to-yellow-600/10', border: 'border-yellow-500/30' },
+              { icon: Target, label: 'Avg Accuracy', value: `${stats.avgAccuracy}%`, bgIcon: 'bg-green-500/20', textIcon: 'text-green-400', textValue: 'text-green-400', gradient: 'from-green-500/20 to-green-600/10', border: 'border-green-500/30' },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -316,12 +316,12 @@ export default function LeaderboardPage() {
                 className={`p-4 rounded-xl bg-gradient-to-br ${stat.gradient} border ${stat.border} backdrop-blur-sm`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg bg-${stat.color}-500/20 flex items-center justify-center`}>
-                    <stat.icon className={`w-5 h-5 text-${stat.color}-400`} />
+                  <div className={`w-10 h-10 rounded-lg ${stat.bgIcon} flex items-center justify-center`}>
+                    <stat.icon className={`w-5 h-5 ${stat.textIcon}`} />
                   </div>
                   <div>
                     <p className="text-xs text-zinc-500 uppercase tracking-wider">{stat.label}</p>
-                    <p className={`text-xl sm:text-2xl font-bold text-${stat.color}-400`}>{stat.value}</p>
+                    <p className={`text-xl sm:text-2xl font-bold ${stat.textValue}`}>{stat.value}</p>
                   </div>
                 </div>
               </motion.div>
