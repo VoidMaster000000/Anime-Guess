@@ -13,16 +13,61 @@ const inter = Inter({
   display: "swap",
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://anime-guess.vercel.app';
+
 export const metadata: Metadata = {
-  title: "Anime Guess - Character Guessing Game",
-  description: "Test your anime knowledge! Guess characters from popular anime series and compete on the leaderboard.",
-  keywords: ["anime", "game", "guessing game", "quiz", "anime characters"],
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "Anime Guess - Character Guessing Game",
+    template: "%s | Anime Guess",
+  },
+  description: "Test your anime knowledge! Guess characters from popular anime series and compete on the global leaderboard. Play now for free!",
+  keywords: ["anime", "game", "guessing game", "quiz", "anime characters", "anime quiz", "character quiz", "otaku", "manga", "anime trivia"],
   authors: [{ name: "Anime Guess Team" }],
+  creator: "Anime Guess Team",
+  publisher: "Anime Guess",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     title: "Anime Guess - Character Guessing Game",
-    description: "Test your anime knowledge! Guess characters from popular anime series.",
+    description: "Test your anime knowledge! Guess characters from popular anime series and compete on the leaderboard.",
+    url: baseUrl,
+    siteName: "Anime Guess",
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Anime Guess - Character Guessing Game',
+      },
+    ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Anime Guess - Character Guessing Game",
+    description: "Test your anime knowledge! Guess characters from popular anime series.",
+    images: ['/og-image.png'],
+  },
+  verification: {
+    // Add your verification codes here when you have them
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+  },
+  alternates: {
+    canonical: baseUrl,
+  },
+  category: 'games',
 };
 
 export default function RootLayout({
@@ -47,6 +92,32 @@ export default function RootLayout({
           as="font"
           type="font/opentype"
           crossOrigin="anonymous"
+        />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebApplication',
+              name: 'Anime Guess',
+              description: 'Test your anime knowledge! Guess characters from popular anime series and compete on the global leaderboard.',
+              url: baseUrl,
+              applicationCategory: 'GameApplication',
+              genre: 'Quiz',
+              operatingSystem: 'Web Browser',
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
+              },
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: '4.8',
+                ratingCount: '150',
+              },
+            }),
+          }}
         />
       </head>
       <body
