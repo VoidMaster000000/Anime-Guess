@@ -45,65 +45,81 @@ function AnimatedMenuItem({
   onClick: () => void;
   index: number;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <motion.button
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
+      whileHover={!item.disabled ? { scale: 1.02 } : undefined}
+      whileTap={!item.disabled ? { scale: 0.98 } : undefined}
       transition={{ delay: index * 0.015, duration: 0.08 }}
       onClick={onClick}
       disabled={item.disabled}
-      className={`group relative w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg mx-1 overflow-hidden
-        transition-all duration-150 ease-out
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg mx-1 overflow-hidden
         ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
-          : 'active:scale-[0.98] hover:bg-white/5'
-        }
-        ${item.disabled
-          ? ''
           : item.highlight
-            ? 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
-            : 'text-zinc-300 hover:text-white hover:bg-zinc-700/40'
+            ? 'text-purple-400'
+            : 'text-zinc-300'
         }`}
       style={{ width: 'calc(100% - 8px)' }}
       role="menuitem"
       aria-disabled={item.disabled}
     >
       {/* Hover background effect */}
-      {!item.disabled && (
-        <div className={`absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-all duration-200
-          ${item.highlight
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered && !item.disabled ? 1 : 0 }}
+        transition={{ duration: 0.15 }}
+        className={`absolute inset-0 z-0 ${
+          item.highlight
             ? 'bg-gradient-to-r from-purple-500/30 via-pink-500/20 to-transparent'
-            : 'bg-gradient-to-r from-zinc-600/40 via-zinc-700/30 to-transparent'
-          }`}
-        />
-      )}
+            : 'bg-gradient-to-r from-zinc-600/50 via-zinc-700/40 to-transparent'
+        }`}
+      />
 
       {/* Left accent line on hover */}
-      {!item.disabled && (
-        <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[3px] h-0 group-hover:h-7 transition-all duration-200 rounded-full
-          ${item.highlight
+      <motion.div
+        initial={{ height: 0 }}
+        animate={{ height: isHovered && !item.disabled ? 28 : 0 }}
+        transition={{ duration: 0.15 }}
+        className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[3px] rounded-full ${
+          item.highlight
             ? 'bg-gradient-to-b from-purple-400 to-pink-400 shadow-[0_0_8px_rgba(168,85,247,0.5)]'
-            : 'bg-zinc-400 group-hover:bg-zinc-300'}`}
-        />
-      )}
+            : 'bg-zinc-300'
+        }`}
+      />
 
       {/* Icon */}
-      <span
-        className={`relative z-10 inline-flex transition-all duration-150 ${
-          item.disabled
-            ? 'opacity-40'
-            : item.highlight
-              ? 'group-hover:scale-[1.15] group-hover:translate-x-0.5 group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]'
-              : 'group-hover:scale-110 group-hover:translate-x-0.5 group-hover:text-white'
-        }`}
+      <motion.span
+        animate={{
+          scale: isHovered && !item.disabled ? 1.15 : 1,
+          x: isHovered && !item.disabled ? 2 : 0,
+        }}
+        transition={{ duration: 0.15 }}
+        className={`relative z-10 inline-flex ${
+          item.disabled ? 'opacity-40' : ''
+        } ${isHovered && !item.disabled && item.highlight ? 'text-purple-300 drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]' : ''}
+        ${isHovered && !item.disabled && !item.highlight ? 'text-white' : ''}`}
       >
         {item.icon}
-      </span>
+      </motion.span>
 
       {/* Label */}
-      <span className="relative z-10 flex-1 text-sm font-medium">
+      <motion.span
+        animate={{
+          color: isHovered && !item.disabled
+            ? item.highlight ? '#d8b4fe' : '#ffffff'
+            : undefined,
+        }}
+        transition={{ duration: 0.15 }}
+        className="relative z-10 flex-1 text-sm font-medium"
+      >
         {item.label}
-      </span>
+      </motion.span>
 
       {/* Badge */}
       {item.badge && (
@@ -118,11 +134,20 @@ function AnimatedMenuItem({
 
       {/* Arrow indicator */}
       {!item.disabled && (
-        <ChevronRight
-          className={`relative z-10 w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-70 group-hover:translate-x-0 transition-all duration-200
-          ${item.highlight ? 'text-purple-300' : 'text-zinc-400'}`}
-          aria-hidden="true"
-        />
+        <motion.div
+          initial={{ opacity: 0, x: -8 }}
+          animate={{
+            opacity: isHovered ? 0.7 : 0,
+            x: isHovered ? 0 : -8,
+          }}
+          transition={{ duration: 0.15 }}
+          className="relative z-10"
+        >
+          <ChevronRight
+            className={`w-3.5 h-3.5 ${item.highlight ? 'text-purple-300' : 'text-zinc-400'}`}
+            aria-hidden="true"
+          />
+        </motion.div>
       )}
     </motion.button>
   );
