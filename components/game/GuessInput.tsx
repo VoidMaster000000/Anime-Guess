@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { Search, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence, fadeInUp } from '@/lib/animations';
 
 interface SearchResult {
   romaji: string;
@@ -20,10 +19,8 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Debounced search
   useEffect(() => {
@@ -41,16 +38,6 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
           const data = await response.json();
           const results = Array.isArray(data) ? data : [];
           setSuggestions(results);
-
-          // Calculate position before showing dropdown
-          if (results.length > 0 && containerRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            setDropdownPosition({
-              top: rect.bottom + 8,
-              left: rect.left,
-              width: rect.width,
-            });
-          }
           setShowDropdown(results.length > 0);
         }
       } catch (error) {
@@ -115,20 +102,8 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Update dropdown position when showing
-  useEffect(() => {
-    if (showDropdown && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + 8,
-        left: rect.left,
-        width: rect.width,
-      });
-    }
-  }, [showDropdown, suggestions]);
-
   return (
-    <div ref={containerRef} className="relative w-full max-w-2xl">
+    <div className="relative w-full max-w-2xl">
       {/* Input container */}
       <div className="relative">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
@@ -162,39 +137,29 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
         />
       </div>
 
-      {/* Dropdown suggestions with fixed positioning to escape clip-path */}
-      <AnimatePresence>
-        {showDropdown && suggestions.length > 0 && !disabled && dropdownPosition.width > 0 && (
-          <motion.div
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="fixed z-[9999] bg-gray-900/95 backdrop-blur-xl border-2 border-purple-500/30 rounded-xl overflow-hidden shadow-2xl shadow-purple-500/20"
-            style={{
-              top: dropdownPosition.top,
-              left: dropdownPosition.left,
-              width: dropdownPosition.width,
-            }}
-            id="anime-suggestions-listbox"
-            role="listbox"
-            aria-label="Anime suggestions"
-          >
-            <div ref={dropdownRef} className="max-h-[300px] overflow-y-auto">
-              {suggestions.map((anime, index) => (
-                <SuggestionItem
-                  key={`${anime.romaji}-${index}`}
-                  anime={anime}
-                  isSelected={selectedIndex === index}
-                  onClick={() => handleSelect(anime.romaji)}
-                  onMouseEnter={() => setSelectedIndex(index)}
-                  index={index}
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Dropdown suggestions - simple absolute positioning */}
+      {showDropdown && suggestions.length > 0 && !disabled && (
+        <div
+          ref={dropdownRef}
+          className="absolute top-full left-0 right-0 mt-2 z-[9999] bg-gray-900 border-2 border-purple-500/30 rounded-xl overflow-hidden shadow-2xl"
+          id="anime-suggestions-listbox"
+          role="listbox"
+          aria-label="Anime suggestions"
+        >
+          <div className="max-h-[300px] overflow-y-auto">
+            {suggestions.map((anime, index) => (
+              <SuggestionItem
+                key={`${anime.romaji}-${index}`}
+                anime={anime}
+                isSelected={selectedIndex === index}
+                onClick={() => handleSelect(anime.romaji)}
+                onMouseEnter={() => setSelectedIndex(index)}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
