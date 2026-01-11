@@ -56,15 +56,15 @@ export default function Header() {
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo/Title */}
-          <Link href="/" className="flex items-center space-x-2 group">
+          <Link href="/" className="flex items-center space-x-2 group flex-shrink-0">
             <motion.div
               variants={iconSpin}
               initial="rest"
               whileHover="hover"
             >
-              <Gamepad2 className="h-7 w-7 text-accent" />
+              <Gamepad2 className="h-6 w-6 sm:h-7 sm:w-7 text-accent" />
             </motion.div>
-            <span className="text-2xl font-logo tracking-wide bg-gradient-to-r from-accent to-accent-purple bg-clip-text text-transparent">
+            <span className="text-lg sm:text-2xl font-logo tracking-wide bg-gradient-to-r from-accent to-accent-purple bg-clip-text text-transparent">
               Anime Guess
             </span>
           </Link>
@@ -194,40 +194,48 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <motion.button
-            onClick={toggleMobileMenu}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="md:hidden p-2 rounded-lg hover:bg-bg-card transition-colors"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
-          >
-            <AnimatePresence mode="wait">
+          {/* Mobile User Info - Compact display for authenticated users */}
+          <div className="flex md:hidden items-center gap-2">
+            {isAuthenticated && (
+              <>
+                {/* Mobile Coins - Compact */}
+                <Link
+                  href="/shop"
+                  className="flex items-center gap-1.5 px-2 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full"
+                  aria-label={`${coins.toLocaleString()} coins`}
+                >
+                  <Coins className="h-3.5 w-3.5 text-yellow-400" />
+                  <span className="text-xs font-bold text-yellow-400 tabular-nums">{coins >= 1000 ? `${(coins/1000).toFixed(1)}k` : coins}</span>
+                </Link>
+
+                {/* Mobile Level Badge - Compact */}
+                <div
+                  className="flex items-center gap-1 px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full"
+                  aria-label={`Level ${level}`}
+                >
+                  <div className="w-4 h-4 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center">
+                    <span className="text-[8px] font-black text-white">{level}</span>
+                  </div>
+                  <Sparkles className="h-3 w-3 text-purple-400" />
+                </div>
+              </>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleMobileMenu}
+              className="p-2 rounded-lg hover:bg-bg-card transition-all duration-100 hover:scale-105 active:scale-95"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
+            >
               {mobileMenuOpen ? (
-                <motion.div
-                  key="close"
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <X className="h-6 w-6 text-text-primary" />
-                </motion.div>
+                <X className="h-6 w-6 text-text-primary" />
               ) : (
-                <motion.div
-                  key="menu"
-                  initial={{ rotate: 90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: -90, opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <Menu className="h-6 w-6 text-text-primary" />
-                </motion.div>
+                <Menu className="h-6 w-6 text-text-primary" />
               )}
-            </AnimatePresence>
-          </motion.button>
+            </button>
+          </div>
         </div>
       </nav>
 
