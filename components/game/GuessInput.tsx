@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Loader2 } from 'lucide-react';
 
 interface SearchResult {
@@ -19,8 +20,27 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Client-side only mounting for portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Update dropdown position when showing
+  useEffect(() => {
+    if (showDropdown && inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [showDropdown, suggestions]);
 
   // Debounced search
   useEffect(() => {
@@ -102,6 +122,36 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Dropdown content
+  const dropdownContent = showDropdown && suggestions.length > 0 && !disabled && (
+    <div
+      ref={dropdownRef}
+      className="fixed bg-gray-900 border-2 border-purple-500/30 rounded-xl overflow-hidden shadow-2xl"
+      style={{
+        top: dropdownPosition.top,
+        left: dropdownPosition.left,
+        width: dropdownPosition.width,
+        zIndex: 99999,
+      }}
+      id="anime-suggestions-listbox"
+      role="listbox"
+      aria-label="Anime suggestions"
+    >
+      <div className="max-h-[300px] overflow-y-auto">
+        {suggestions.map((anime, index) => (
+          <SuggestionItem
+            key={`${anime.romaji}-${index}`}
+            anime={anime}
+            isSelected={selectedIndex === index}
+            onClick={() => handleSelect(anime.romaji)}
+            onMouseEnter={() => setSelectedIndex(index)}
+            index={index}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="relative w-full max-w-2xl">
       {/* Input container */}
@@ -137,29 +187,8 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
         />
       </div>
 
-      {/* Dropdown suggestions - simple absolute positioning */}
-      {showDropdown && suggestions.length > 0 && !disabled && (
-        <div
-          ref={dropdownRef}
-          className="absolute top-full left-0 right-0 mt-2 z-[9999] bg-gray-900 border-2 border-purple-500/30 rounded-xl overflow-hidden shadow-2xl"
-          id="anime-suggestions-listbox"
-          role="listbox"
-          aria-label="Anime suggestions"
-        >
-          <div className="max-h-[300px] overflow-y-auto">
-            {suggestions.map((anime, index) => (
-              <SuggestionItem
-                key={`${anime.romaji}-${index}`}
-                anime={anime}
-                isSelected={selectedIndex === index}
-                onClick={() => handleSelect(anime.romaji)}
-                onMouseEnter={() => setSelectedIndex(index)}
-                index={index}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Dropdown rendered via Portal to body - escapes all stacking contexts */}
+      {mounted && dropdownContent && createPortal(dropdownContent, document.body)}
     </div>
   );
 }
