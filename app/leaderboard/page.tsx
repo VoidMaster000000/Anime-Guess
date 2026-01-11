@@ -148,7 +148,7 @@ export default function LeaderboardPage() {
   const [globalEntries, setGlobalEntries] = useState<LeaderboardEntry[]>([]);
   const [globalStats, setGlobalStats] = useState({ totalEntries: 0, highestStreak: 0, highestPoints: 0, totalPlayers: 0 });
   const [globalUserRank, setGlobalUserRank] = useState<{ rank: number; totalPlayers: number } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const [sortMode, setSortMode] = useState<SortMode>('streak');
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>('all');
