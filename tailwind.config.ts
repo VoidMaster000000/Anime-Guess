@@ -30,8 +30,13 @@ const config: Config = {
         glow: "glow 2s ease-in-out infinite alternate",
         float: "float 3s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
+        spin: "spin 1s linear infinite",
       },
       keyframes: {
+        spin: {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
         "pulse-slow": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
