@@ -53,16 +53,16 @@ function AnimatedMenuItem({
       onClick={onClick}
       disabled={item.disabled}
       className={`group relative w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg mx-1 overflow-hidden
-        transition-all duration-100
+        transition-all duration-150 ease-out
         ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
-          : 'active:scale-[0.98]'
+          : 'active:scale-[0.98] hover:bg-white/5'
         }
         ${item.disabled
           ? ''
           : item.highlight
-            ? 'text-purple-400 hover:text-purple-300'
-            : 'text-zinc-300 hover:text-white'
+            ? 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
+            : 'text-zinc-300 hover:text-white hover:bg-zinc-700/40'
         }`}
       style={{ width: 'calc(100% - 8px)' }}
       role="menuitem"
@@ -70,18 +70,20 @@ function AnimatedMenuItem({
     >
       {/* Hover background effect */}
       {!item.disabled && (
-        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-200
           ${item.highlight
-            ? 'bg-gradient-to-r from-purple-500/20 via-pink-500/15 to-transparent'
-            : 'bg-gradient-to-r from-zinc-700/50 to-transparent'
+            ? 'bg-gradient-to-r from-purple-500/30 via-pink-500/20 to-transparent'
+            : 'bg-gradient-to-r from-zinc-600/40 via-zinc-700/30 to-transparent'
           }`}
         />
       )}
 
       {/* Left accent line on hover */}
       {!item.disabled && (
-        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 group-hover:h-6 transition-all duration-200 rounded-full
-          ${item.highlight ? 'bg-purple-400' : 'bg-zinc-500'}`}
+        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 group-hover:h-7 transition-all duration-200 rounded-full
+          ${item.highlight
+            ? 'bg-gradient-to-b from-purple-400 to-pink-400 shadow-[0_0_8px_rgba(168,85,247,0.5)]'
+            : 'bg-zinc-400 group-hover:bg-zinc-300'}`}
         />
       )}
 
@@ -90,7 +92,9 @@ function AnimatedMenuItem({
         className={`relative inline-flex transition-all duration-150 ${
           item.disabled
             ? 'opacity-40'
-            : 'group-hover:scale-110 group-hover:translate-x-0.5'
+            : item.highlight
+              ? 'group-hover:scale-115 group-hover:translate-x-0.5 group-hover:text-purple-300 group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]'
+              : 'group-hover:scale-110 group-hover:translate-x-0.5 group-hover:text-white'
         }`}
       >
         {item.icon}
@@ -115,8 +119,8 @@ function AnimatedMenuItem({
       {/* Arrow indicator */}
       {!item.disabled && (
         <ChevronRight
-          className={`relative w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all duration-200
-          ${item.highlight ? 'text-purple-400' : 'text-zinc-500'}`}
+          className={`relative w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-70 group-hover:translate-x-0 transition-all duration-200
+          ${item.highlight ? 'text-purple-300' : 'text-zinc-400'}`}
           aria-hidden="true"
         />
       )}
