@@ -3,10 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gamepad2, Trophy, ShoppingBag, Menu, X, Coins, Zap, LogIn, UserPlus, User, Package, Settings, LogOut, Sparkles } from "lucide-react";
+import { Gamepad2, Trophy, ShoppingBag, Menu, X, Coins, LogIn, UserPlus, User, Package, Settings, LogOut, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
-import { motion, AnimatePresence, iconSpin, buttonHover } from "@/lib/animations";
+import { motion, iconSpin, buttonHover } from "@/lib/animations";
 
 // XP calculation helpers
 const BASE_XP = 100;
@@ -239,172 +239,99 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Mobile Menu - Full Screen Slide */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
-              onClick={() => setMobileMenuOpen(false)}
-            />
+      {/* Mobile Menu - Simple Dropdown */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden border-t border-zinc-800 bg-zinc-900"
+          id="mobile-menu"
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
+          <div className="px-4 py-4 space-y-3">
+            {/* Navigation Links */}
+            <div className="grid grid-cols-3 gap-2">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${
+                      isActive
+                        ? "bg-purple-500/20 border border-purple-500/30 text-purple-400"
+                        : "bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 active:bg-zinc-800"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="text-xs font-medium">{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
 
-            {/* Menu Panel */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="md:hidden fixed inset-y-0 right-0 w-[280px] bg-zinc-900 backdrop-blur-xl border-l border-zinc-800 z-[60] overflow-y-auto"
-              id="mobile-menu"
-              role="navigation"
-              aria-label="Mobile navigation"
-            >
-              {/* Menu Header */}
-              <div className="sticky top-0 flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900/95">
-                <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  Menu
-                </span>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
-                  aria-label="Close menu"
-                >
-                  <X className="h-5 w-5 text-zinc-400" />
-                </button>
-              </div>
-
-              <div className="p-4 space-y-4">
-                {/* User Profile Card */}
-                {isAuthenticated ? (
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 via-zinc-800/50 to-cyan-500/10 border border-zinc-700/50">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 p-[2px]">
-                        <div className="w-full h-full rounded-[10px] bg-zinc-900 flex items-center justify-center overflow-hidden">
-                          {user?.avatarImage ? (
-                            <img src={user.avatarImage} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <User className="w-6 h-6 text-zinc-500" />
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-white truncate">{user?.username}</p>
-                        <p className="text-xs text-zinc-500">{user?.email}</p>
-                      </div>
-                    </div>
-
-                    {/* Stats Row */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                        <Coins className="h-4 w-4 text-yellow-400" />
-                        <span className="font-bold text-sm text-yellow-400">{coins.toLocaleString()}</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                        <div className="w-5 h-5 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center">
-                          <span className="text-[9px] font-black text-white">{level}</span>
-                        </div>
-                        <Zap className="h-3 w-3 text-purple-400" />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
+            {/* Auth Section */}
+            {isAuthenticated ? (
+              <>
+                {/* Account Links */}
+                <div className="flex gap-2">
+                  {[
+                    { href: "/profile", icon: User, label: "Profile" },
+                    { href: "/inventory", icon: Package, label: "Inventory" },
+                    { href: "/settings", icon: Settings, label: "Settings" },
+                  ].map((item) => (
                     <Link
-                      href="/login"
+                      key={item.href}
+                      href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl transition-colors"
+                      className={`flex-1 flex flex-col items-center gap-1 p-2.5 rounded-lg transition-colors ${
+                        pathname === item.href
+                          ? "bg-purple-500/15 text-purple-400"
+                          : "bg-zinc-800/30 text-zinc-400 active:bg-zinc-800"
+                      }`}
                     >
-                      <LogIn className="h-4 w-4 text-purple-400" />
-                      <span className="font-medium text-white">Login</span>
+                      <item.icon className="h-4 w-4" />
+                      <span className="text-[10px] font-medium">{item.label}</span>
                     </Link>
-                    <Link
-                      href="/signup"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl transition-colors"
-                    >
-                      <UserPlus className="h-4 w-4 text-white" />
-                      <span className="font-medium text-white">Sign Up</span>
-                    </Link>
-                  </div>
-                )}
-
-                {/* Navigation Grid */}
-                <div>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 px-1">Navigate</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {navLinks.map((link) => {
-                      const Icon = link.icon;
-                      const isActive = pathname === link.href;
-                      return (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${
-                            isActive
-                              ? "bg-purple-500/20 border border-purple-500/30 text-purple-400"
-                              : "bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                          }`}
-                        >
-                          <Icon className="h-5 w-5" />
-                          <span className="text-xs font-medium">{link.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                  ))}
                 </div>
 
-                {/* Account Links */}
-                {isAuthenticated && (
-                  <div>
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 px-1">Account</p>
-                    <div className="space-y-1">
-                      {[
-                        { href: "/profile", icon: User, label: "Profile" },
-                        { href: "/inventory", icon: Package, label: "Inventory" },
-                        { href: "/settings", icon: Settings, label: "Settings" },
-                      ].map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
-                            pathname === item.href
-                              ? "bg-purple-500/15 text-purple-400"
-                              : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                          }`}
-                        >
-                          <item.icon className="h-4 w-4" />
-                          <span className="text-sm font-medium">{item.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Logout */}
-                {isAuthenticated && (
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      logout();
-                    }}
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span className="text-sm font-medium">Logout</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-red-400 bg-red-500/10 active:bg-red-500/20 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="text-sm font-medium">Logout</span>
+                </button>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg transition-colors active:bg-zinc-700"
+                >
+                  <LogIn className="h-4 w-4 text-purple-400" />
+                  <span className="font-medium text-white text-sm">Login</span>
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg transition-colors"
+                >
+                  <UserPlus className="h-4 w-4 text-white" />
+                  <span className="font-medium text-white text-sm">Sign Up</span>
+                </Link>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
