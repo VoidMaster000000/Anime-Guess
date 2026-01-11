@@ -39,8 +39,19 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
         const response = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
         if (response.ok) {
           const data = await response.json();
-          setSuggestions(Array.isArray(data) ? data : []);
-          setShowDropdown(true);
+          const results = Array.isArray(data) ? data : [];
+          setSuggestions(results);
+
+          // Calculate position before showing dropdown
+          if (results.length > 0 && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setDropdownPosition({
+              top: rect.bottom + 8,
+              left: rect.left,
+              width: rect.width,
+            });
+          }
+          setShowDropdown(results.length > 0);
         }
       } catch (error) {
         console.error('Search error:', error);
@@ -153,7 +164,7 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
 
       {/* Dropdown suggestions with fixed positioning to escape clip-path */}
       <AnimatePresence>
-        {showDropdown && suggestions.length > 0 && !disabled && (
+        {showDropdown && suggestions.length > 0 && !disabled && dropdownPosition.width > 0 && (
           <motion.div
             variants={fadeInUp}
             initial="hidden"
