@@ -355,7 +355,7 @@ export default function GamePage() {
                 <motion.div variants={staggerItem} className="space-y-3 sm:space-y-4">
                   <motion.div
                     variants={fadeInUp}
-                    className="card-gaming-alt p-4 sm:p-6 rounded-xl relative z-20 border-neon"
+                    className="card-gaming-alt p-4 sm:p-6 rounded-xl relative z-[100] border-neon"
                   >
                     <div className="corner-accent corner-accent-tr top-2 right-2" />
                     <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gradient">
