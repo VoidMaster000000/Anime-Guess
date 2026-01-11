@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useGameStore } from '@/store/gameStore';
@@ -45,81 +45,60 @@ function AnimatedMenuItem({
   onClick: () => void;
   index: number;
 }) {
-  const [isHovered, setIsHovered] = useState(false);
-
+  // Use CSS transitions instead of motion for better INP
   return (
-    <motion.button
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      whileHover={!item.disabled ? { scale: 1.02 } : undefined}
-      whileTap={!item.disabled ? { scale: 0.98 } : undefined}
-      transition={{ delay: index * 0.015, duration: 0.08 }}
+    <button
       onClick={onClick}
       disabled={item.disabled}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg mx-1 overflow-hidden
+      className={`group relative w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg mx-1 overflow-hidden transition-transform duration-75
         ${item.disabled
           ? 'text-zinc-600 cursor-not-allowed'
           : item.highlight
-            ? 'text-purple-400'
-            : 'text-zinc-300'
+            ? 'text-purple-400 hover:scale-[1.01] active:scale-[0.99]'
+            : 'text-zinc-300 hover:scale-[1.01] active:scale-[0.99]'
         }`}
       style={{ width: 'calc(100% - 8px)' }}
       role="menuitem"
       aria-disabled={item.disabled}
     >
-      {/* Hover background effect */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isHovered && !item.disabled ? 1 : 0 }}
-        transition={{ duration: 0.15 }}
-        className={`absolute inset-0 z-0 ${
-          item.highlight
+      {/* Hover background effect - CSS only */}
+      <div
+        className={`absolute inset-0 z-0 opacity-0 transition-opacity duration-100
+          ${!item.disabled ? 'group-hover:opacity-100' : ''}
+          ${item.highlight
             ? 'bg-gradient-to-r from-purple-500/30 via-pink-500/20 to-transparent'
             : 'bg-gradient-to-r from-zinc-600/50 via-zinc-700/40 to-transparent'
-        }`}
+          }`}
       />
 
-      {/* Left accent line on hover */}
-      <motion.div
-        initial={{ height: 0 }}
-        animate={{ height: isHovered && !item.disabled ? 28 : 0 }}
-        transition={{ duration: 0.15 }}
-        className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[3px] rounded-full ${
-          item.highlight
-            ? 'bg-gradient-to-b from-purple-400 to-pink-400 shadow-[0_0_8px_rgba(168,85,247,0.5)]'
+      {/* Left accent line on hover - CSS only */}
+      <div
+        className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[3px] rounded-full h-0 transition-all duration-100
+          ${!item.disabled ? 'group-hover:h-7' : ''}
+          ${item.highlight
+            ? 'bg-gradient-to-b from-purple-400 to-pink-400'
             : 'bg-zinc-300'
-        }`}
+          }`}
       />
 
-      {/* Icon */}
-      <motion.span
-        animate={{
-          scale: isHovered && !item.disabled ? 1.15 : 1,
-          x: isHovered && !item.disabled ? 2 : 0,
-        }}
-        transition={{ duration: 0.15 }}
-        className={`relative z-10 inline-flex ${
-          item.disabled ? 'opacity-40' : ''
-        } ${isHovered && !item.disabled && item.highlight ? 'text-purple-300 drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]' : ''}
-        ${isHovered && !item.disabled && !item.highlight ? 'text-white' : ''}`}
+      {/* Icon - CSS transitions */}
+      <span
+        className={`relative z-10 inline-flex transition-transform duration-75
+          ${item.disabled ? 'opacity-40' : 'group-hover:scale-110 group-hover:translate-x-0.5'}
+          ${!item.disabled && item.highlight ? 'group-hover:text-purple-300' : ''}
+          ${!item.disabled && !item.highlight ? 'group-hover:text-white' : ''}`}
       >
         {item.icon}
-      </motion.span>
+      </span>
 
-      {/* Label */}
-      <motion.span
-        animate={{
-          color: isHovered && !item.disabled
-            ? item.highlight ? '#d8b4fe' : '#ffffff'
-            : undefined,
-        }}
-        transition={{ duration: 0.15 }}
-        className="relative z-10 flex-1 text-sm font-medium"
+      {/* Label - CSS transitions */}
+      <span
+        className={`relative z-10 flex-1 text-sm font-medium transition-colors duration-75
+          ${!item.disabled && item.highlight ? 'group-hover:text-purple-200' : ''}
+          ${!item.disabled && !item.highlight ? 'group-hover:text-white' : ''}`}
       >
         {item.label}
-      </motion.span>
+      </span>
 
       {/* Badge */}
       {item.badge && (
@@ -132,24 +111,16 @@ function AnimatedMenuItem({
         </span>
       )}
 
-      {/* Arrow indicator */}
+      {/* Arrow indicator - CSS only */}
       {!item.disabled && (
-        <motion.div
-          initial={{ opacity: 0, x: -8 }}
-          animate={{
-            opacity: isHovered ? 0.7 : 0,
-            x: isHovered ? 0 : -8,
-          }}
-          transition={{ duration: 0.15 }}
-          className="relative z-10"
-        >
+        <div className="relative z-10 opacity-0 -translate-x-2 transition-all duration-75 group-hover:opacity-70 group-hover:translate-x-0">
           <ChevronRight
             className={`w-3.5 h-3.5 ${item.highlight ? 'text-purple-300' : 'text-zinc-400'}`}
             aria-hidden="true"
           />
-        </motion.div>
+        </div>
       )}
-    </motion.button>
+    </button>
   );
 }
 
@@ -254,110 +225,114 @@ export default function CustomContextMenu() {
     };
   }, [handleContextMenu, handleClick, handleKeyDown, handleDragStart]);
 
-  const handleMenuClick = (action: () => void) => {
+  const handleMenuClick = useCallback((action: () => void) => {
     action();
     closeMenu();
-  };
+  }, [closeMenu]);
 
-  // Build menu items based on context
-  const menuItems: MenuItem[] = [];
+  // Memoize menu items to prevent expensive re-computation
+  const menuItems = useMemo(() => {
+    const items: MenuItem[] = [];
 
-  // Navigation section
-  if (pathname !== '/') {
-    menuItems.push({
-      label: 'Play Game',
-      icon: <Gamepad2 className="w-4 h-4" />,
-      onClick: () => router.push('/'),
-      highlight: true,
-      badge: 'GO',
-    });
-  } else if (gameStatus === 'menu') {
-    menuItems.push({
-      label: 'Start Game',
-      icon: <Gamepad2 className="w-4 h-4" />,
-      onClick: () => {},
-      highlight: true,
-      disabled: true,
-    });
-  }
+    // Navigation section
+    if (pathname !== '/') {
+      items.push({
+        label: 'Play Game',
+        icon: <Gamepad2 className="w-4 h-4" />,
+        onClick: () => router.push('/'),
+        highlight: true,
+        badge: 'GO',
+      });
+    } else if (gameStatus === 'menu') {
+      items.push({
+        label: 'Start Game',
+        icon: <Gamepad2 className="w-4 h-4" />,
+        onClick: () => {},
+        highlight: true,
+        disabled: true,
+      });
+    }
 
-  // Game actions (only when playing)
-  if (gameStatus === 'playing' && pathname === '/') {
-    menuItems.push({
-      label: 'Quit Game',
-      icon: <Home className="w-4 h-4" />,
-      onClick: () => resetGame(),
-      divider: true,
-    });
-  }
+    // Game actions (only when playing)
+    if (gameStatus === 'playing' && pathname === '/') {
+      items.push({
+        label: 'Quit Game',
+        icon: <Home className="w-4 h-4" />,
+        onClick: () => resetGame(),
+        divider: true,
+      });
+    }
 
-  // Navigation links
-  menuItems.push({
-    label: 'Leaderboard',
-    icon: <Trophy className="w-4 h-4" />,
-    onClick: () => router.push('/leaderboard'),
-    disabled: pathname === '/leaderboard',
-  });
-  menuItems.push({
-    label: 'Shop',
-    icon: <ShoppingBag className="w-4 h-4" />,
-    onClick: () => router.push('/shop'),
-    disabled: pathname === '/shop',
-  });
+    // Navigation links
+    items.push({
+      label: 'Leaderboard',
+      icon: <Trophy className="w-4 h-4" />,
+      onClick: () => router.push('/leaderboard'),
+      disabled: pathname === '/leaderboard',
+    });
+    items.push({
+      label: 'Shop',
+      icon: <ShoppingBag className="w-4 h-4" />,
+      onClick: () => router.push('/shop'),
+      disabled: pathname === '/shop',
+    });
 
-  // Authenticated user options
-  if (isAuthenticated) {
-    menuItems.push({
-      label: 'Profile',
-      icon: <User className="w-4 h-4" />,
-      onClick: () => router.push('/profile'),
-      disabled: pathname === '/profile',
-      divider: true,
-    });
-    menuItems.push({
-      label: 'Inventory',
-      icon: <Package className="w-4 h-4" />,
-      onClick: () => router.push('/inventory'),
-      disabled: pathname === '/inventory',
-    });
-    menuItems.push({
-      label: 'Settings',
-      icon: <Settings className="w-4 h-4" />,
-      onClick: () => router.push('/settings'),
-      disabled: pathname === '/settings',
-    });
-    menuItems.push({
-      label: 'Logout',
-      icon: <LogOut className="w-4 h-4" />,
-      onClick: () => logout(),
-      divider: true,
-    });
-  } else {
-    menuItems.push({
-      label: 'Login',
-      icon: <LogIn className="w-4 h-4" />,
-      onClick: () => router.push('/login'),
-      disabled: pathname === '/login',
-      divider: true,
-    });
-  }
+    // Authenticated user options
+    if (isAuthenticated) {
+      items.push({
+        label: 'Profile',
+        icon: <User className="w-4 h-4" />,
+        onClick: () => router.push('/profile'),
+        disabled: pathname === '/profile',
+        divider: true,
+      });
+      items.push({
+        label: 'Inventory',
+        icon: <Package className="w-4 h-4" />,
+        onClick: () => router.push('/inventory'),
+        disabled: pathname === '/inventory',
+      });
+      items.push({
+        label: 'Settings',
+        icon: <Settings className="w-4 h-4" />,
+        onClick: () => router.push('/settings'),
+        disabled: pathname === '/settings',
+      });
+      items.push({
+        label: 'Logout',
+        icon: <LogOut className="w-4 h-4" />,
+        onClick: () => logout(),
+        divider: true,
+      });
+    } else {
+      items.push({
+        label: 'Login',
+        icon: <LogIn className="w-4 h-4" />,
+        onClick: () => router.push('/login'),
+        disabled: pathname === '/login',
+        divider: true,
+      });
+    }
 
-  // Utility actions
-  menuItems.push({
-    label: 'Refresh Page',
-    icon: <RefreshCw className="w-4 h-4" />,
-    onClick: () => window.location.reload(),
-  });
+    // Utility actions
+    items.push({
+      label: 'Refresh Page',
+      icon: <RefreshCw className="w-4 h-4" />,
+      onClick: () => window.location.reload(),
+    });
 
-  // Get user level for display
+    return items;
+  }, [pathname, gameStatus, isAuthenticated, router, resetGame, logout]);
+
+  // Memoize user level display
   const userLevel = user?.profile?.level || 1;
-  const getLevelColor = () => {
+  const levelColor = useMemo(() => {
     if (userLevel >= 50) return 'from-yellow-400 to-amber-500';
     if (userLevel >= 30) return 'from-purple-400 to-pink-500';
     if (userLevel >= 15) return 'from-cyan-400 to-blue-500';
     if (userLevel >= 5) return 'from-green-400 to-emerald-500';
     return 'from-zinc-400 to-zinc-500';
-  };
+  }, [userLevel]);
 
   if (!isOpen) return null;
 
@@ -418,7 +393,7 @@ export default function CustomContextMenu() {
                   {isAuthenticated && user ? (
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-xs text-zinc-400">{user.username}</span>
-                      <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded bg-gradient-to-r ${getLevelColor()} text-black flex items-center gap-0.5`}>
+                      <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded bg-gradient-to-r ${levelColor} text-black flex items-center gap-0.5`}>
                         {userLevel >= 30 && <Crown className="w-2.5 h-2.5" aria-hidden="true" />}
                         Lv.{userLevel}
                       </span>
