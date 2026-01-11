@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { usePerformanceMode } from '@/hooks/useReducedMotion';
 
 interface Sparkle {
   element: HTMLDivElement;
@@ -14,17 +15,20 @@ export default function BackgroundVisuals() {
   const sparkleContainerRef = useRef<HTMLDivElement>(null);
   const sparklesRef = useRef<Sparkle[]>([]);
   const lastSparkleTime = useRef(0);
+  const { reduceAnimations, disableParticles, disableBlur } = usePerformanceMode();
 
   useEffect(() => {
-    if (!sparkleContainerRef.current) return;
+    // Skip sparkle effect if particles are disabled
+    if (disableParticles || !sparkleContainerRef.current) return;
 
     const sparkleContainer = sparkleContainerRef.current;
 
     // Track mouse for interactive sparkle effect
     const handleMouseMove = (e: MouseEvent) => {
-      // Create sparkle on mouse move (throttled)
+      // Create sparkle on mouse move (throttled - increased for performance)
       const now = Date.now();
-      if (now - lastSparkleTime.current > 80) {
+      const throttleTime = reduceAnimations ? 200 : 100; // Slower on low-end
+      if (now - lastSparkleTime.current > throttleTime) {
         lastSparkleTime.current = now;
         createSparkle(e.clientX, e.clientY);
       }
@@ -32,7 +36,8 @@ export default function BackgroundVisuals() {
 
     // Create sparkle effect
     const createSparkle = (x: number, y: number) => {
-      if (sparklesRef.current.length > 20) return; // Limit sparkles
+      const maxSparkles = reduceAnimations ? 8 : 15; // Fewer sparkles on low-end
+      if (sparklesRef.current.length > maxSparkles) return;
 
       const element = document.createElement('div');
       const size = Math.random() * 3 + 2;
@@ -44,7 +49,11 @@ export default function BackgroundVisuals() {
       element.style.left = `${x + (Math.random() - 0.5) * 20}px`;
       element.style.top = `${y + (Math.random() - 0.5) * 20}px`;
       element.style.background = `hsla(${hue}, 80%, 70%, 0.6)`;
-      element.style.boxShadow = `0 0 ${size * 2}px hsla(${hue}, 80%, 70%, 0.4)`;
+
+      // Simpler shadow on low-end devices
+      if (!reduceAnimations) {
+        element.style.boxShadow = `0 0 ${size * 2}px hsla(${hue}, 80%, 70%, 0.4)`;
+      }
 
       sparkleContainer.appendChild(element);
 
@@ -75,35 +84,51 @@ export default function BackgroundVisuals() {
       }, sparkle.maxLife * 10);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // Cleanup
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       sparklesRef.current.forEach((s) => s.element.remove());
     };
-  }, []);
+  }, [disableParticles, reduceAnimations]);
+
+  // Minimal background for low-end devices
+  if (reduceAnimations) {
+    return (
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Simple static gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/20 via-transparent to-cyan-950/20" />
+      </div>
+    );
+  }
 
   return (
     <>
       {/* Sparkle container for mouse interaction */}
-      <div
-        ref={sparkleContainerRef}
-        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-      />
+      {!disableParticles && (
+        <div
+          ref={sparkleContainerRef}
+          className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+        />
+      )}
 
       {/* Gaming Background - Using CSS classes from globals.css */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Hex pattern */}
         <div className="bg-hex-pattern" />
 
-        {/* Floating orbs */}
-        <div className="orb-gaming orb-purple -top-20 -left-20" />
-        <div className="orb-gaming orb-cyan top-1/3 -right-32" />
-        <div className="orb-gaming orb-pink bottom-20 left-1/4" />
+        {/* Floating orbs - skip on blur-disabled devices */}
+        {!disableBlur && (
+          <>
+            <div className="orb-gaming orb-purple -top-20 -left-20" />
+            <div className="orb-gaming orb-cyan top-1/3 -right-32" />
+            <div className="orb-gaming orb-pink bottom-20 left-1/4" />
+          </>
+        )}
 
-        {/* Scan line */}
-        <div className="scan-line" />
+        {/* Scan line - skip on reduced animations */}
+        {!reduceAnimations && <div className="scan-line" />}
 
         {/* Tech lines */}
         <div className="tech-lines" />

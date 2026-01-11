@@ -259,7 +259,7 @@
 }
 
 .card-dark {
-  @apply bg-gray-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl;
+  @apply bg-gray-900/80 backdrop-blur-sm border border-white/10 rounded-3xl shadow-2xl;
 }
 
 .card-glass {
@@ -781,4 +781,67 @@ body {
 ::-moz-selection {
   background-color: var(--accent);
   color: white;
+}
+
+/* ============================================================================
+   REDUCED MOTION & PERFORMANCE
+   ============================================================================ */
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable expensive effects */
+  .orb-gaming,
+  .scan-line,
+  .bg-hex-pattern {
+    display: none !important;
+  }
+
+  /* Simplify backdrop blur */
+  .card,
+  .card-dark,
+  .card-glass {
+    backdrop-filter: none !important;
+  }
+}
+
+/* Performance mode class - can be toggled via JS */
+.performance-mode {
+  /* Disable all animations */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Hide decorative elements */
+  .orb-gaming,
+  .scan-line,
+  .tech-lines,
+  .bg-hex-pattern {
+    display: none !important;
+  }
+
+  /* Remove blur effects */
+  .card,
+  .card-dark,
+  .card-glass {
+    backdrop-filter: none !important;
+  }
+
+  /* Simplify shadows */
+  .text-glow,
+  .text-glow-sm,
+  .text-glow-accent {
+    text-shadow: none !important;
+  }
 }
