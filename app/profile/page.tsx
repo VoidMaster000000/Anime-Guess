@@ -30,19 +30,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from '@/lib/animations';
 
 // ============================================================================
-// XP CALCULATION HELPERS
+// XP CALCULATION HELPERS - matches backend: 100 + (level-1) * 50
 // ============================================================================
 
-const BASE_XP = 100;
-const XP_MULTIPLIER = 1.5;
-
-const getXpForCurrentLevel = (lvl: number): number => {
-  if (lvl <= 1) return 0;
-  return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl - 1));
-};
-
-const calculateXpForNextLevel = (lvl: number): number => {
-  return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl));
+const getXpNeededForLevel = (level: number): number => {
+  return 100 + (level - 1) * 50;
 };
 
 // ============================================================================
@@ -87,12 +79,9 @@ export default function ProfilePage() {
   const xp = user?.profile?.xp ?? 0;
   const tier = getLevelTier(level);
 
-  // XP Progress calculation
-  const currentLevelXp = getXpForCurrentLevel(level);
-  const nextLevelXp = calculateXpForNextLevel(level);
-  const xpInCurrentLevel = xp - currentLevelXp;
-  const xpNeededForNextLevel = nextLevelXp - currentLevelXp;
-  const xpProgress = Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
+  // XP Progress calculation - profile.xp is already XP within current level
+  const xpNeededForNextLevel = getXpNeededForLevel(level);
+  const xpProgress = Math.min((xp / xpNeededForNextLevel) * 100, 100);
 
   useEffect(() => {
     refreshUser();
@@ -289,7 +278,7 @@ export default function ProfilePage() {
                     </motion.div>
                   </div>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-zinc-500">{xpInCurrentLevel.toLocaleString()} XP</span>
+                    <span className="text-xs text-zinc-500">{xp.toLocaleString()} XP</span>
                     <span className="text-xs text-zinc-500">{xpNeededForNextLevel.toLocaleString()} XP</span>
                   </div>
                 </div>

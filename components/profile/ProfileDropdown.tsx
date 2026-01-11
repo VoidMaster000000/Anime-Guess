@@ -37,21 +37,10 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
     wrongGuesses: (user?.profile?.totalGuesses ?? 0) - (user?.profile?.correctGuesses ?? 0),
   };
 
-  // Calculate XP progress
-  const BASE_XP = 100;
-  const XP_MULTIPLIER = 1.5;
-  const getXpForCurrentLevel = (lvl: number): number => {
-    if (lvl <= 1) return 0;
-    return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl - 1));
-  };
-  const calculateXpForNextLevel = (lvl: number): number => {
-    return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl));
-  };
-  const currentLevelXp = getXpForCurrentLevel(level);
-  const nextLevelXp = calculateXpForNextLevel(level);
-  const xpInCurrentLevel = xp - currentLevelXp;
-  const xpNeededForNextLevel = nextLevelXp - currentLevelXp;
-  const progress = (xpInCurrentLevel / xpNeededForNextLevel) * 100;
+  // Calculate XP progress - matches backend: 100 + (level-1) * 50
+  // profile.xp is already XP within current level (not total)
+  const xpNeededForNextLevel = 100 + (level - 1) * 50;
+  const progress = Math.min((xp / xpNeededForNextLevel) * 100, 100);
 
   // Close dropdown when clicking outside
   useEffect(() => {

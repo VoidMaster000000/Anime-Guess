@@ -8,15 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
 import { motion, iconSpin, buttonHover } from "@/lib/animations";
 
-// XP calculation helpers
-const BASE_XP = 100;
-const XP_MULTIPLIER = 1.5;
-const getXpForCurrentLevel = (lvl: number): number => {
-  if (lvl <= 1) return 0;
-  return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl - 1));
-};
-const calculateXpForNextLevel = (lvl: number): number => {
-  return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl));
+// XP calculation helper - matches backend: 100 + (level-1) * 50
+const getXpNeededForLevel = (level: number): number => {
+  return 100 + (level - 1) * 50;
 };
 
 const navLinks = [
@@ -36,11 +30,9 @@ export default function Header() {
   const xp = user?.profile?.xp ?? 0;
 
   // Calculate XP progress for level bar
-  const currentLevelXp = getXpForCurrentLevel(level);
-  const nextLevelXp = calculateXpForNextLevel(level);
-  const xpInCurrentLevel = xp - currentLevelXp;
-  const xpNeededForNextLevel = nextLevelXp - currentLevelXp;
-  const xpProgress = Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
+  // profile.xp is already XP within current level (not total)
+  const xpNeededForNextLevel = getXpNeededForLevel(level);
+  const xpProgress = Math.min((xp / xpNeededForNextLevel) * 100, 100);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);

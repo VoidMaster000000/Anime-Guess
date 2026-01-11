@@ -26,22 +26,11 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
     perfectGames: 0,
   };
 
-  // Calculate XP progress
+  // Calculate XP progress - matches backend: 100 + (level-1) * 50
+  // profile.xp is already XP within current level (not total)
   const xp = user?.profile?.xp ?? 0;
-  const BASE_XP = 100;
-  const XP_MULTIPLIER = 1.5;
-  const getXpForCurrentLevel = (lvl: number): number => {
-    if (lvl <= 1) return 0;
-    return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl - 1));
-  };
-  const calculateXpForNextLevel = (lvl: number): number => {
-    return Math.round(BASE_XP * Math.pow(XP_MULTIPLIER, lvl));
-  };
-  const currentLevelXp = getXpForCurrentLevel(level);
-  const nextLevelXp = calculateXpForNextLevel(level);
-  const currentXp = xp - currentLevelXp;
-  const requiredXp = nextLevelXp - currentLevelXp;
-  const progress = requiredXp > 0 ? (currentXp / requiredXp) * 100 : 0;
+  const requiredXp = 100 + (level - 1) * 50;
+  const progress = Math.min((xp / requiredXp) * 100, 100);
 
   if (!user) {
     return null;
