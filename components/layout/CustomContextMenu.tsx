@@ -240,9 +240,10 @@ export default function CustomContextMenu() {
   }, []);
 
   useEffect(() => {
+    // Use passive where possible to avoid blocking UI
     document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('click', handleClick);
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleClick, { passive: true });
+    document.addEventListener('keydown', handleKeyDown, { passive: true });
     document.addEventListener('dragstart', handleDragStart);
 
     return () => {

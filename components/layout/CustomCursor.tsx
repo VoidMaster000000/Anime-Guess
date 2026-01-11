@@ -187,10 +187,10 @@ export default function CustomCursor() {
 
     document.addEventListener('mousemove', updatePosition, { passive: true });
     document.addEventListener('mousemove', checkHover, { passive: true });
-    document.documentElement.addEventListener('mouseenter', handleMouseEnter);
-    document.documentElement.addEventListener('mouseleave', handleMouseLeave);
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.documentElement.addEventListener('mouseenter', handleMouseEnter, { passive: true });
+    document.documentElement.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+    document.addEventListener('mousedown', handleMouseDown, { passive: true });
+    document.addEventListener('mouseup', handleMouseUp, { passive: true });
 
     // Hide default cursor
     document.body.style.cursor = 'none';
