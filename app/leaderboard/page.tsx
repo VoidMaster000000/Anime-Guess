@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Trophy, ArrowLeft, Filter, TrendingUp, Users, Search, Calendar, Award, Target, Clock, X, RefreshCw, Crown, Medal, Flame, Star, Sparkles } from 'lucide-react';
+import { Trophy, ArrowLeft, Filter, TrendingUp, Users, Search, Calendar, Award, Target, Clock, X, RefreshCw, Crown, Medal, Flame, Star, Sparkles, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, fetchLeaderboard as fetchGlobalLeaderboard } from '@/hooks/useAuth';
 import LeaderboardRow from '@/components/leaderboard/LeaderboardRow';
@@ -236,7 +236,7 @@ export default function LeaderboardPage() {
               disabled={isLoading}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-cyan-500/30 hover:text-white transition-all duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
             >
-              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
               <span className="hidden sm:inline">Refresh</span>
             </button>
           </motion.div>
@@ -438,7 +438,7 @@ export default function LeaderboardPage() {
         >
           {isLoading ? (
             <div className="text-center py-16 rounded-2xl bg-zinc-900/50 border border-zinc-800/50">
-              <RefreshCw className="w-16 h-16 text-purple-400 mx-auto mb-4 animate-spin" />
+              <Loader2 className="w-16 h-16 text-purple-400 mx-auto mb-4 animate-spin" />
               <p className="text-zinc-400 text-lg">Loading leaderboard...</p>
             </div>
           ) : filteredEntries.length === 0 ? (
