@@ -185,6 +185,15 @@
 }
 
 /* Apply animations via utility classes */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 .animate-pulse-slow {
   animation: pulse-slow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
