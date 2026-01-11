@@ -1,43 +1,39 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
+
+// Helper for SSR-safe media query
+function getServerSnapshot() {
+  return false;
+}
 
 /**
  * Hook to detect user's reduced motion preference
  * Returns true if user prefers reduced motion (accessibility setting)
  */
 export function useReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useEffect(() => {
-    // Check if window is available (client-side)
-    if (typeof window === 'undefined') return;
-
+  const subscribe = (callback: () => void) => {
+    if (typeof window === 'undefined') return () => {};
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    mediaQuery.addEventListener('change', callback);
+    return () => mediaQuery.removeEventListener('change', callback);
+  };
 
-    // Set initial value
-    setPrefersReducedMotion(mediaQuery.matches);
+  const getSnapshot = () => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  };
 
-    // Listen for changes
-    const handleChange = (event: MediaQueryListEvent) => {
-      setPrefersReducedMotion(event.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
-  }, []);
-
-  return prefersReducedMotion;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 /**
  * Hook to detect low-end device based on various heuristics
+ * Uses stable detection that doesn't cause re-renders
  */
 export function useLowEndDevice(): boolean {
   const [isLowEnd, setIsLowEnd] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -62,6 +58,7 @@ export function useLowEndDevice(): boolean {
       // Consider low-end if multiple factors are true
       const factors = [lowCores, lowMemory, isMobile && lowCores, slowConnection].filter(Boolean);
       setIsLowEnd(factors.length >= 2);
+      setIsChecked(true);
     };
 
     checkLowEnd();
@@ -72,21 +69,30 @@ export function useLowEndDevice(): boolean {
 
 /**
  * Combined hook for performance mode
- * Returns true if animations should be reduced
+ * Returns consistent values to prevent flickering
  */
 export function usePerformanceMode(): {
   reduceAnimations: boolean;
   disableParticles: boolean;
   disableBlur: boolean;
   isLowEnd: boolean;
+  isReady: boolean;
 } {
   const prefersReducedMotion = useReducedMotion();
   const isLowEnd = useLowEndDevice();
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    // Small delay to ensure consistent hydration
+    const timer = setTimeout(() => setIsReady(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   return {
     reduceAnimations: prefersReducedMotion || isLowEnd,
     disableParticles: prefersReducedMotion || isLowEnd,
     disableBlur: isLowEnd,
     isLowEnd,
+    isReady,
   };
 }

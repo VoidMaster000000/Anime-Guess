@@ -15,7 +15,7 @@ export default function BackgroundVisuals() {
   const sparkleContainerRef = useRef<HTMLDivElement>(null);
   const sparklesRef = useRef<Sparkle[]>([]);
   const lastSparkleTime = useRef(0);
-  const { reduceAnimations, disableParticles, disableBlur } = usePerformanceMode();
+  const { reduceAnimations, disableParticles, disableBlur, isReady } = usePerformanceMode();
 
   useEffect(() => {
     // Skip sparkle effect if particles are disabled
@@ -94,9 +94,9 @@ export default function BackgroundVisuals() {
   }, [disableParticles, reduceAnimations]);
 
   // Minimal background for low-end devices
-  if (reduceAnimations) {
+  if (reduceAnimations && isReady) {
     return (
-      <div className="fixed inset-0 pointer-events-none z-0">
+      <div className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-300">
         {/* Simple static gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-950/20 via-transparent to-cyan-950/20" />
       </div>
@@ -104,7 +104,13 @@ export default function BackgroundVisuals() {
   }
 
   return (
-    <>
+    <div
+      className="contents"
+      style={{
+        opacity: isReady ? 1 : 0,
+        transition: 'opacity 0.3s ease-in-out'
+      }}
+    >
       {/* Sparkle container for mouse interaction */}
       {!disableParticles && (
         <div
@@ -133,6 +139,6 @@ export default function BackgroundVisuals() {
         {/* Tech lines */}
         <div className="tech-lines" />
       </div>
-    </>
+    </div>
   );
 }
