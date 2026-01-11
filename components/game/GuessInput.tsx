@@ -32,15 +32,32 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
 
   // Update dropdown position when showing
   useEffect(() => {
-    if (showDropdown && inputRef.current) {
-      const rect = inputRef.current.getBoundingClientRect();
-      // Fixed positioning is relative to viewport, so no need for scroll offset
-      setDropdownPosition({
-        top: rect.bottom + 8,
-        left: rect.left,
-        width: rect.width,
-      });
-    }
+    const updatePosition = () => {
+      if (showDropdown && inputRef.current) {
+        const rect = inputRef.current.getBoundingClientRect();
+        // Fixed positioning is relative to viewport
+        // Constrain to viewport width on mobile
+        const padding = 16;
+        const maxWidth = Math.min(rect.width, window.innerWidth - padding * 2);
+        const left = Math.max(padding, Math.min(rect.left, window.innerWidth - maxWidth - padding));
+
+        setDropdownPosition({
+          top: rect.bottom + 8,
+          left: left,
+          width: maxWidth,
+        });
+      }
+    };
+
+    updatePosition();
+
+    // Update on scroll/resize for mobile
+    window.addEventListener('scroll', updatePosition);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updatePosition);
+    };
   }, [showDropdown, suggestions]);
 
   // Debounced search
