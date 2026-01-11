@@ -21,8 +21,7 @@ function StreakFireEffect({ streak }: { streak: number }) {
   const intensity = Math.floor(streak / 5);
   const isActive = streak >= 3;
 
-  if (!isActive) return null;
-
+  // Always render same structure, use CSS to hide to prevent flicker
   const getGlowColor = () => {
     if (intensity >= 5) return 'from-yellow-400/60 to-orange-500/40'; // Gold
     if (intensity >= 4) return 'from-cyan-400/60 to-blue-500/40'; // Cyan
@@ -31,8 +30,12 @@ function StreakFireEffect({ streak }: { streak: number }) {
     return 'from-orange-400/60 to-amber-500/40'; // Orange
   };
 
+  // Always render same structure, use CSS to hide to prevent flicker
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+    <div
+      className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none"
+      style={{ display: isActive ? 'block' : 'none' }}
+    >
       <div
         className={`absolute inset-0 bg-gradient-to-t ${getGlowColor()} animate-pulse`}
         style={{ animationDuration: `${Math.max(1.5 - intensity * 0.1, 0.6)}s` }}

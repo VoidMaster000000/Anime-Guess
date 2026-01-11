@@ -10,6 +10,13 @@ interface TrailDot {
   scale: number;
 }
 
+// Synchronous touch device detection to prevent flicker
+function checkIsTouchDevice(): boolean {
+  if (typeof window === 'undefined') return false;
+  const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+  return !hasFinePointer && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+}
+
 export default function CustomCursor() {
   const cursorDotRef = useRef<HTMLDivElement>(null);
   const cursorRingRef = useRef<HTMLDivElement>(null);
@@ -17,7 +24,13 @@ export default function CustomCursor() {
   const particleContainerRef = useRef<HTMLDivElement>(null);
   const [isPointer, setIsPointer] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  // Check synchronously using ref to prevent flicker
+  const isTouchDeviceRef = useRef<boolean | null>(null);
+  if (isTouchDeviceRef.current === null && typeof window !== 'undefined') {
+    isTouchDeviceRef.current = checkIsTouchDevice();
+  }
+  const isTouchDevice = isTouchDeviceRef.current ?? false;
+
   const ringPosition = useRef({ x: 0, y: 0 });
   const targetPosition = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number | null>(null);
@@ -29,13 +42,6 @@ export default function CustomCursor() {
   const trailDotsRef = useRef<TrailDot[]>([]);
   const TRAIL_LENGTH = reduceAnimations ? 0 : 8;
   const lastTrailUpdate = useRef(0);
-
-  // Check for touch-only device on mount
-  useEffect(() => {
-    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
-    const isPureTouchDevice = !hasFinePointer && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-    setIsTouchDevice(isPureTouchDevice);
-  }, []);
 
   // Initialize trail dots
   useEffect(() => {
@@ -226,57 +232,49 @@ export default function CustomCursor() {
     }
   }, [isPointer]);
 
-  // Don't render on touch devices
-  if (isTouchDevice) {
-    return null;
-  }
-
-  // Simplified cursor for reduced animations
-  if (reduceAnimations) {
-    return (
-      <div
-        className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden"
-        style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.15s' }}
-      >
-        {/* Simple dot only */}
-        <div
-          ref={cursorDotRef}
-          className="absolute w-4 h-4 rounded-full -translate-x-1/2 -translate-y-1/2 bg-purple-500"
-        />
-      </div>
-    );
-  }
-
+  // Always render same structure - use CSS to hide on touch devices
+  // This prevents flickering from conditional returns
   return (
     <div
       className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden"
-      style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.15s' }}
+      style={{
+        display: isTouchDevice ? 'none' : 'block',
+        opacity: isVisible ? 1 : 0,
+        transition: 'opacity 0.15s',
+      }}
     >
-      {/* Trail container */}
-      {!reduceAnimations && (
-        <div ref={trailContainerRef} className="absolute inset-0">
-          {Array(TRAIL_LENGTH).fill(null).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-full"
-              style={{
-                background: `linear-gradient(135deg, rgba(168, 85, 247, ${0.6 - i * 0.06}), rgba(99, 102, 241, ${0.4 - i * 0.04}))`,
-                boxShadow: `0 0 ${6 - i * 0.5}px rgba(168, 85, 247, ${0.4 - i * 0.04})`,
-                opacity: 0,
-              }}
-            />
-          ))}
-        </div>
-      )}
+      {/* Trail container - hidden when reduced animations */}
+      <div
+        ref={trailContainerRef}
+        className="absolute inset-0"
+        style={{ display: reduceAnimations ? 'none' : 'block' }}
+      >
+        {Array(8).fill(null).map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 rounded-full"
+            style={{
+              background: `linear-gradient(135deg, rgba(168, 85, 247, ${0.6 - i * 0.06}), rgba(99, 102, 241, ${0.4 - i * 0.04}))`,
+              boxShadow: `0 0 ${6 - i * 0.5}px rgba(168, 85, 247, ${0.4 - i * 0.04})`,
+              opacity: 0,
+            }}
+          />
+        ))}
+      </div>
 
       {/* Click particle container */}
-      {!disableParticles && <div ref={particleContainerRef} className="absolute inset-0" />}
+      <div
+        ref={particleContainerRef}
+        className="absolute inset-0"
+        style={{ display: disableParticles ? 'none' : 'block' }}
+      />
 
-      {/* Outer ring - follows with delay */}
+      {/* Outer ring - follows with delay (hidden in reduced mode) */}
       <div
         ref={cursorRingRef}
         className="absolute w-10 h-10 rounded-full border-2 -translate-x-1/2 -translate-y-1/2"
         style={{
+          display: reduceAnimations ? 'none' : 'block',
           borderColor: isPointer ? 'rgba(236, 72, 153, 0.8)' : 'rgba(168, 85, 247, 0.6)',
           boxShadow: isPointer
             ? '0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.2)'
@@ -288,8 +286,8 @@ export default function CustomCursor() {
       {/* Inner dot - follows instantly */}
       <div
         ref={cursorDotRef}
-        className="absolute w-3 h-3 rounded-full -translate-x-1/2 -translate-y-1/2"
-        style={{
+        className={`absolute rounded-full -translate-x-1/2 -translate-y-1/2 ${reduceAnimations ? 'w-4 h-4 bg-purple-500' : 'w-3 h-3'}`}
+        style={reduceAnimations ? undefined : {
           background: isPointer
             ? 'linear-gradient(135deg, #ec4899, #a855f7)'
             : 'linear-gradient(135deg, #a855f7, #6366f1)',

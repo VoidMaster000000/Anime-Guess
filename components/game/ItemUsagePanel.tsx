@@ -10,9 +10,9 @@ interface ItemUsagePanelProps {
 }
 
 // Simple panel wrapper - no animation to prevent flickering on mobile
-function AnimatedPanel({ children, className }: { children: React.ReactNode; className?: string }) {
+function AnimatedPanel({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   return (
-    <div className={className}>
+    <div className={className} style={style}>
       {children}
     </div>
   );
@@ -56,11 +56,13 @@ function UsedOverlay({ show }: { show: boolean }) {
     }
   }, [show]);
 
-  if (!show && !isAnimating) return null;
+  const shouldDisplay = show || isAnimating;
 
+  // Always render, use CSS to hide to prevent flicker
   return (
     <div
       className={`absolute inset-0 flex items-center justify-center rounded-lg bg-green-500/20 border border-green-500/50 transition-all duration-500 ${isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}
+      style={{ display: shouldDisplay ? 'flex' : 'none' }}
     >
       <span className="text-green-400 font-bold">Used!</span>
     </div>
@@ -176,15 +178,18 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
     }
   };
 
-  // Don't show if not authenticated or not playing
-  if (!isAuthenticated || gameStatus !== 'playing') {
-    return null;
-  }
+  // Determine visibility state
+  const shouldShow = isAuthenticated && gameStatus === 'playing';
+  const hasItems = usableItems.length > 0;
 
-  // Don't show if no usable items
-  if (usableItems.length === 0) {
-    return (
-      <AnimatedPanel className="bg-zinc-800/30 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/30">
+  // Always render same structure, use CSS to hide to prevent flicker
+  return (
+    <div style={{ display: shouldShow ? 'block' : 'none' }}>
+      {/* Empty inventory state */}
+      <AnimatedPanel
+        className="bg-zinc-800/30 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/30"
+        style={{ display: !hasItems ? 'block' : 'none' }}
+      >
         <div className="flex items-center gap-2 text-zinc-500">
           <Package className="w-5 h-5" aria-hidden="true" />
           <span className="text-sm">No items in inventory</span>
@@ -193,73 +198,75 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
           Purchase items from the shop to use during gameplay
         </p>
       </AnimatedPanel>
-    );
-  }
 
-  return (
-    <AnimatedPanel className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/50">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-5 h-5 text-purple-400" aria-hidden="true" />
-        <h3 className="text-sm font-semibold text-white" id="quick-use-items-heading">Quick Use Items</h3>
-      </div>
+      {/* Items panel */}
+      <AnimatedPanel
+        className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/50"
+        style={{ display: hasItems ? 'block' : 'none' }}
+      >
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-5 h-5 text-purple-400" aria-hidden="true" />
+          <h3 className="text-sm font-semibold text-white" id="quick-use-items-heading">Quick Use Items</h3>
+        </div>
 
-      {/* Items Grid */}
-      <div className="grid grid-cols-1 gap-2" role="group" aria-labelledby="quick-use-items-heading">
-        {usableItems.map((item) => {
-          const isDisabled = !canUseItem(item);
-          const isAnimating = usedItemAnimation === item.id;
+        {/* Items Grid */}
+        <div className="grid grid-cols-1 gap-2" role="group" aria-labelledby="quick-use-items-heading">
+          {usableItems.map((item) => {
+            const isDisabled = !canUseItem(item);
+            const isAnimating = usedItemAnimation === item.id;
 
-          return (
-            <HoverButton
-              key={item.id}
-              onClick={() => handleUseItem(item)}
-              disabled={isDisabled}
-              className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
-                isDisabled
-                  ? 'bg-zinc-800/30 border-zinc-700/30 cursor-not-allowed opacity-50'
-                  : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-700/50 cursor-pointer'
-              }`}
-              aria-label={`Use ${item.name}. ${item.quantity} remaining. ${item.type === 'hint' ? `Reveal hint (${hintsRevealed}/${maxHints} revealed)` : item.type === 'life' ? `Add life (${lives}/${maxLives} lives)` : 'Skip character'}`}
-            >
-              {/* Item Icon */}
-              <div
-                className={`p-2 rounded-lg bg-gradient-to-br ${getItemColor(item.type)} ${
-                  isDisabled ? 'opacity-50' : ''
+            return (
+              <HoverButton
+                key={item.id}
+                onClick={() => handleUseItem(item)}
+                disabled={isDisabled}
+                className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                  isDisabled
+                    ? 'bg-zinc-800/30 border-zinc-700/30 cursor-not-allowed opacity-50'
+                    : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-700/50 cursor-pointer'
                 }`}
-                aria-hidden="true"
+                aria-label={`Use ${item.name}. ${item.quantity} remaining. ${item.type === 'hint' ? `Reveal hint (${hintsRevealed}/${maxHints} revealed)` : item.type === 'life' ? `Add life (${lives}/${maxLives} lives)` : 'Skip character'}`}
               >
-                {getItemIcon(item.type)}
-              </div>
+                {/* Item Icon */}
+                <div
+                  className={`p-2 rounded-lg bg-gradient-to-br ${getItemColor(item.type)} ${
+                    isDisabled ? 'opacity-50' : ''
+                  }`}
+                  aria-hidden="true"
+                >
+                  {getItemIcon(item.type)}
+                </div>
 
-              {/* Item Info */}
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium text-white">{item.name}</p>
-                <p className="text-xs text-zinc-400">
-                  {item.type === 'hint' && `Reveal hint (${hintsRevealed}/${maxHints} revealed)`}
-                  {item.type === 'life' && `Add life (${lives}/${maxLives} lives)`}
-                  {item.type === 'skip' && 'Skip character'}
-                </p>
-              </div>
+                {/* Item Info */}
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-white">{item.name}</p>
+                  <p className="text-xs text-zinc-400">
+                    {item.type === 'hint' && `Reveal hint (${hintsRevealed}/${maxHints} revealed)`}
+                    {item.type === 'life' && `Add life (${lives}/${maxLives} lives)`}
+                    {item.type === 'skip' && 'Skip character'}
+                  </p>
+                </div>
 
-              {/* Quantity Badge */}
-              <div className="flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full bg-zinc-700 text-white text-sm font-bold">
-                {item.quantity}
-              </div>
+                {/* Quantity Badge */}
+                <div className="flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full bg-zinc-700 text-white text-sm font-bold">
+                  {item.quantity}
+                </div>
 
-              {/* Used Animation */}
-              <UsedOverlay show={isAnimating} />
-            </HoverButton>
-          );
-        })}
-      </div>
+                {/* Used Animation */}
+                <UsedOverlay show={isAnimating} />
+              </HoverButton>
+            );
+          })}
+        </div>
 
-      {/* Disabled Info */}
-      {usableItems.some((item) => !canUseItem(item)) && (
-        <p className="text-xs text-zinc-500 mt-3">
-          Some items cannot be used (hints maxed or lives full)
-        </p>
-      )}
-    </AnimatedPanel>
+        {/* Disabled Info */}
+        {usableItems.some((item) => !canUseItem(item)) && (
+          <p className="text-xs text-zinc-500 mt-3">
+            Some items cannot be used (hints maxed or lives full)
+          </p>
+        )}
+      </AnimatedPanel>
+    </div>
   );
 }

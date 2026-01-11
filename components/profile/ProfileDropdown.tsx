@@ -88,10 +88,13 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
     setIsOpen(false);
   };
 
-  if (!user) return null;
-
+  // Always render same structure, hide with CSS to prevent flicker
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div
+      className="relative"
+      ref={dropdownRef}
+      style={{ display: user ? 'block' : 'none' }}
+    >
       {/* Profile Button - Gaming Style */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
@@ -101,16 +104,16 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
         aria-expanded={isOpen}
         aria-haspopup="menu"
         aria-controls="profile-dropdown-menu"
-        aria-label={`Profile menu for ${user.username}`}
+        aria-label={`Profile menu for ${user?.username ?? 'user'}`}
       >
         <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-gradient-to-r from-zinc-800/90 to-zinc-900/90 border border-zinc-700/50 hover:border-purple-500/30 transition-all duration-200">
           {/* Avatar with glow ring */}
           <div className="relative">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 p-[2px]">
               <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden">
-                {user.avatarImage ? (
+                {user?.avatarImage ? (
                   <img
-                    src={user.avatarImage}
+                    src={user?.avatarImage}
                     alt=""
                     className="w-full h-full object-cover"
                   />
@@ -125,7 +128,7 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
 
           {/* User Info - Hidden on mobile */}
           <div className="hidden lg:flex flex-col items-start">
-            <p className="text-sm font-semibold text-white leading-tight">{user.username}</p>
+            <p className="text-sm font-semibold text-white leading-tight">{user?.username}</p>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Online</p>
           </div>
 
@@ -169,9 +172,9 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
                 >
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 p-[2px]">
                     <div className="w-full h-full rounded-[10px] bg-zinc-900 flex items-center justify-center overflow-hidden">
-                      {user.avatarImage ? (
+                      {user?.avatarImage ? (
                         <img
-                          src={user.avatarImage}
+                          src={user?.avatarImage}
                           alt=""
                           className="w-full h-full object-cover"
                         />
@@ -186,9 +189,9 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
                   </div>
                 </motion.div>
                 <div className="flex-1">
-                  <p className="font-bold text-white text-lg">{user.username}</p>
-                  {user.email && (
-                    <p className="text-xs text-zinc-500 truncate">{user.email}</p>
+                  <p className="font-bold text-white text-lg">{user?.username}</p>
+                  {user?.email && (
+                    <p className="text-xs text-zinc-500 truncate">{user?.email}</p>
                   )}
                 </div>
               </div>
