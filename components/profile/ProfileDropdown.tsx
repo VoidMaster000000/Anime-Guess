@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence, fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { getXpProgress } from "@/lib/xpCalculations";
 
 interface ProfileDropdownProps {
   onNavigate?: (page: 'profile' | 'inventory' | 'settings') => void;
@@ -27,8 +28,6 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { user, logout } = useAuth();
-  const level = user?.profile?.level ?? 1;
-  const xp = user?.profile?.xp ?? 0;
   const coins = user?.profile?.coins ?? 0;
   const stats = {
     highestStreak: user?.profile?.highestStreak ?? 0,
@@ -37,10 +36,12 @@ export default function ProfileDropdown({ onNavigate, onLogout }: ProfileDropdow
     wrongGuesses: (user?.profile?.totalGuesses ?? 0) - (user?.profile?.correctGuesses ?? 0),
   };
 
-  // Calculate XP progress - matches backend: 100 + (level-1) * 50
-  // profile.xp is already XP within current level (not total)
-  const xpNeededForNextLevel = 100 + (level - 1) * 50;
-  const progress = Math.min((xp / xpNeededForNextLevel) * 100, 100);
+  // Calculate XP progress using shared utility (handles old data format)
+  const xpData = getXpProgress(user?.profile);
+  const level = xpData.level;
+  const xpInCurrentLevel = xpData.xpInLevel;
+  const xpNeededForNextLevel = xpData.xpNeeded;
+  const progress = xpData.progress;
 
   // Close dropdown when clicking outside
   useEffect(() => {

@@ -7,11 +7,7 @@ import { Gamepad2, Trophy, ShoppingBag, Menu, X, Coins, LogIn, UserPlus, User, P
 import { useAuth } from "@/hooks/useAuth";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
 import { motion, iconSpin, buttonHover } from "@/lib/animations";
-
-// XP calculation helper - matches backend: 100 + (level-1) * 50
-const getXpNeededForLevel = (level: number): number => {
-  return 100 + (level - 1) * 50;
-};
+import { getXpProgress } from "@/lib/xpCalculations";
 
 const navLinks = [
   { href: "/", label: "Play", icon: Gamepad2 },
@@ -26,13 +22,11 @@ export default function Header() {
   // Get auth state and user data from useAuth hook
   const { isAuthenticated, user, logout } = useAuth();
   const coins = user?.profile?.coins ?? 0;
-  const level = user?.profile?.level ?? 1;
-  const xp = user?.profile?.xp ?? 0;
 
-  // Calculate XP progress for level bar
-  // profile.xp is already XP within current level (not total)
-  const xpNeededForNextLevel = getXpNeededForLevel(level);
-  const xpProgress = Math.min((xp / xpNeededForNextLevel) * 100, 100);
+  // Calculate XP progress using shared utility (handles old data format)
+  const xpData = getXpProgress(user?.profile);
+  const level = xpData.level;
+  const xpProgress = xpData.progress;
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);

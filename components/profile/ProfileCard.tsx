@@ -3,6 +3,7 @@
 import { User, Edit, LogOut, Trophy, Flame, Target, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, staggerContainer, staggerItem } from '@/lib/animations';
+import { getXpProgress } from '@/lib/xpCalculations';
 
 interface ProfileCardProps {
   onEditProfile?: () => void;
@@ -15,7 +16,6 @@ interface ProfileCardProps {
 
 export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProps) {
   const { user, logout } = useAuth();
-  const level = user?.profile?.level ?? 1;
   const coins = user?.profile?.coins ?? 0;
   const stats = {
     gamesPlayed: user?.profile?.gamesPlayed ?? 0,
@@ -26,11 +26,12 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
     perfectGames: 0,
   };
 
-  // Calculate XP progress - matches backend: 100 + (level-1) * 50
-  // profile.xp is already XP within current level (not total)
-  const xp = user?.profile?.xp ?? 0;
-  const requiredXp = 100 + (level - 1) * 50;
-  const progress = Math.min((xp / requiredXp) * 100, 100);
+  // Calculate XP progress using shared utility (handles old data format)
+  const xpData = getXpProgress(user?.profile);
+  const level = xpData.level;
+  const xp = xpData.xpInLevel;
+  const requiredXp = xpData.xpNeeded;
+  const progress = xpData.progress;
 
   if (!user) {
     return null;
@@ -126,10 +127,10 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
         <div
           className="w-full h-2 bg-gray-800 rounded-full overflow-hidden"
           role="progressbar"
-          aria-valuenow={currentXp}
+          aria-valuenow={xp}
           aria-valuemin={0}
           aria-valuemax={requiredXp}
-          aria-label={`Experience progress: ${currentXp} of ${requiredXp} XP`}
+          aria-label={`Experience progress: ${xp} of ${requiredXp} XP`}
         >
           <motion.div
             className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500

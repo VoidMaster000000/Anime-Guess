@@ -28,14 +28,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from '@/lib/animations';
-
-// ============================================================================
-// XP CALCULATION HELPERS - matches backend: 100 + (level-1) * 50
-// ============================================================================
-
-const getXpNeededForLevel = (level: number): number => {
-  return 100 + (level - 1) * 50;
-};
+import { getXpProgress } from '@/lib/xpCalculations';
 
 // ============================================================================
 // LEVEL TIER SYSTEM
@@ -75,13 +68,13 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
 
-  const level = user?.profile?.level ?? 1;
-  const xp = user?.profile?.xp ?? 0;
+  // Calculate XP progress using shared utility (handles old data format)
+  const xpData = getXpProgress(user?.profile);
+  const level = xpData.level;
+  const xp = xpData.xpInLevel;
+  const xpNeededForNextLevel = xpData.xpNeeded;
+  const xpProgress = xpData.progress;
   const tier = getLevelTier(level);
-
-  // XP Progress calculation - profile.xp is already XP within current level
-  const xpNeededForNextLevel = getXpNeededForLevel(level);
-  const xpProgress = Math.min((xp / xpNeededForNextLevel) * 100, 100);
 
   useEffect(() => {
     refreshUser();
