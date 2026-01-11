@@ -183,7 +183,7 @@ export default function GamePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white overflow-hidden relative">
+    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white overflow-hidden relative" aria-label="Anime Guess Game">
       {/* Background handled globally by BackgroundVisuals component */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         <AnimatePresence mode="wait">
@@ -257,10 +257,13 @@ export default function GamePage() {
                   initial="hidden"
                   animate="visible"
                   className="card p-4"
+                  role="timer"
+                  aria-live="polite"
+                  aria-label={`Time remaining: ${timeRemaining} seconds`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Timer className="w-5 h-5 text-orange-400" />
+                      <Timer className="w-5 h-5 text-orange-400" aria-hidden="true" />
                       <span className="text-sm font-medium text-zinc-300">Time Remaining</span>
                     </div>
                     <span className={`text-2xl font-bold ${
@@ -271,7 +274,14 @@ export default function GamePage() {
                       {timeRemaining}s
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-zinc-700 rounded-full overflow-hidden">
+                  <div
+                    className="w-full h-2 bg-zinc-700 rounded-full overflow-hidden"
+                    role="progressbar"
+                    aria-valuenow={timeRemaining}
+                    aria-valuemin={0}
+                    aria-valuemax={30}
+                    aria-label={`Timer: ${timeRemaining} of 30 seconds remaining`}
+                  >
                     <motion.div
                       className={`h-full ${
                         timeRemaining <= 5 ? 'bg-red-500' :
@@ -306,9 +316,11 @@ export default function GamePage() {
                       <motion.div
                         variants={fadeInUp}
                         className="card-gaming p-4 rounded-xl holographic"
+                        role="status"
+                        aria-live="polite"
                       >
                         <div className="flex items-center gap-2 mb-2">
-                          <Sparkles className="w-4 h-4 text-purple-400" />
+                          <Sparkles className="w-4 h-4 text-purple-400" aria-hidden="true" />
                           <span className="text-sm font-medium text-zinc-400 uppercase tracking-wider">Character</span>
                         </div>
                         <p className="text-lg font-semibold text-white">
@@ -330,9 +342,9 @@ export default function GamePage() {
                       />
                     </>
                   ) : (
-                    <div className="flex-center h-96 card">
+                    <div className="flex-center h-96 card" role="status" aria-live="polite">
                       <div className="text-center space-y-4">
-                        <Loader2 className="w-12 h-12 text-purple-400 animate-spin mx-auto" />
+                        <Loader2 className="w-12 h-12 text-purple-400 animate-spin mx-auto" aria-hidden="true" />
                         <p className="text-zinc-400">Loading character...</p>
                       </div>
                     </div>
@@ -368,28 +380,29 @@ export default function GamePage() {
                   <motion.div
                     variants={fadeInUp}
                     className="hidden sm:block card-hexagon p-4 sm:p-6 border border-cyan-500/20 relative z-0"
+                    aria-labelledby="pro-tips-heading"
                   >
-                    <div className="stripe-decoration text-cyan-500" />
+                    <div className="stripe-decoration text-cyan-500" aria-hidden="true" />
                     <div className="relative">
                       <div className="flex items-center gap-2 mb-3">
-                        <Award className="w-5 h-5 text-cyan-400" />
-                        <h3 className="text-base sm:text-lg font-semibold text-cyan-300 uppercase tracking-wider">Pro Tips</h3>
+                        <Award className="w-5 h-5 text-cyan-400" aria-hidden="true" />
+                        <h3 id="pro-tips-heading" className="text-base sm:text-lg font-semibold text-cyan-300 uppercase tracking-wider">Pro Tips</h3>
                       </div>
                       <ul className="space-y-2 text-xs sm:text-sm text-zinc-300">
                         <li className="flex items-start gap-2">
-                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span className="text-cyan-400 mt-1" aria-hidden="true">▸</span>
                           <span>Fewer hints used = more points earned!</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span className="text-cyan-400 mt-1" aria-hidden="true">▸</span>
                           <span>Both English and Romaji titles are accepted</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span className="text-cyan-400 mt-1" aria-hidden="true">▸</span>
                           <span>Press Enter to submit your guess</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-cyan-400 mt-1">▸</span>
+                          <span className="text-cyan-400 mt-1" aria-hidden="true">▸</span>
                           <span>Build your streak for maximum points!</span>
                         </li>
                       </ul>
@@ -439,7 +452,7 @@ export default function GamePage() {
         onDismiss={() => setShowAntiCheatWarning(false)}
         isSuspicious={isSuspicious}
       />
-    </div>
+    </main>
   );
 }
 
@@ -503,11 +516,15 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="success-heading"
     >
       {/* Green flash effect */}
       <div
         ref={flashRef}
         className="absolute inset-0 bg-green-500 opacity-0"
+        aria-hidden="true"
       />
 
       {/* Success message */}
@@ -524,7 +541,7 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
         </motion.div>
 
         <div>
-          <h2 className="text-5xl font-bold text-green-400 mb-2">Correct!</h2>
+          <h2 id="success-heading" className="text-5xl font-bold text-green-400 mb-2">Correct!</h2>
           {currentCharacter && (
             <p className="text-2xl text-white">
               {currentCharacter.media[0]?.title.english ||
@@ -536,7 +553,7 @@ function SuccessOverlay({ currentCharacter }: { currentCharacter: any }) {
         <div className="text-zinc-400">Loading next character...</div>
 
         {/* Confetti particles */}
-        <div ref={confettiRef} className="absolute inset-0 pointer-events-none">
+        <div ref={confettiRef} className="absolute inset-0 pointer-events-none" aria-hidden="true">
           {[...Array(15)].map((_, i) => (
             <div
               key={i}

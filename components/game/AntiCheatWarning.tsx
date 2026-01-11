@@ -61,6 +61,8 @@ export default function AntiCheatWarning({
         isAnimatedIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-24'
       }`}
       style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+      role="alert"
+      aria-live="assertive"
     >
       <div className="flex items-start gap-4">
         <div
@@ -68,6 +70,7 @@ export default function AntiCheatWarning({
           style={{
             animation: iconPulse ? 'wiggle 500ms ease-in-out 3' : 'none',
           }}
+          aria-hidden="true"
         >
           {isSuspicious ? (
             <EyeOff className="w-6 h-6" />
@@ -105,7 +108,14 @@ export default function AntiCheatWarning({
 
           {!isSuspicious && (
             <div className="mt-3 flex items-center gap-2">
-              <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden"
+                role="progressbar"
+                aria-valuenow={tabSwitchCount}
+                aria-valuemin={0}
+                aria-valuemax={maxSwitches}
+                aria-label={`Tab switches: ${tabSwitchCount} of ${maxSwitches} warnings`}
+              >
                 <div
                   className={`h-full transition-all duration-300 ${
                     severity === 'low'
@@ -125,15 +135,16 @@ export default function AntiCheatWarning({
         <button
           onClick={onDismiss}
           className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
+          aria-label="Dismiss warning"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
 
       {isSuspicious && (
         <div className="mt-4 pt-4 border-t border-red-500/30">
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Eye className="w-4 h-4" />
+            <Eye className="w-4 h-4" aria-hidden="true" />
             <span>Your gameplay is being monitored for fairness</span>
           </div>
         </div>

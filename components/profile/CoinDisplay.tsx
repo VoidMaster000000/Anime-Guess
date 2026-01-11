@@ -149,10 +149,12 @@ export default function CoinDisplay({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
+      role="status"
+      aria-label={`Coins: ${Math.floor(displayCoins).toLocaleString()}`}
       className={`relative bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-xl border border-yellow-500/20 ${config.container} flex items-center gap-3`}
     >
       {/* Coin Icon with shine effect */}
-      <div className="relative">
+      <div className="relative" aria-hidden="true">
         <motion.div
           ref={coinIconRef}
           animate={isIncreasing ? { scale: [1, 1.3, 1], rotate: [0, 15, 0] } : {}}
@@ -196,16 +198,17 @@ export default function CoinDisplay({
           onClick={handleAddClick}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          aria-label="Go to shop to get more coins"
           className={`${config.buttonPadding} bg-yellow-500/20 hover:bg-yellow-500/30 rounded-lg border border-yellow-500/30 hover:border-yellow-500/50 transition-colors duration-200 flex-shrink-0`}
         >
-          <Plus className={`${config.plusIcon} text-yellow-500`} />
+          <Plus className={`${config.plusIcon} text-yellow-500`} aria-hidden="true" />
         </motion.button>
       )}
 
       {/* Floating coins animation on increase */}
       <AnimatePresence>
         {isIncreasing && (
-          <>
+          <div aria-hidden="true">
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
@@ -218,7 +221,7 @@ export default function CoinDisplay({
                 <TrendingUp className="w-4 h-4 text-yellow-500" />
               </motion.div>
             ))}
-          </>
+          </div>
         )}
       </AnimatePresence>
     </motion.div>
@@ -250,6 +253,9 @@ export function CoinTransaction({ amount, type, onComplete }: CoinTransactionPro
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.8 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
+      role="alert"
+      aria-live="polite"
+      aria-label={`${type === 'gain' ? 'Gained' : 'Lost'} ${amount.toLocaleString()} coins`}
       className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl border flex items-center gap-3 ${
         type === 'gain'
           ? 'bg-green-500/20 border-green-500/50'
@@ -260,10 +266,11 @@ export function CoinTransaction({ amount, type, onComplete }: CoinTransactionPro
         initial={{ rotate: 0 }}
         animate={{ rotate: type === 'gain' ? 360 : -360 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
+        aria-hidden="true"
       >
         <Coins className={`w-6 h-6 ${type === 'gain' ? 'text-green-400' : 'text-red-400'}`} />
       </motion.div>
-      <span className={`text-xl font-bold ${type === 'gain' ? 'text-green-400' : 'text-red-400'}`}>
+      <span className={`text-xl font-bold ${type === 'gain' ? 'text-green-400' : 'text-red-400'}`} aria-hidden="true">
         {type === 'gain' ? '+' : '-'}{amount.toLocaleString()}
       </span>
     </motion.div>

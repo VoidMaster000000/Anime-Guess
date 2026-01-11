@@ -29,6 +29,7 @@ function AnimatedBackdrop({
     <div
       onClick={onClose}
       className={`${className} transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      aria-hidden="true"
     />
   );
 }
@@ -38,16 +39,22 @@ function AnimatedModal({
   className,
   onClick,
   isVisible,
+  currentView,
 }: {
   children: React.ReactNode;
   className: string;
   onClick: (e: React.MouseEvent) => void;
   isVisible: boolean;
+  currentView: 'login' | 'register';
 }) {
   return (
     <div
       onClick={onClick}
       className={`${className} transition-all duration-150 ease-out ${isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-5'}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+      aria-describedby="auth-modal-description"
     >
       {children}
     </div>
@@ -60,7 +67,7 @@ function AnimatedHeader({
   children: React.ReactNode;
 }) {
   return (
-    <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent transition-opacity duration-150">
+    <h2 id="auth-modal-title" className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent transition-opacity duration-150">
       {children}
     </h2>
   );
@@ -72,7 +79,7 @@ function AnimatedSubtitle({
   children: React.ReactNode;
 }) {
   return (
-    <p className="mt-2 text-gray-400 text-sm transition-opacity duration-150">
+    <p id="auth-modal-description" className="mt-2 text-gray-400 text-sm transition-opacity duration-150">
       {children}
     </p>
   );
@@ -164,6 +171,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           className="relative w-full max-w-md bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900
                    border-2 border-purple-500/30 rounded-2xl shadow-2xl overflow-hidden"
           isVisible={isVisible}
+          currentView={currentView}
         >
           {/* Animated Background Gradient */}
           <div className="absolute inset-0 opacity-30">
@@ -176,8 +184,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             className="absolute top-4 right-4 z-10 p-2 bg-gray-800/50 hover:bg-gray-700/50
                      border border-purple-500/30 rounded-lg transition-all duration-200
                      hover:border-purple-500/50 group"
+            aria-label="Close authentication dialog"
           >
-            <X className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+            <X className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" aria-hidden="true" />
           </button>
 
           {/* Content */}
@@ -195,7 +204,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex gap-2 mb-6 bg-gray-800/50 p-1 rounded-lg">
+            <div className="flex gap-2 mb-6 bg-gray-800/50 p-1 rounded-lg" role="tablist" aria-label="Authentication options">
               <button
                 onClick={() => setCurrentView('login')}
                 className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-300
@@ -204,6 +213,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                              ? 'text-white'
                              : 'text-gray-400 hover:text-gray-300'
                          }`}
+                role="tab"
+                aria-selected={currentView === 'login'}
+                aria-controls="login-panel"
+                id="login-tab"
               >
                 <AnimatedTabIndicator isActive={currentView === 'login'} />
                 <span className="relative z-10">Login</span>
@@ -216,6 +229,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                              ? 'text-white'
                              : 'text-gray-400 hover:text-gray-300'
                          }`}
+                role="tab"
+                aria-selected={currentView === 'register'}
+                aria-controls="register-panel"
+                id="register-tab"
               >
                 <AnimatedTabIndicator isActive={currentView === 'register'} />
                 <span className="relative z-10">Register</span>
@@ -223,24 +240,30 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
 
             {/* Forms */}
-            {currentView === 'login' ? (
-              <LoginForm
-                key="login"
-                onSuccess={handleSuccess}
-                onSwitchToRegister={() => setCurrentView('register')}
-              />
-            ) : (
-              <RegisterForm
-                key="register"
-                onSuccess={handleSuccess}
-                onSwitchToLogin={() => setCurrentView('login')}
-              />
-            )}
+            <div
+              role="tabpanel"
+              id={currentView === 'login' ? 'login-panel' : 'register-panel'}
+              aria-labelledby={currentView === 'login' ? 'login-tab' : 'register-tab'}
+            >
+              {currentView === 'login' ? (
+                <LoginForm
+                  key="login"
+                  onSuccess={handleSuccess}
+                  onSwitchToRegister={() => setCurrentView('register')}
+                />
+              ) : (
+                <RegisterForm
+                  key="register"
+                  onSuccess={handleSuccess}
+                  onSwitchToLogin={() => setCurrentView('login')}
+                />
+              )}
+            </div>
           </div>
 
           {/* Decorative Elements */}
-          <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+          <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" aria-hidden="true" />
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" aria-hidden="true" />
         </AnimatedModal>
       </div>
     </>

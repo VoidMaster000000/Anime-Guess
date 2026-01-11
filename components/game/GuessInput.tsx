@@ -120,7 +120,7 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
     <div ref={containerRef} className="relative w-full max-w-2xl">
       {/* Input container */}
       <div className="relative">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
@@ -142,6 +142,12 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
             ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-purple-500/50'}
             focus:border-purple-500 focus:shadow-[0_0_20px_rgba(168,85,247,0.4)]
           `}
+          role="combobox"
+          aria-expanded={showDropdown && suggestions.length > 0}
+          aria-controls="anime-suggestions-listbox"
+          aria-autocomplete="list"
+          aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
+          aria-label="Search for anime title"
         />
       </div>
 
@@ -159,6 +165,9 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
               left: dropdownPosition.left,
               width: dropdownPosition.width,
             }}
+            id="anime-suggestions-listbox"
+            role="listbox"
+            aria-label="Anime suggestions"
           >
             <div ref={dropdownRef} className="max-h-[300px] overflow-y-auto">
               {suggestions.map((anime, index) => (
@@ -168,6 +177,7 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
                   isSelected={selectedIndex === index}
                   onClick={() => handleSelect(anime.romaji)}
                   onMouseEnter={() => setSelectedIndex(index)}
+                  index={index}
                 />
               ))}
             </div>
@@ -184,11 +194,13 @@ function SuggestionItem({
   isSelected,
   onClick,
   onMouseEnter,
+  index,
 }: {
   anime: { romaji: string; english: string | null };
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
+  index: number;
 }) {
   return (
     <button
@@ -201,6 +213,9 @@ function SuggestionItem({
           : 'text-gray-300 hover:bg-purple-500/10'
         }
       `}
+      role="option"
+      id={`suggestion-${index}`}
+      aria-selected={isSelected}
     >
       <div className="font-medium">{anime.romaji}</div>
       {anime.english && anime.english !== anime.romaji && (

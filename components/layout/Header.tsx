@@ -104,7 +104,7 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 {/* Coins Display - Gaming Chip Style */}
-                <Link href="/shop">
+                <Link href="/shop" aria-label={`${coins.toLocaleString()} coins. Go to shop`}>
                   <motion.div
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
@@ -112,15 +112,16 @@ export default function Header() {
                   >
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 to-amber-500/10 border border-yellow-500/30 rounded-full hover:border-yellow-400/50 transition-all">
                       <div className="relative">
-                        <Coins className="h-4 w-4 text-yellow-400" />
+                        <Coins className="h-4 w-4 text-yellow-400" aria-hidden="true" />
                         <motion.div
                           className="absolute inset-0 bg-yellow-400/30 rounded-full blur-sm"
                           animate={{ opacity: [0.5, 1, 0.5] }}
                           transition={{ duration: 2, repeat: Infinity }}
+                          aria-hidden="true"
                         />
                       </div>
                       <span className="font-bold text-sm text-yellow-400 tabular-nums">{coins.toLocaleString()}</span>
-                      <Sparkles className="h-3 w-3 text-yellow-500/50 group-hover:text-yellow-400 transition-colors" />
+                      <Sparkles className="h-3 w-3 text-yellow-500/50 group-hover:text-yellow-400 transition-colors" aria-hidden="true" />
                     </div>
                   </motion.div>
                 </Link>
@@ -129,14 +130,23 @@ export default function Header() {
                 <motion.div
                   whileHover={{ scale: 1.05, y: -2 }}
                   className="relative group"
+                  role="status"
+                  aria-label={`Level ${level}, ${Math.round(xpProgress)}% progress to next level`}
                 >
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-cyan-500/10 border border-purple-500/30 rounded-full hover:border-purple-400/50 transition-all">
-                    <div className="relative flex items-center justify-center w-6 h-6 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full">
+                    <div className="relative flex items-center justify-center w-6 h-6 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full" aria-hidden="true">
                       <span className="text-[10px] font-black text-white">{level}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-zinc-400 leading-none">LEVEL</span>
-                      <div className="w-12 h-1.5 bg-zinc-700/50 rounded-full overflow-hidden mt-0.5">
+                      <span className="text-[10px] text-zinc-400 leading-none" aria-hidden="true">LEVEL</span>
+                      <div
+                        className="w-12 h-1.5 bg-zinc-700/50 rounded-full overflow-hidden mt-0.5"
+                        role="progressbar"
+                        aria-valuenow={Math.round(xpProgress)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="XP progress"
+                      >
                         <motion.div
                           className="h-full bg-gradient-to-r from-purple-500 to-cyan-400"
                           initial={{ width: 0 }}
@@ -190,7 +200,9 @@ export default function Header() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className="md:hidden p-2 rounded-lg hover:bg-bg-card transition-colors"
-            aria-label="Toggle menu"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             <AnimatePresence mode="wait">
               {mobileMenuOpen ? (
@@ -228,6 +240,9 @@ export default function Header() {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="md:hidden border-t border-bg-card/50 bg-bg-primary/95 backdrop-blur-xl overflow-hidden"
+            id="mobile-menu"
+            role="navigation"
+            aria-label="Mobile navigation"
           >
             <motion.div
               initial={{ y: -10 }}
@@ -248,9 +263,9 @@ export default function Header() {
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center overflow-hidden">
                         {user?.avatarImage ? (
-                          <img src={user.avatarImage} alt={user.username} className="w-full h-full object-cover" />
+                          <img src={user.avatarImage} alt={`${user.username}'s avatar`} className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-5 h-5 text-white" />
+                          <User className="w-5 h-5 text-white" aria-hidden="true" />
                         )}
                       </div>
                       <div className="flex-1">
@@ -270,24 +285,35 @@ export default function Header() {
                         href="/shop"
                         onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-500/15 to-amber-500/10 border border-yellow-500/20 rounded-lg"
+                        aria-label={`${coins.toLocaleString()} coins. Go to shop`}
                       >
                         <div className="relative">
-                          <Coins className="h-4 w-4 text-yellow-400" />
+                          <Coins className="h-4 w-4 text-yellow-400" aria-hidden="true" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[10px] text-zinc-500 uppercase">Coins</span>
+                          <span className="text-[10px] text-zinc-500 uppercase" aria-hidden="true">Coins</span>
                           <span className="font-bold text-sm text-yellow-400 tabular-nums">{coins.toLocaleString()}</span>
                         </div>
                       </Link>
 
                       {/* Level with XP bar */}
-                      <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/15 to-cyan-500/10 border border-purple-500/20 rounded-lg">
-                        <div className="relative flex items-center justify-center w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full">
+                      <div
+                        className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/15 to-cyan-500/10 border border-purple-500/20 rounded-lg"
+                        role="status"
+                        aria-label={`Level ${level}, ${Math.round(xpProgress)}% to next level`}
+                      >
+                        <div className="relative flex items-center justify-center w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full" aria-hidden="true">
                           <span className="text-xs font-black text-white">{level}</span>
                         </div>
                         <div className="flex-1">
-                          <span className="text-[10px] text-zinc-500 uppercase">Level</span>
-                          <div className="w-full h-1.5 bg-zinc-700/50 rounded-full overflow-hidden mt-0.5">
+                          <span className="text-[10px] text-zinc-500 uppercase" aria-hidden="true">Level</span>
+                          <div
+                            className="w-full h-1.5 bg-zinc-700/50 rounded-full overflow-hidden mt-0.5"
+                            role="progressbar"
+                            aria-valuenow={Math.round(xpProgress)}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                          >
                             <motion.div
                               className="h-full bg-gradient-to-r from-purple-500 to-cyan-400"
                               initial={{ width: 0 }}

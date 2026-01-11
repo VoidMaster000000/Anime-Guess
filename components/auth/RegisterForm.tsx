@@ -50,8 +50,10 @@ function AnimatedMessage({
   return (
     <div
       className={`p-3 ${bgColor} border ${borderColor} rounded-lg flex items-start gap-2 animate-fade-in`}
+      role="alert"
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
     >
-      <Icon className={`w-5 h-5 ${textColor} flex-shrink-0 mt-0.5`} />
+      <Icon className={`w-5 h-5 ${textColor} flex-shrink-0 mt-0.5`} aria-hidden="true" />
       <p className={`text-sm ${textColor}`}>{message}</p>
     </div>
   );
@@ -81,7 +83,7 @@ function HoverButton({
 
 function SpinningLoader() {
   return (
-    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" role="status" aria-label="Loading" />
   );
 }
 
@@ -212,7 +214,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <User className="w-5 h-5 text-purple-400" />
+              <User className="w-5 h-5 text-purple-400" aria-hidden="true" />
             </div>
             <input
               id="register-username"
@@ -229,22 +231,26 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
                        ${usernameValid ? 'focus:border-green-500' : 'focus:border-purple-500'}`}
               placeholder="Choose a username (3-20 chars)"
               disabled={isLoading}
+              autoComplete="username"
+              aria-required="true"
+              aria-invalid={!!usernameError && !!username}
+              aria-describedby={username ? (usernameError ? 'username-error' : 'username-success') : undefined}
             />
             {username && (
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                 {usernameValid ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  <CheckCircle2 className="w-5 h-5 text-green-500" aria-hidden="true" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <AlertCircle className="w-5 h-5 text-red-500" aria-hidden="true" />
                 )}
               </div>
             )}
           </div>
           {username && usernameError && (
-            <p className="text-xs text-red-400 mt-1">{usernameError}</p>
+            <p id="username-error" className="text-xs text-red-400 mt-1" role="status" aria-live="polite">{usernameError}</p>
           )}
           {usernameValid && (
-            <p className="text-xs text-green-400 mt-1">Username is available!</p>
+            <p id="username-success" className="text-xs text-green-400 mt-1" role="status" aria-live="polite">Username is available!</p>
           )}
         </div>
 
@@ -255,7 +261,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Mail className="w-5 h-5 text-purple-400" />
+              <Mail className="w-5 h-5 text-purple-400" aria-hidden="true" />
             </div>
             <input
               id="register-email"
@@ -272,19 +278,23 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
                        ${email && !validateEmail(email) ? 'focus:border-green-500' : 'focus:border-purple-500'}`}
               placeholder="Enter your email"
               disabled={isLoading}
+              autoComplete="email"
+              aria-required="true"
+              aria-invalid={!!email && !!validateEmail(email)}
+              aria-describedby={email && validateEmail(email) ? 'email-error' : undefined}
             />
             {email && (
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                 {!validateEmail(email) ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  <CheckCircle2 className="w-5 h-5 text-green-500" aria-hidden="true" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <AlertCircle className="w-5 h-5 text-red-500" aria-hidden="true" />
                 )}
               </div>
             )}
           </div>
           {email && validateEmail(email) && (
-            <p className="text-xs text-red-400 mt-1">{validateEmail(email)}</p>
+            <p id="email-error" className="text-xs text-red-400 mt-1" role="status" aria-live="polite">{validateEmail(email)}</p>
           )}
         </div>
 
@@ -295,7 +305,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Lock className="w-5 h-5 text-purple-400" />
+              <Lock className="w-5 h-5 text-purple-400" aria-hidden="true" />
             </div>
             <input
               id="register-password"
@@ -312,6 +322,10 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
                        ${passwordValid ? 'focus:border-green-500' : 'focus:border-purple-500'}`}
               placeholder="Create a password (min 6 chars)"
               disabled={isLoading}
+              autoComplete="new-password"
+              aria-required="true"
+              aria-invalid={!!passwordError && !!password}
+              aria-describedby={password && passwordError ? 'password-error' : undefined}
             />
             <button
               type="button"
@@ -319,12 +333,13 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
               className="absolute inset-y-0 right-0 flex items-center pr-3 text-purple-400
                        hover:text-purple-300 transition-colors"
               disabled={isLoading}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
           {password && passwordError && (
-            <p className="text-xs text-red-400 mt-1">{passwordError}</p>
+            <p id="password-error" className="text-xs text-red-400 mt-1" role="status" aria-live="polite">{passwordError}</p>
           )}
         </div>
 
@@ -335,7 +350,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Lock className="w-5 h-5 text-purple-400" />
+              <Lock className="w-5 h-5 text-purple-400" aria-hidden="true" />
             </div>
             <input
               id="confirm-password"
@@ -352,6 +367,10 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
                        ${passwordsMatch ? 'focus:border-green-500' : 'focus:border-purple-500'}`}
               placeholder="Confirm your password"
               disabled={isLoading}
+              autoComplete="new-password"
+              aria-required="true"
+              aria-invalid={passwordsDontMatch ? "true" : undefined}
+              aria-describedby={passwordsDontMatch ? 'confirm-error' : passwordsMatch ? 'confirm-success' : undefined}
             />
             <button
               type="button"
@@ -359,15 +378,16 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
               className="absolute inset-y-0 right-0 flex items-center pr-3 text-purple-400
                        hover:text-purple-300 transition-colors"
               disabled={isLoading}
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             >
-              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showConfirmPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
           {passwordsDontMatch && (
-            <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
+            <p id="confirm-error" className="text-xs text-red-400 mt-1" role="status" aria-live="polite">Passwords do not match</p>
           )}
           {passwordsMatch && (
-            <p className="text-xs text-green-400 mt-1">Passwords match!</p>
+            <p id="confirm-success" className="text-xs text-green-400 mt-1" role="status" aria-live="polite">Passwords match!</p>
           )}
         </div>
 
@@ -397,11 +417,12 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
             </>
           ) : (
             <>
-              <UserPlus className="w-5 h-5" />
+              <UserPlus className="w-5 h-5" aria-hidden="true" />
               <span>Create Account</span>
               <div
                 className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0
                          group-hover:opacity-20 transition-opacity duration-300"
+                aria-hidden="true"
               />
             </>
           )}

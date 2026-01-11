@@ -474,6 +474,7 @@ function LevelBadgeParticles({
       ref={containerRef}
       className="absolute inset-0 pointer-events-none overflow-visible"
       style={{ zIndex: 0 }}
+      aria-hidden="true"
     >
       <svg
         viewBox="0 0 100 100"
@@ -543,6 +544,7 @@ function OrbitingRing({ level, glowColor }: { level: number; glowColor: string }
   return (
     <div
       className="absolute inset-0 pointer-events-none animate-spin"
+      aria-hidden="true"
       style={{
         width: '130%',
         height: '130%',
@@ -586,6 +588,7 @@ function PulsingGlow({ level, glowColor }: { level: number; glowColor: string })
   return (
     <div
       className="absolute inset-0 rounded-xl pointer-events-none animate-pulse"
+      aria-hidden="true"
       style={{
         background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
         opacity: 0.5,
@@ -722,15 +725,26 @@ function AnimatedProgressBar({
   progress,
   isMaxLevel,
   className,
+  currentXp,
+  requiredXp,
 }: {
   progress: number;
   isMaxLevel: boolean;
   className: string;
+  currentXp: number;
+  requiredXp: number;
 }) {
   const targetWidth = isMaxLevel ? 100 : progress;
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      role="progressbar"
+      aria-valuenow={currentXp}
+      aria-valuemin={0}
+      aria-valuemax={requiredXp}
+      aria-label={isMaxLevel ? 'Max level reached' : `Experience progress: ${currentXp} of ${requiredXp} XP`}
+    >
       <motion.div
         className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full relative overflow-hidden"
         initial={{ width: 0 }}
@@ -740,6 +754,7 @@ function AnimatedProgressBar({
         {/* Shine effect */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          aria-hidden="true"
           initial={{ x: '-100%' }}
           animate={{ x: '200%' }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
@@ -792,7 +807,7 @@ export default function LevelProgress({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <TrendingUp className={`${config.icon} text-purple-400`} />
+              <TrendingUp className={`${config.icon} text-purple-400`} aria-hidden="true" />
               <span className={`${config.levelText} font-semibold text-white`}>
                 {isMaxLevel ? 'Max Level' : `Level ${level}`}
               </span>
@@ -816,7 +831,7 @@ export default function LevelProgress({
             )}
             {isMaxLevel && (
               <span className={`${config.xpText} text-purple-400 font-semibold flex items-center gap-1`}>
-                <InfinityIcon className={config.icon} />
+                <InfinityIcon className={config.icon} aria-hidden="true" />
                 <span>Infinite</span>
               </span>
             )}
@@ -826,6 +841,8 @@ export default function LevelProgress({
           <AnimatedProgressBar
             progress={progress}
             isMaxLevel={isMaxLevel}
+            currentXp={currentXp}
+            requiredXp={requiredXp}
             className={`w-full bg-zinc-800/50 rounded-full overflow-hidden ${config.progressHeight}`}
           />
 
@@ -867,6 +884,9 @@ export function LevelUpCelebration({ newLevel, onComplete }: LevelUpCelebrationP
       transition={{ duration: 0.3 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
       onClick={onComplete}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="level-up-heading"
     >
       <motion.div
         initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -879,10 +899,11 @@ export function LevelUpCelebration({ newLevel, onComplete }: LevelUpCelebrationP
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 0.6, repeat: Infinity }}
           className="text-6xl mb-4"
+          aria-hidden="true"
         >
           🎉
         </motion.div>
-        <h2 className="text-4xl font-bold text-white mb-2">Level Up!</h2>
+        <h2 id="level-up-heading" className="text-4xl font-bold text-white mb-2">Level Up!</h2>
         <p className="text-2xl text-purple-400 mb-4">
           You've reached <span className="font-bold text-white">Level {newLevel}</span>
         </p>

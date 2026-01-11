@@ -32,7 +32,7 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
       className="relative"
     >
       {/* Gradient border effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-2xl blur-sm" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-2xl blur-sm" aria-hidden="true" />
 
       <div className={`
         relative bg-zinc-900 rounded-2xl p-6 border border-zinc-800
@@ -48,6 +48,7 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
             w-16 h-16 rounded-xl flex items-center justify-center mb-4
             bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20
           `}
+          aria-hidden="true"
         >
           <IconComponent className="w-8 h-8 text-purple-400" />
         </motion.div>
@@ -73,7 +74,7 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
         {/* Cost and Purchase Button */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Coins className="w-5 h-5 text-yellow-500" />
+            <Coins className="w-5 h-5 text-yellow-500" aria-hidden="true" />
             <span className="text-2xl font-bold text-yellow-500">{item.cost}</span>
           </div>
 
@@ -90,6 +91,7 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
                 : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 hover:shadow-lg hover:shadow-purple-500/30'
               }
             `}
+            aria-label={`Purchase ${item.name} for ${item.cost} coins${owned !== undefined && owned > 0 ? `, currently owned: ${owned}` : ''}`}
           >
             Purchase
           </motion.button>
@@ -102,7 +104,14 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
               <span>Progress</span>
               <span>{owned} / {item.maxOwned}</span>
             </div>
-            <div className="mt-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div
+              className="mt-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden"
+              role="progressbar"
+              aria-valuenow={owned}
+              aria-valuemin={0}
+              aria-valuemax={item.maxOwned}
+              aria-label={`Owned ${owned} of ${item.maxOwned}`}
+            >
               <motion.div
                 className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
                 initial={{ width: 0 }}

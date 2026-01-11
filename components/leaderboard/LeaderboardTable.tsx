@@ -43,11 +43,11 @@ const getDifficultyBadge = (difficulty: GameDifficulty): string => {
 const getRankIcon = (rank: number) => {
   switch (rank) {
     case 1:
-      return <Crown className="w-6 h-6 text-yellow-400 fill-yellow-400" />;
+      return <Crown className="w-6 h-6 text-yellow-400 fill-yellow-400" aria-hidden="true" />;
     case 2:
-      return <Medal className="w-6 h-6 text-gray-300 fill-gray-300" />;
+      return <Medal className="w-6 h-6 text-gray-300 fill-gray-300" aria-hidden="true" />;
     case 3:
-      return <Medal className="w-6 h-6 text-amber-600 fill-amber-600" />;
+      return <Medal className="w-6 h-6 text-amber-600 fill-amber-600" aria-hidden="true" />;
     default:
       return null;
   }
@@ -214,8 +214,8 @@ function AnimatedTableRow({
 export default function LeaderboardTable({ entries, currentUserId }: LeaderboardTableProps) {
   if (entries.length === 0) {
     return (
-      <div className="text-center py-16">
-        <Trophy className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+      <div className="text-center py-16" role="status" aria-label="Empty leaderboard">
+        <Trophy className="w-16 h-16 text-gray-600 mx-auto mb-4" aria-hidden="true" />
         <p className="text-gray-400 text-lg">No entries yet</p>
         <p className="text-gray-500 text-sm mt-2">
           Play the game and make it to the leaderboard!
@@ -228,7 +228,7 @@ export default function LeaderboardTable({ entries, currentUserId }: Leaderboard
     <div className="overflow-x-auto">
       <div className="min-w-full inline-block align-middle">
         <div className="overflow-hidden rounded-lg border border-gray-800">
-          <table className="min-w-full divide-y divide-gray-800">
+          <table className="min-w-full divide-y divide-gray-800" aria-label="Leaderboard rankings">
             {/* Header */}
             <thead className="bg-gray-900/80">
               <tr>

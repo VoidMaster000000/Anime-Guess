@@ -213,7 +213,7 @@ function AnimatedQuadrant({
 
       {/* Quadrant number indicator (when not revealed) */}
       {!isRevealed && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
           <div className="w-10 h-10 rounded-full bg-zinc-800/80 border border-zinc-600/50 flex items-center justify-center backdrop-blur-sm">
             <Eye className="w-5 h-5 text-zinc-400" />
           </div>
@@ -307,7 +307,7 @@ export default function CharacterImage({
   ];
 
   return (
-    <div className="relative w-full max-w-[420px] mx-auto">
+    <div className="relative w-full max-w-[420px] mx-auto" role="img" aria-label={`Mystery character image. ${revealedQuadrants} of 4 sections revealed`}>
       {/* Main container with premium frame */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
@@ -316,10 +316,10 @@ export default function CharacterImage({
         className="relative aspect-square"
       >
         {/* Outer glow effect */}
-        <div className="absolute -inset-2 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-cyan-500/30 rounded-3xl blur-xl opacity-60 animate-pulse" />
+        <div className="absolute -inset-2 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-cyan-500/30 rounded-3xl blur-xl opacity-60 animate-pulse" aria-hidden="true" />
 
         {/* Gaming frame border */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden">
+        <div className="absolute inset-0 rounded-2xl overflow-hidden" aria-hidden="true">
           {/* Animated gradient border */}
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 p-[3px] rounded-2xl">
             <div className="absolute inset-[3px] bg-zinc-900 rounded-xl" />
@@ -374,7 +374,7 @@ export default function CharacterImage({
           </div>
 
           {/* Grid lines */}
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
             <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500/40 to-transparent -translate-y-1/2" />
             <div className="absolute left-1/2 top-0 h-full w-[2px] bg-gradient-to-b from-transparent via-purple-500/40 to-transparent -translate-x-1/2" />
           </div>
@@ -390,7 +390,7 @@ export default function CharacterImage({
         </div>
 
         {/* Top badges */}
-        <div className="absolute -top-1 left-1/2 -translate-x-1/2 flex items-center gap-2">
+        <div className="absolute -top-1 left-1/2 -translate-x-1/2 flex items-center gap-2" aria-hidden="true">
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -409,6 +409,7 @@ export default function CharacterImage({
             animate={{ scale: 1 }}
             transition={{ delay: 0.15, type: 'spring', duration: 0.2 }}
             className="absolute top-3 right-3 z-20"
+            aria-hidden="true"
           >
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/40 rounded-full backdrop-blur-sm">
               <Shield className="w-3 h-3 text-emerald-400" />
@@ -423,10 +424,12 @@ export default function CharacterImage({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
           className="absolute -bottom-10 left-1/2 -translate-x-1/2"
+          role="status"
+          aria-live="polite"
         >
           <div className="flex items-center gap-3 px-4 py-2 bg-zinc-900/90 border border-zinc-700/50 rounded-full backdrop-blur-sm">
             <span className="text-xs text-zinc-400">Revealed:</span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5" aria-hidden="true">
               {Array.from({ length: 4 }).map((_, i) => (
                 <motion.div
                   key={i}

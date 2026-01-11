@@ -33,9 +33,10 @@ export default function HintButton({ hintsRevealed, maxHints, onReveal, cost }: 
             : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border-2 border-purple-400 hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]'
         }
       `}
+      aria-label={`Reveal hint. ${hintsRemaining} hints remaining${cost > 0 && !isDisabled ? `, costs ${cost} points` : ''}`}
     >
       {/* Icon */}
-      <Eye className={`w-6 h-6 ${isDisabled ? 'opacity-50' : ''}`} />
+      <Eye className={`w-6 h-6 ${isDisabled ? 'opacity-50' : ''}`} aria-hidden="true" />
 
       {/* Text content */}
       <div className="flex flex-col items-start">
@@ -50,7 +51,7 @@ export default function HintButton({ hintsRevealed, maxHints, onReveal, cost }: 
             <>
               <span className="text-purple-300">•</span>
               <div className="flex items-center gap-1">
-                <Coins className="w-3 h-3" />
+                <Coins className="w-3 h-3" aria-hidden="true" />
                 <span>{cost} pts</span>
               </div>
             </>
@@ -60,11 +61,18 @@ export default function HintButton({ hintsRevealed, maxHints, onReveal, cost }: 
 
       {/* Glow effect when enabled */}
       {!isDisabled && (
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-30 blur-xl -z-10 animate-pulse" />
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-30 blur-xl -z-10 animate-pulse" aria-hidden="true" />
       )}
 
       {/* Progress indicator */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded-b-xl overflow-hidden">
+      <div
+        className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded-b-xl overflow-hidden"
+        role="progressbar"
+        aria-valuenow={hintsRemaining}
+        aria-valuemin={0}
+        aria-valuemax={maxHints}
+        aria-label={`Hints remaining: ${hintsRemaining} of ${maxHints}`}
+      >
         <motion.div
           className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
           initial={{ width: '100%' }}

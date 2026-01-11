@@ -23,18 +23,21 @@ function HoverButton({
   children,
   onClick,
   disabled,
-  className
+  className,
+  'aria-label': ariaLabel,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled: boolean;
   className: string;
+  'aria-label'?: string;
 }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       className={`${className} transition-transform duration-100 ${!disabled ? 'hover:scale-[1.02] active:scale-[0.98]' : ''}`}
+      aria-label={ariaLabel}
     >
       {children}
     </button>
@@ -183,7 +186,7 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
     return (
       <AnimatedPanel className="bg-zinc-800/30 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/30">
         <div className="flex items-center gap-2 text-zinc-500">
-          <Package className="w-5 h-5" />
+          <Package className="w-5 h-5" aria-hidden="true" />
           <span className="text-sm">No items in inventory</span>
         </div>
         <p className="text-xs text-zinc-600 mt-1">
@@ -197,12 +200,12 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
     <AnimatedPanel className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-4 border border-zinc-700/50">
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-5 h-5 text-purple-400" />
-        <h3 className="text-sm font-semibold text-white">Quick Use Items</h3>
+        <Sparkles className="w-5 h-5 text-purple-400" aria-hidden="true" />
+        <h3 className="text-sm font-semibold text-white" id="quick-use-items-heading">Quick Use Items</h3>
       </div>
 
       {/* Items Grid */}
-      <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-2" role="group" aria-labelledby="quick-use-items-heading">
         {usableItems.map((item) => {
           const isDisabled = !canUseItem(item);
           const isAnimating = usedItemAnimation === item.id;
@@ -217,12 +220,14 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
                   ? 'bg-zinc-800/30 border-zinc-700/30 cursor-not-allowed opacity-50'
                   : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-700/50 cursor-pointer'
               }`}
+              aria-label={`Use ${item.name}. ${item.quantity} remaining. ${item.type === 'hint' ? `Reveal hint (${hintsRevealed}/${maxHints} revealed)` : item.type === 'life' ? `Add life (${lives}/${maxLives} lives)` : 'Skip character'}`}
             >
               {/* Item Icon */}
               <div
                 className={`p-2 rounded-lg bg-gradient-to-br ${getItemColor(item.type)} ${
                   isDisabled ? 'opacity-50' : ''
                 }`}
+                aria-hidden="true"
               >
                 {getItemIcon(item.type)}
               </div>

@@ -54,11 +54,11 @@ const getDifficultyBadge = (difficulty: GameDifficulty): string => {
 const getRankIcon = (rank: number) => {
   switch (rank) {
     case 1:
-      return <Crown className="w-7 h-7 text-yellow-400 fill-yellow-400 drop-shadow-lg" />;
+      return <Crown className="w-7 h-7 text-yellow-400 fill-yellow-400 drop-shadow-lg" aria-hidden="true" />;
     case 2:
-      return <Medal className="w-7 h-7 text-gray-300 fill-gray-300 drop-shadow-lg" />;
+      return <Medal className="w-7 h-7 text-gray-300 fill-gray-300 drop-shadow-lg" aria-hidden="true" />;
     case 3:
-      return <Medal className="w-7 h-7 text-amber-600 fill-amber-600 drop-shadow-lg" />;
+      return <Medal className="w-7 h-7 text-amber-600 fill-amber-600 drop-shadow-lg" aria-hidden="true" />;
     default:
       return null;
   }
@@ -129,6 +129,8 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: rank * 0.03, duration: 0.3 }}
       whileHover={{ scale: 1.01 }}
+      role="listitem"
+      aria-label={`Rank ${rank}: ${entry.username}${isCurrentUser ? ' (you)' : ''}, ${entry.streak} streak, ${entry.points.toLocaleString()} points`}
       className={`
         relative overflow-hidden rounded-lg border-2 transition-all duration-300
         ${getRankStyle(rank)}
@@ -139,7 +141,7 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
     >
       {/* Background gradient for current user */}
       {isCurrentUser && (
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 pointer-events-none" aria-hidden="true" />
       )}
 
       <div className="relative px-3 py-2.5 sm:px-4 sm:py-3 md:px-6 md:py-4">
@@ -173,16 +175,16 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
               {avatarImage ? (
                 <LazyImage
                   src={avatarImage}
-                  alt={entry.username}
+                  alt={`${entry.username}'s avatar`}
                   fill
                   containerClassName="w-full h-full"
                   className="rounded-full"
                   objectFit="cover"
                 />
               ) : avatarEmoji ? (
-                avatarEmoji
+                <span aria-label={`${entry.username}'s avatar`}>{avatarEmoji}</span>
               ) : (
-                <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-gray-400" />
+                <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-gray-400" aria-hidden="true" />
               )}
             </motion.div>
           </div>
@@ -207,10 +209,10 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
 
             {/* Level Badge */}
             <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-              <div className={`px-1.5 sm:px-2 py-0.5 rounded-md bg-gradient-to-r ${getLevelColor(level)} text-white text-[10px] sm:text-xs font-bold shadow-sm flex items-center gap-1`}>
-                <span>LVL {level}</span>
+              <div className={`px-1.5 sm:px-2 py-0.5 rounded-md bg-gradient-to-r ${getLevelColor(level)} text-white text-[10px] sm:text-xs font-bold shadow-sm flex items-center gap-1`} aria-label={`Level ${level}${isInfinite && level >= 100 ? ', infinite mode' : ''}`}>
+                <span aria-hidden="true">LVL {level}</span>
                 {isInfinite && level >= 100 && (
-                  <Infinity className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <Infinity className="w-2.5 h-2.5 sm:w-3 sm:h-3" aria-hidden="true" />
                 )}
               </div>
 
@@ -224,11 +226,11 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
           </div>
 
           {/* Stats Grid */}
-          <div className="hidden md:grid grid-cols-3 gap-4 lg:gap-6">
+          <div className="hidden md:grid grid-cols-3 gap-4 lg:gap-6" aria-hidden="true">
             {/* Streak */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-1">
-                <Flame className="w-4 h-4 text-orange-500" />
+                <Flame className="w-4 h-4 text-orange-500" aria-hidden="true" />
                 <span className="text-xs text-gray-400 font-medium">Streak</span>
               </div>
               <motion.div
@@ -244,7 +246,7 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
             {/* Points */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-1">
-                <Star className="w-4 h-4 text-yellow-500" />
+                <Star className="w-4 h-4 text-yellow-500" aria-hidden="true" />
                 <span className="text-xs text-gray-400 font-medium">Points</span>
               </div>
               <motion.div
@@ -260,7 +262,7 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
             {/* Accuracy */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-1">
-                <TrendingUp className="w-4 h-4 text-green-500" />
+                <TrendingUp className="w-4 h-4 text-green-500" aria-hidden="true" />
                 <span className="text-xs text-gray-400 font-medium">Accuracy</span>
               </div>
               <motion.div
@@ -275,13 +277,13 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
           </div>
 
           {/* Mobile Stats (Compact) */}
-          <div className="md:hidden flex flex-col gap-0.5 sm:gap-1 text-right flex-shrink-0">
+          <div className="md:hidden flex flex-col gap-0.5 sm:gap-1 text-right flex-shrink-0" aria-hidden="true">
             <div className="flex items-center justify-end gap-1 sm:gap-2">
-              <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
+              <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" aria-hidden="true" />
               <span className="text-base sm:text-lg font-bold text-orange-500">{entry.streak}</span>
             </div>
             <div className="flex items-center justify-end gap-1 sm:gap-2">
-              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500" />
+              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500" aria-hidden="true" />
               <span className="text-xs sm:text-sm font-semibold text-yellow-500">
                 {entry.points.toLocaleString()}
               </span>
@@ -298,9 +300,9 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
         </div>
 
         {/* Mobile Accuracy */}
-        <div className="md:hidden mt-3 pt-3 border-t border-gray-700/50 flex items-center justify-between text-sm">
+        <div className="md:hidden mt-3 pt-3 border-t border-gray-700/50 flex items-center justify-between text-sm" aria-hidden="true">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-green-500" />
+            <TrendingUp className="w-4 h-4 text-green-500" aria-hidden="true" />
             <span className="text-gray-400">Accuracy:</span>
             <span className="font-bold text-green-500">{accuracy}%</span>
           </div>

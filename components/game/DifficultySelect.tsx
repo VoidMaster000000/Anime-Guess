@@ -102,6 +102,7 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.05 }}
             className="relative"
+            aria-hidden="true"
           >
             <div className="absolute inset-0 bg-purple-500/30 blur-xl rounded-full" />
             <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -116,13 +117,17 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
             </h1>
           </div>
         </div>
-        <p className="text-zinc-400 text-base sm:text-lg max-w-xl mx-auto">
+        <p className="text-zinc-400 text-base sm:text-lg max-w-xl mx-auto" id="difficulty-description">
           Select a difficulty level to begin your anime guessing adventure
         </p>
       </motion.div>
 
       {/* Difficulty Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6"
+        role="group"
+        aria-labelledby="difficulty-description"
+      >
         {difficulties.map((difficulty, index) => (
           <DifficultyCard
             key={difficulty.id}
@@ -141,9 +146,9 @@ export default function DifficultySelect({ onSelect }: DifficultySelectProps) {
         className="text-center mt-8 sm:mt-10"
       >
         <p className="text-zinc-500 text-sm flex items-center justify-center gap-2">
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4" aria-hidden="true" />
           Click a card to start playing
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4" aria-hidden="true" />
         </p>
       </motion.div>
     </div>
@@ -173,11 +178,12 @@ function DifficultyCard({
       }}
       className="relative group"
     >
-      <motion.div
+      <motion.button
         onClick={() => onSelect(difficulty.id)}
         whileHover={{ scale: 1.03, y: -8 }}
         whileTap={{ scale: 0.98 }}
-        className="cursor-pointer h-full"
+        className="cursor-pointer h-full w-full text-left"
+        aria-label={`Select ${difficulty.name} difficulty: ${difficulty.description}. ${difficulty.lives} lives, ${difficulty.hints} hints, ${difficulty.pointsMultiplier}x points multiplier${difficulty.timeLimit ? `, ${difficulty.timeLimit} second time limit` : ''}`}
       >
         {/* Recommended badge */}
         {difficulty.recommended && (
@@ -188,7 +194,7 @@ function DifficultyCard({
             className="absolute -top-3 left-1/2 -translate-x-1/2 z-20"
           >
             <div className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full text-xs font-bold text-black flex items-center gap-1 shadow-lg shadow-yellow-500/30">
-              <Star className="w-3 h-3 fill-black" />
+              <Star className="w-3 h-3 fill-black" aria-hidden="true" />
               RECOMMENDED
             </div>
           </motion.div>
@@ -197,16 +203,16 @@ function DifficultyCard({
         {/* Card container */}
         <div className={`relative overflow-hidden rounded-2xl h-full transition-shadow duration-150 ${difficulty.shadowColor} group-hover:shadow-2xl`}>
           {/* Animated gradient border */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.gradient} opacity-100`} />
-          <div className="absolute inset-[2px] bg-zinc-900 rounded-2xl" />
+          <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.gradient} opacity-100`} aria-hidden="true" />
+          <div className="absolute inset-[2px] bg-zinc-900 rounded-2xl" aria-hidden="true" />
 
           {/* Background glow effect */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-200`} />
+          <div className={`absolute inset-0 bg-gradient-to-br ${difficulty.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-200`} aria-hidden="true" />
 
           {/* Content */}
           <div className="relative p-5 sm:p-6 h-full flex flex-col">
             {/* Icon with glow */}
-            <div className="mb-5">
+            <div className="mb-5" aria-hidden="true">
               <motion.div
                 whileHover={{ rotate: [0, -10, 10, 0] }}
                 transition={{ duration: 0.2 }}
@@ -229,7 +235,7 @@ function DifficultyCard({
             </div>
 
             {/* Stats */}
-            <div className="space-y-3 mb-5">
+            <div className="space-y-3 mb-5" aria-hidden="true">
               {/* Lives */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-zinc-400">
@@ -280,27 +286,20 @@ function DifficultyCard({
               )}
             </div>
 
-            {/* Select Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            {/* Select Button - decorative, the card itself is the actual button */}
+            <div
               className={`w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r ${difficulty.gradient} shadow-lg ${difficulty.shadowColor} transition-all duration-150 group-hover:shadow-xl flex items-center justify-center gap-2`}
+              aria-hidden="true"
             >
               <span>Select</span>
-              <motion.span
-                initial={{ x: 0 }}
-                whileHover={{ x: 4 }}
-                className="text-lg"
-              >
-                →
-              </motion.span>
-            </motion.button>
+              <span className="text-lg">→</span>
+            </div>
           </div>
         </div>
 
         {/* Outer glow on hover */}
-        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${difficulty.gradient} opacity-0 group-hover:opacity-30 blur-2xl -z-10 transition-opacity duration-200`} />
-      </motion.div>
+        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${difficulty.gradient} opacity-0 group-hover:opacity-30 blur-2xl -z-10 transition-opacity duration-200`} aria-hidden="true" />
+      </motion.button>
     </motion.div>
   );
 }

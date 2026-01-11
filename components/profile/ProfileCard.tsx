@@ -66,6 +66,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       {/* Animated Background */}
       <motion.div
         className="absolute inset-0 opacity-20 pointer-events-none"
+        aria-hidden="true"
         animate={{
           background: [
             'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
@@ -91,11 +92,11 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
                 {user.avatar ? (
                   <img
                     src={user.avatar}
-                    alt={user.username}
+                    alt={`${user.username}'s avatar`}
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  <User className="w-10 h-10 text-purple-400" />
+                  <User className="w-10 h-10 text-purple-400" aria-hidden="true" />
                 )}
               </div>
             </div>
@@ -104,12 +105,13 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.2 }}
+              aria-label={`Level ${level}`}
               className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full
                        bg-gradient-to-br from-yellow-500 to-orange-500
                        border-2 border-gray-900 flex items-center justify-center
                        text-xs font-bold text-white shadow-lg"
             >
-              {level}
+              <span aria-hidden="true">{level}</span>
             </motion.div>
           </motion.div>
 
@@ -132,7 +134,14 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
           <span>Level {level}</span>
           <span>{currentXp} / {requiredXp} XP</span>
         </div>
-        <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+        <div
+          className="w-full h-2 bg-gray-800 rounded-full overflow-hidden"
+          role="progressbar"
+          aria-valuenow={currentXp}
+          aria-valuemin={0}
+          aria-valuemax={requiredXp}
+          aria-label={`Experience progress: ${currentXp} of ${requiredXp} XP`}
+        >
           <motion.div
             className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500
                      shadow-lg shadow-purple-500/50"
@@ -149,21 +158,23 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           className="stat-yellow p-3 flex items-center gap-3"
+          role="status"
+          aria-label={`Coins: ${coins.toLocaleString()}`}
         >
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500
-                        flex items-center justify-center shadow-lg">
+                        flex items-center justify-center shadow-lg" aria-hidden="true">
             <Coins className="w-6 h-6 text-white" />
           </div>
           <div>
             <p className="text-xs text-gray-400">Coins</p>
-            <p className="text-xl font-bold text-yellow-400">{coins.toLocaleString()}</p>
+            <p className="text-xl font-bold text-yellow-400" aria-hidden="true">{coins.toLocaleString()}</p>
           </div>
         </motion.div>
       </div>
 
       {/* Stats Grid */}
       <div className="px-4 sm:px-6 pb-4 sm:pb-6 relative">
-        <h3 className="text-sm font-semibold text-gray-400 mb-2 sm:mb-3 uppercase tracking-wider">
+        <h3 id="quick-stats-heading" className="text-sm font-semibold text-gray-400 mb-2 sm:mb-3 uppercase tracking-wider">
           Quick Stats
         </h3>
         <motion.div
@@ -171,6 +182,8 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
           initial="hidden"
           animate="visible"
           className="grid grid-cols-3 gap-2 sm:gap-3"
+          role="group"
+          aria-labelledby="quick-stats-heading"
         >
           {/* Games Played */}
           <motion.div
@@ -178,9 +191,11 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
             className="stat-purple p-3 text-center"
+            role="status"
+            aria-label={`Games played: ${stats.gamesPlayed}`}
           >
-            <Target className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-            <p className="text-xl font-bold text-white">{stats.gamesPlayed}</p>
+            <Target className="w-6 h-6 text-purple-400 mx-auto mb-2" aria-hidden="true" />
+            <p className="text-xl font-bold text-white" aria-hidden="true">{stats.gamesPlayed}</p>
             <p className="text-xs text-gray-400">Games</p>
           </motion.div>
 
@@ -190,9 +205,11 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
             className="stat-green p-3 text-center"
+            role="status"
+            aria-label={`Accuracy: ${stats.gamesPlayed > 0 ? Math.round((stats.correctGuesses / (stats.correctGuesses + stats.wrongGuesses)) * 100) : 0}%`}
           >
-            <Trophy className="w-6 h-6 text-green-400 mx-auto mb-2" />
-            <p className="text-xl font-bold text-white">
+            <Trophy className="w-6 h-6 text-green-400 mx-auto mb-2" aria-hidden="true" />
+            <p className="text-xl font-bold text-white" aria-hidden="true">
               {stats.gamesPlayed > 0
                 ? Math.round((stats.correctGuesses / (stats.correctGuesses + stats.wrongGuesses)) * 100)
                 : 0}%
@@ -206,9 +223,11 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
             className="stat-orange p-3 text-center"
+            role="status"
+            aria-label={`Best streak: ${stats.highestStreak}`}
           >
-            <Flame className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-            <p className="text-xl font-bold text-white">{stats.highestStreak}</p>
+            <Flame className="w-6 h-6 text-orange-400 mx-auto mb-2" aria-hidden="true" />
+            <p className="text-xl font-bold text-white" aria-hidden="true">{stats.highestStreak}</p>
             <p className="text-xs text-gray-400">Best Streak</p>
           </motion.div>
         </motion.div>
@@ -227,7 +246,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
                    transition-colors duration-300
                    flex items-center justify-center gap-2"
         >
-          <Edit className="w-4 h-4" />
+          <Edit className="w-4 h-4" aria-hidden="true" />
           <span>Edit Profile</span>
         </motion.button>
 
@@ -235,6 +254,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
           onClick={handleLogout}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
+          aria-label="Log out"
           className="py-3 px-4 bg-gray-800 border-2 border-gray-700
                    text-gray-300 font-semibold rounded-lg
                    hover:bg-gray-700 hover:border-red-500/50 hover:text-white
@@ -242,7 +262,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
                    transition-colors duration-300
                    flex items-center justify-center gap-2"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4" aria-hidden="true" />
         </motion.button>
       </div>
 

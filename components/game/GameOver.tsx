@@ -57,7 +57,7 @@ function ConfettiEffect({ isNewRecord }: { isNewRecord: boolean }) {
   if (!isNewRecord) return null;
 
   return (
-    <div ref={confettiRef} className="absolute inset-0 pointer-events-none overflow-hidden z-50">
+    <div ref={confettiRef} className="absolute inset-0 pointer-events-none overflow-hidden z-50" aria-hidden="true">
       {Array.from({ length: 30 }).map((_, i) => (
         <div
           key={i}
@@ -105,10 +105,10 @@ function StatCard({ icon, label, value, colorClass, bgClass, borderClass, delay 
       className={`relative overflow-hidden rounded-2xl ${bgClass} ${borderClass} border p-4 sm:p-5`}
     >
       {/* Background glow */}
-      <div className={`absolute inset-0 ${bgClass} opacity-50 blur-xl`} />
+      <div className={`absolute inset-0 ${bgClass} opacity-50 blur-xl`} aria-hidden="true" />
 
       <div className="relative flex flex-col items-center text-center">
-        <div className={`mb-2 ${colorClass}`}>
+        <div className={`mb-2 ${colorClass}`} aria-hidden="true">
           {icon}
         </div>
         <div ref={valueRef} className={`text-3xl sm:text-4xl font-black ${colorClass} tabular-nums`}>
@@ -201,15 +201,18 @@ export default function GameOver({
           transition={{ type: 'spring', stiffness: 400, damping: 25, duration: 0.2 }}
           className="relative w-full max-w-lg my-8"
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="game-over-title"
         >
           {/* Outer glow */}
-          <div className="absolute -inset-2 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-cyan-500/30 rounded-3xl blur-xl opacity-60" />
+          <div className="absolute -inset-2 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-cyan-500/30 rounded-3xl blur-xl opacity-60" aria-hidden="true" />
 
           {/* Main card */}
           <div className="relative overflow-hidden">
             {/* Gradient border */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-2xl" />
-            <div className="absolute inset-[2px] bg-zinc-900 rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-2xl" aria-hidden="true" />
+            <div className="absolute inset-[2px] bg-zinc-900 rounded-2xl" aria-hidden="true" />
 
             {/* Content */}
             <div className="relative p-5 sm:p-6 md:p-8">
@@ -221,8 +224,9 @@ export default function GameOver({
                   transition={{ delay: 0.1 }}
                   onClick={onClose}
                   className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-600 transition-all"
+                  aria-label="Close game over dialog"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" aria-hidden="true" />
                 </motion.button>
               )}
 
@@ -234,6 +238,7 @@ export default function GameOver({
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.03 }}
                   className="relative inline-block mb-4"
+                  aria-hidden="true"
                 >
                   <div className={`absolute inset-0 ${isNewRecord ? 'bg-yellow-500/30' : 'bg-purple-500/30'} blur-2xl rounded-full scale-150`} />
                   <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center ${isNewRecord ? 'bg-gradient-to-br from-yellow-500 to-amber-600' : 'bg-gradient-to-br from-purple-500 to-pink-600'}`}>
@@ -251,7 +256,7 @@ export default function GameOver({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 }}
                 >
-                  <h2 className="text-3xl sm:text-4xl font-black mb-2">
+                  <h2 id="game-over-title" className="text-3xl sm:text-4xl font-black mb-2">
                     <span className={`${isNewRecord ? 'bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400' : 'bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400'} bg-clip-text text-transparent`}>
                       {isNewRecord ? 'New Record!' : 'Game Over'}
                     </span>
@@ -265,7 +270,7 @@ export default function GameOver({
                     className="inline-flex items-center gap-2"
                   >
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${performance.bg} ${performance.border} border ${performance.color} flex items-center gap-1`}>
-                      <Sparkles className="w-3 h-3" />
+                      <Sparkles className="w-3 h-3" aria-hidden="true" />
                       {performance.label}
                     </span>
                   </motion.div>
@@ -304,7 +309,7 @@ export default function GameOver({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Award className="w-5 h-5 text-purple-400" />
+                      <Award className="w-5 h-5 text-purple-400" aria-hidden="true" />
                       <span className="text-sm text-zinc-400">Your Best Streak</span>
                     </div>
                     <span className="text-xl font-bold text-purple-400">{highStreak}</span>
@@ -321,11 +326,12 @@ export default function GameOver({
                     exit={{ opacity: 0, height: 0 }}
                     className="mb-6 overflow-hidden"
                   >
-                    <label className="block text-sm text-zinc-400 mb-2 font-medium">
+                    <label htmlFor="guest-username" className="block text-sm text-zinc-400 mb-2 font-medium">
                       Save your score to the leaderboard
                     </label>
                     <div className="relative">
                       <input
+                        id="guest-username"
                         type="text"
                         value={guestUsername}
                         onChange={(e) => setGuestUsername(e.target.value)}
@@ -333,8 +339,9 @@ export default function GameOver({
                         placeholder="Enter your username..."
                         maxLength={20}
                         className="w-full px-4 py-3 bg-zinc-800/50 border-2 border-zinc-700/50 rounded-xl text-white placeholder-zinc-500 outline-none transition-all focus:border-purple-500 focus:bg-zinc-800/80"
+                        autoComplete="username"
                       />
-                      <Target className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600" />
+                      <Target className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600" aria-hidden="true" />
                     </div>
                   </motion.div>
                 )}
@@ -348,9 +355,11 @@ export default function GameOver({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl"
+                    role="status"
+                    aria-live="polite"
                   >
                     <div className="flex items-center gap-2 text-emerald-400">
-                      <Zap className="w-5 h-5" />
+                      <Zap className="w-5 h-5" aria-hidden="true" />
                       <p className="font-medium">Score saved successfully!</p>
                     </div>
                   </motion.div>
@@ -372,7 +381,7 @@ export default function GameOver({
                     disabled={!guestUsername.trim()}
                     className="flex-1 px-5 py-3.5 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-800/50 disabled:text-zinc-600 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-zinc-700/50"
                   >
-                    <Save className="w-5 h-5" />
+                    <Save className="w-5 h-5" aria-hidden="true" />
                     <span>Save</span>
                   </motion.button>
                 )}
@@ -383,7 +392,7 @@ export default function GameOver({
                   onClick={handlePlayAgain}
                   className="flex-1 px-5 py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30"
                 >
-                  <Play className="w-5 h-5" />
+                  <Play className="w-5 h-5" aria-hidden="true" />
                   <span>Play Again</span>
                 </motion.button>
               </motion.div>

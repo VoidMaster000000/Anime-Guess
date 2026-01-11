@@ -89,6 +89,7 @@ function AnimatedHeart({ index, lives, lostLife, maxLives }: { index: number; li
       }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className="relative"
+      aria-hidden="true"
     >
       {isActive ? (
         <div className="relative">
@@ -221,8 +222,8 @@ export default function GameStats({ lives, streak, points, highStreak, maxLives 
         <div className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
             {/* Lives Section */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30">
+            <div className="flex items-center gap-2 sm:gap-3" role="status" aria-label={`Lives: ${lives} of ${maxLives}`}>
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30" aria-hidden="true">
                 <Shield className="w-4 h-4 text-red-400" />
                 <span className="text-xs text-red-400 font-medium">HP</span>
               </div>
@@ -245,10 +246,10 @@ export default function GameStats({ lives, streak, points, highStreak, maxLives 
             {/* Center Stats */}
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
               {/* Streak */}
-              <div className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-150 ${streakTier.bg} ${streakTier.border}`}>
+              <div className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border backdrop-blur-sm transition-all duration-150 ${streakTier.bg} ${streakTier.border}`} role="status" aria-label={`Current streak: ${streak}${streakTier.name ? `, ${streakTier.name} tier` : ''}`}>
                 <StreakFireEffect streak={streak} />
                 <div className="relative z-10 flex items-center gap-2 sm:gap-3">
-                  <div className="relative">
+                  <div className="relative" aria-hidden="true">
                     <Flame className={`w-5 h-5 sm:w-6 sm:h-6 ${streakTier.color} ${streak >= 5 ? 'animate-pulse' : ''}`} />
                     {streak >= 10 && (
                       <Flame className={`absolute inset-0 w-5 h-5 sm:w-6 sm:h-6 ${streakTier.color} blur-sm opacity-60`} />
@@ -276,8 +277,8 @@ export default function GameStats({ lives, streak, points, highStreak, maxLives 
                       exit={{ opacity: 0, y: -60, scale: 0.8 }}
                       className="absolute top-0 left-1/2 -translate-x-1/2 whitespace-nowrap"
                     >
-                      <div className={`px-3 py-1 rounded-full ${streakTier.bg} border ${streakTier.border} ${streakTier.color} text-xs font-bold flex items-center gap-1`}>
-                        <Zap className="w-3 h-3" />
+                      <div className={`px-3 py-1 rounded-full ${streakTier.bg} border ${streakTier.border} ${streakTier.color} text-xs font-bold flex items-center gap-1`} role="alert">
+                        <Zap className="w-3 h-3" aria-hidden="true" />
                         {streak} STREAK BONUS!
                       </div>
                     </motion.div>

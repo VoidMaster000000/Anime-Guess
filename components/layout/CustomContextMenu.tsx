@@ -65,6 +65,8 @@ function AnimatedMenuItem({
             : 'text-zinc-300 hover:text-white'
         }`}
       style={{ width: 'calc(100% - 8px)' }}
+      role="menuitem"
+      aria-disabled={item.disabled}
     >
       {/* Hover background effect */}
       {!item.disabled && (
@@ -112,8 +114,10 @@ function AnimatedMenuItem({
 
       {/* Arrow indicator */}
       {!item.disabled && (
-        <ChevronRight className={`relative w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all duration-200
+        <ChevronRight
+          className={`relative w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0 transition-all duration-200
           ${item.highlight ? 'text-purple-400' : 'text-zinc-500'}`}
+          aria-hidden="true"
         />
       )}
     </motion.button>
@@ -363,13 +367,13 @@ export default function CustomContextMenu() {
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/15 via-pink-500/10 to-transparent" />
 
               {/* Animated sparkles */}
-              <div className="absolute top-2 right-3 opacity-50">
+              <div className="absolute top-2 right-3 opacity-50" aria-hidden="true">
                 <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
               </div>
 
               <div className="relative flex items-center gap-3">
                 {/* Logo icon with glow */}
-                <div className="relative">
+                <div className="relative" aria-hidden="true">
                   <div className="absolute inset-0 bg-purple-500/40 blur-lg rounded-lg" />
                   <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
                     <Gamepad2 className="w-5 h-5 text-white" />
@@ -385,7 +389,7 @@ export default function CustomContextMenu() {
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-xs text-zinc-400">{user.username}</span>
                       <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded bg-gradient-to-r ${getLevelColor()} text-black flex items-center gap-0.5`}>
-                        {userLevel >= 30 && <Crown className="w-2.5 h-2.5" />}
+                        {userLevel >= 30 && <Crown className="w-2.5 h-2.5" aria-hidden="true" />}
                         Lv.{userLevel}
                       </span>
                     </div>
@@ -400,11 +404,11 @@ export default function CustomContextMenu() {
             <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
 
             {/* Menu Items */}
-            <div className="py-2">
+            <div className="py-2" role="menu" aria-label="Navigation menu">
               {menuItems.map((item, index) => (
                 <div key={index}>
                   {item.divider && index > 0 && (
-                    <div className="my-1.5 mx-3 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" />
+                    <div className="my-1.5 mx-3 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" role="separator" aria-hidden="true" />
                   )}
                   <AnimatedMenuItem
                     item={item}
@@ -419,7 +423,7 @@ export default function CustomContextMenu() {
             <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
 
             {/* Footer */}
-            <div className="px-4 py-2 bg-zinc-900/50">
+            <div className="px-4 py-2 bg-zinc-900/50" aria-hidden="true">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Zap className="w-3 h-3 text-zinc-600" />

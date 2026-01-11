@@ -10,7 +10,8 @@ export default function Footer() {
           {/* Credits */}
           <p className="text-text-secondary text-sm flex items-center gap-2">
             Made with{" "}
-            <Heart className="h-4 w-4 text-accent fill-accent animate-pulse" />{" "}
+            <Heart className="h-4 w-4 text-accent fill-accent animate-pulse" aria-hidden="true" />{" "}
+            <span className="sr-only">love</span>
             by the Anime Guess Team
           </p>
 

@@ -39,6 +39,8 @@ function AnimatedErrorMessage({ message }: { message: string }) {
   return (
     <div
       className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg animate-fade-in"
+      role="alert"
+      aria-live="assertive"
     >
       <p className="text-sm text-red-400">{message}</p>
     </div>
@@ -69,7 +71,7 @@ function HoverButton({
 
 function SpinningLoader() {
   return (
-    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" role="status" aria-label="Loading" />
   );
 }
 
@@ -132,7 +134,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Mail className="w-5 h-5 text-purple-400" />
+              <Mail className="w-5 h-5 text-purple-400" aria-hidden="true" />
             </div>
             <input
               id="email"
@@ -146,6 +148,8 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
                        hover:border-purple-500/50"
               placeholder="Enter your email"
               disabled={isLoading}
+              autoComplete="email"
+              aria-required="true"
             />
           </div>
         </div>
@@ -157,7 +161,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Lock className="w-5 h-5 text-purple-400" />
+              <Lock className="w-5 h-5 text-purple-400" aria-hidden="true" />
             </div>
             <input
               id="password"
@@ -171,6 +175,8 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
                        hover:border-purple-500/50"
               placeholder="Enter your password"
               disabled={isLoading}
+              autoComplete="current-password"
+              aria-required="true"
             />
             <button
               type="button"
@@ -178,8 +184,9 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
               className="absolute inset-y-0 right-0 flex items-center pr-3 text-purple-400
                        hover:text-purple-300 transition-colors"
               disabled={isLoading}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -224,11 +231,12 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             </>
           ) : (
             <>
-              <LogIn className="w-5 h-5" />
+              <LogIn className="w-5 h-5" aria-hidden="true" />
               <span>Login</span>
               <div
                 className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0
                          group-hover:opacity-20 transition-opacity duration-300"
+                aria-hidden="true"
               />
             </>
           )}
