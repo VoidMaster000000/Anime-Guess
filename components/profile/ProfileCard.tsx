@@ -121,7 +121,7 @@ export default function ProfileCard({ onEditProfile, onLogout }: ProfileCardProp
       <div className="px-4 sm:px-6 pb-3 sm:pb-4 relative">
         <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
           <span>Level {level}</span>
-          <span>{currentXp} / {requiredXp} XP</span>
+          <span>{xp} / {requiredXp} XP</span>
         </div>
         <div
           className="w-full h-2 bg-gray-800 rounded-full overflow-hidden"
