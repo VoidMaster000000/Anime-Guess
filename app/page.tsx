@@ -183,7 +183,7 @@ export default function GamePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white overflow-hidden relative" aria-label="Anime Guess Game">
+    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white relative" aria-label="Anime Guess Game">
       {/* Background handled globally by BackgroundVisuals component */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
         <AnimatePresence mode="wait">
