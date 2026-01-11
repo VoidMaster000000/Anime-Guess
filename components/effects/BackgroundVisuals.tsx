@@ -15,7 +15,7 @@ export default function BackgroundVisuals() {
   const sparkleContainerRef = useRef<HTMLDivElement>(null);
   const sparklesRef = useRef<Sparkle[]>([]);
   const lastSparkleTime = useRef(0);
-  const { reduceAnimations, disableParticles, disableBlur, isReady } = usePerformanceMode();
+  const { reduceAnimations, disableParticles, disableBlur } = usePerformanceMode();
 
   useEffect(() => {
     // Skip sparkle effect if particles are disabled
@@ -93,48 +93,50 @@ export default function BackgroundVisuals() {
     };
   }, [disableParticles, reduceAnimations]);
 
-  // Minimal background for low-end devices
-  if (reduceAnimations && isReady) {
-    return (
-      <div className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-300">
-        {/* Simple static gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/20 via-transparent to-cyan-950/20" />
-      </div>
-    );
-  }
-
+  // Always render the same DOM structure to prevent layout shifts
+  // Use CSS classes to show/hide elements based on performance mode
   return (
-    <div
-      className="contents"
-      style={{
-        opacity: isReady ? 1 : 0,
-        transition: 'opacity 0.3s ease-in-out'
-      }}
-    >
-      {/* Sparkle container for mouse interaction */}
-      {!disableParticles && (
-        <div
-          ref={sparkleContainerRef}
-          className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-        />
-      )}
+    <div className="contents">
+      {/* Sparkle container - always in DOM, conditionally populated */}
+      <div
+        ref={sparkleContainerRef}
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+        style={{ display: disableParticles ? 'none' : 'block' }}
+      />
 
       {/* Gaming Background - Using CSS classes from globals.css */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Hex pattern */}
-        <div className="bg-hex-pattern" />
+        {/* Simple static gradient for reduced animations mode */}
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-purple-950/20 via-transparent to-cyan-950/20"
+          style={{ opacity: reduceAnimations ? 1 : 0 }}
+        />
 
-        {/* Floating orbs - skip on blur-disabled devices */}
-        {!disableBlur && (
-          <>
-            <div className="orb-gaming orb-purple -top-20 -left-20" />
-            <div className="orb-gaming orb-cyan top-1/3 -right-32" />
-            <div className="orb-gaming orb-pink bottom-20 left-1/4" />
-          </>
-        )}
+        {/* Hex pattern - hidden in reduced mode via CSS */}
+        <div
+          className="bg-hex-pattern"
+          style={{ opacity: reduceAnimations ? 0 : 1 }}
+        />
 
-        {/* Scan line - skip on reduced animations */}
-        {!reduceAnimations && <div className="scan-line" />}
+        {/* Floating orbs - use visibility instead of conditional render */}
+        <div
+          className="orb-gaming orb-purple -top-20 -left-20"
+          style={{ display: disableBlur ? 'none' : 'block' }}
+        />
+        <div
+          className="orb-gaming orb-cyan top-1/3 -right-32"
+          style={{ display: disableBlur ? 'none' : 'block' }}
+        />
+        <div
+          className="orb-gaming orb-pink bottom-20 left-1/4"
+          style={{ display: disableBlur ? 'none' : 'block' }}
+        />
+
+        {/* Scan line - use visibility instead of conditional render */}
+        <div
+          className="scan-line"
+          style={{ display: reduceAnimations ? 'none' : 'block' }}
+        />
 
         {/* Tech lines */}
         <div className="tech-lines" />
