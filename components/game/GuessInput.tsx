@@ -34,9 +34,10 @@ export default function GuessInput({ onGuess, disabled }: GuessInputProps) {
   useEffect(() => {
     if (showDropdown && inputRef.current) {
       const rect = inputRef.current.getBoundingClientRect();
+      // Fixed positioning is relative to viewport, so no need for scroll offset
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 8,
-        left: rect.left + window.scrollX,
+        top: rect.bottom + 8,
+        left: rect.left,
         width: rect.width,
       });
     }
