@@ -249,7 +249,7 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
               onClick={() => setMobileMenuOpen(false)}
             />
 
@@ -259,7 +259,7 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="md:hidden fixed top-0 right-0 h-full w-[280px] bg-zinc-900/98 backdrop-blur-xl border-l border-zinc-800 z-50 overflow-y-auto"
+              className="md:hidden fixed inset-y-0 right-0 w-[280px] bg-zinc-900 backdrop-blur-xl border-l border-zinc-800 z-[60] overflow-y-auto"
               id="mobile-menu"
               role="navigation"
               aria-label="Mobile navigation"
