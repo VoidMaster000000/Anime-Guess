@@ -162,16 +162,14 @@ export default function ShopPage() {
         >
           {/* Header Navigation */}
           <motion.div variants={staggerItem} className="flex items-center justify-between mb-6">
-            <motion.button
-              whileHover={{ scale: 1.05, x: -2 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-purple-500/30 hover:text-white transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-purple-500/30 hover:text-white transition-all duration-150 hover:scale-105 hover:-translate-x-0.5 active:scale-95"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="hidden sm:inline font-medium">Back to Game</span>
               <span className="sm:hidden font-medium">Back</span>
-            </motion.button>
+            </button>
 
             {/* Coins Display - Hero Style */}
             <motion.div

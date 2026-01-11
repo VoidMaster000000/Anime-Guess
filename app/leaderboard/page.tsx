@@ -13,7 +13,7 @@ type TimeFilter = 'all' | 'today' | 'week' | 'month';
 type SortMode = 'streak' | 'points' | 'level' | 'accuracy';
 type DifficultyFilter = 'all' | GameDifficulty;
 
-// Filter Button Component - Gaming Style
+// Filter Button Component - Gaming Style (CSS transitions for better INP)
 function FilterBtn({
   active,
   onClick,
@@ -37,12 +37,11 @@ function FilterBtn({
   const style = colorStyles[color];
 
   return (
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+    <button
       onClick={onClick}
       className={`
-        px-3 py-1.5 rounded-lg text-sm font-medium transition-all border cursor-pointer
+        px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-100 border cursor-pointer
+        hover:scale-105 active:scale-95
         ${active
           ? `bg-gradient-to-r ${style.active}`
           : `bg-zinc-800/50 text-zinc-400 border-zinc-700/50 ${style.hover} hover:text-zinc-200`
@@ -50,7 +49,7 @@ function FilterBtn({
       `}
     >
       {children}
-    </motion.button>
+    </button>
   );
 }
 
@@ -235,25 +234,21 @@ export default function LeaderboardPage() {
             transition={{ duration: 0.3 }}
             className="flex items-center justify-between mb-6"
           >
-            <motion.button
-              whileHover={{ scale: 1.05, x: -2 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => router.push('/')}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-purple-500/30 hover:text-white transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-purple-500/30 hover:text-white transition-all duration-150 hover:scale-105 hover:-translate-x-0.5 active:scale-95"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="hidden sm:inline">Back to Game</span>
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            </button>
+            <button
               onClick={loadLeaderboard}
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-cyan-500/30 hover:text-white transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 hover:border-cyan-500/30 hover:text-white transition-all duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
             >
               <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
-            </motion.button>
+            </button>
           </motion.div>
 
           {/* Title Section */}
@@ -358,19 +353,14 @@ export default function LeaderboardPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-12 py-3 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
             />
-            <AnimatePresence>
-              {searchQuery && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </motion.button>
-              )}
-            </AnimatePresence>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-all duration-100 hover:scale-110 active:scale-90"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
           </motion.div>
 
           {/* Filters */}

@@ -78,23 +78,21 @@ export default function UpgradeCard({ item, onPurchase, disabled, owned }: Upgra
             <span className="text-2xl font-bold text-yellow-500">{item.cost}</span>
           </div>
 
-          <motion.button
+          <button
             onClick={onPurchase}
             disabled={disabled}
-            whileHover={!disabled ? { scale: 1.05 } : undefined}
-            whileTap={!disabled ? { scale: 0.95 } : undefined}
             className={`
               px-6 py-2.5 rounded-lg font-semibold text-sm
-              transition-all duration-200 flex items-center gap-2
+              transition-all duration-150 flex items-center gap-2
               ${disabled
                 ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 hover:shadow-lg hover:shadow-purple-500/30'
+                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95'
               }
             `}
             aria-label={`Purchase ${item.name} for ${item.cost} coins${owned !== undefined && owned > 0 ? `, currently owned: ${owned}` : ''}`}
           >
             Purchase
-          </motion.button>
+          </button>
         </div>
 
         {/* Max owned indicator */}
