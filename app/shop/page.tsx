@@ -14,17 +14,17 @@ interface Notification {
   message: string;
 }
 
-// Floating Coin Animation
+// Floating Coin Animation - contained within page bounds
 function FloatingCoins() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
           initial={{ y: '100%', x: `${15 + i * 15}%`, opacity: 0, rotate: 0 }}
           animate={{
-            y: [null, '-20%'],
-            opacity: [0, 0.6, 0],
+            y: ['100%', '5%'],
+            opacity: [0, 0.5, 0],
             rotate: [0, 360],
           }}
           transition={{
