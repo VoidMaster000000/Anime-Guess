@@ -28,7 +28,8 @@ export interface LeaderboardFilters {
 }
 
 /**
- * Add or update leaderboard entry (keeps only the best score per player)
+ * Add or update leaderboard entry (keeps only the best score per player PER DIFFICULTY)
+ * This allows users to have separate best scores for each difficulty mode
  */
 export async function addLeaderboardEntry(
   entry: LeaderboardEntryInput
@@ -36,8 +37,11 @@ export async function addLeaderboardEntry(
   const db = await getDatabase();
   const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
 
-  // Check if player already has an entry
-  const existingEntry = await leaderboard.findOne({ odId: entry.odId });
+  // Check if player already has an entry for THIS SPECIFIC DIFFICULTY
+  const existingEntry = await leaderboard.findOne({
+    odId: entry.odId,
+    difficulty: entry.difficulty
+  });
 
   const newEntryData: DBLeaderboardEntry = {
     odId: entry.odId,
@@ -70,7 +74,6 @@ export async function addLeaderboardEntry(
             avatarImage: entry.avatarImage,
             streak: entry.streak,
             points: entry.points,
-            difficulty: entry.difficulty,
             level: entry.level,
             accuracy: entry.accuracy,
             createdAt: new Date(),
@@ -86,7 +89,7 @@ export async function addLeaderboardEntry(
     return existingEntry;
   }
 
-  // Create new entry if player doesn't exist
+  // Create new entry if player doesn't have one for this difficulty
   const result = await leaderboard.insertOne(newEntryData);
   return { ...newEntryData, _id: result.insertedId };
 }
@@ -107,20 +110,23 @@ export async function getLeaderboard(
     isSuspicious: false, // Don't show suspicious entries
   };
 
-  // Time filter
+  // Time filter (using UTC for consistency)
   if (timeFrame !== 'all') {
     const now = new Date();
     let startDate: Date;
 
     switch (timeFrame) {
       case 'today':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        // Start of today in UTC
+        startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         break;
       case 'week':
+        // 7 days ago from now
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
       case 'month':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        // Start of current month in UTC
+        startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
         break;
       default:
         startDate = new Date(0);
@@ -188,7 +194,7 @@ export async function getUserRank(
 
   const best = userBest[0];
 
-  // Build time query
+  // Build time query (using UTC for consistency)
   const query: any = { isSuspicious: false };
   if (timeFrame !== 'all') {
     const now = new Date();
@@ -196,13 +202,16 @@ export async function getUserRank(
 
     switch (timeFrame) {
       case 'today':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        // Start of today in UTC
+        startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         break;
       case 'week':
+        // 7 days ago from now
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
       case 'month':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        // Start of current month in UTC
+        startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
         break;
       default:
         startDate = new Date(0);
@@ -275,6 +284,7 @@ export async function getLeaderboardStats(): Promise<LeaderboardStats> {
 
 /**
  * Update user's profile data on leaderboard (sync username, avatar, avatarImage)
+ * Updates ALL entries for this user across all difficulties
  */
 export async function syncLeaderboardProfile(
   odId: string,
@@ -303,7 +313,8 @@ export async function syncLeaderboardProfile(
     return true;
   }
 
-  const result = await leaderboard.updateOne(
+  // Update ALL entries for this user (they may have entries for multiple difficulties)
+  const result = await leaderboard.updateMany(
     { odId },
     { $set: setFields }
   );
@@ -396,16 +407,16 @@ export async function cleanupOrphanedEntries(): Promise<{ removed: number }> {
 }
 
 /**
- * Clean up duplicate leaderboard entries - keeps only the best score per player
+ * Clean up duplicate leaderboard entries - keeps only the best score per player PER DIFFICULTY
  * This should be run once to fix legacy data
  */
 export async function cleanupDuplicateEntries(): Promise<{ removed: number; playersProcessed: number }> {
   const db = await getDatabase();
   const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
 
-  // Find all unique odIds that have more than one entry
+  // Find all unique odId+difficulty combinations that have more than one entry
   const duplicates = await leaderboard.aggregate([
-    { $group: { _id: '$odId', count: { $sum: 1 }, entries: { $push: '$$ROOT' } } },
+    { $group: { _id: { odId: '$odId', difficulty: '$difficulty' }, count: { $sum: 1 }, entries: { $push: '$$ROOT' } } },
     { $match: { count: { $gt: 1 } } },
   ]).toArray();
 
@@ -429,11 +440,14 @@ export async function cleanupDuplicateEntries(): Promise<{ removed: number; play
     }
   }
 
-  // Create unique index on odId to prevent future duplicates
+  // Create compound unique index on odId + difficulty to prevent future duplicates
   try {
-    await leaderboard.createIndex({ odId: 1 }, { unique: true });
+    // First, drop the old index if it exists
+    await leaderboard.dropIndex('odId_1').catch(() => {});
+    // Create new compound unique index
+    await leaderboard.createIndex({ odId: 1, difficulty: 1 }, { unique: true });
   } catch {
-    // Index may already exist
+    // Index may already exist or other error
   }
 
   return { removed, playersProcessed: duplicates.length };

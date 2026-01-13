@@ -410,7 +410,7 @@ export const useGameStore = create<GameState>()(
        * Save current game to leaderboard (local + global if authenticated)
        */
       saveToLeaderboard: async (username: string) => {
-        const { streak, points, difficulty, leaderboard, isGuest } = get();
+        const { streak, points, difficulty, leaderboard } = get();
 
         if (streak === 0) return; // Don't save if no progress made
 
@@ -438,22 +438,22 @@ export const useGameStore = create<GameState>()(
 
         set({ leaderboard: trimmedLeaderboard });
 
-        // If authenticated, also save to global MongoDB leaderboard
-        if (!isGuest) {
-          try {
-            // Submit score to global leaderboard
-            await fetch('/api/leaderboard', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                streak,
-                points,
-                difficulty,
-                accuracy: 0, // Will be calculated if needed
-              }),
-            });
+        // Always try to save to global MongoDB leaderboard (API checks auth via cookies)
+        try {
+          // Submit score to global leaderboard
+          const leaderboardRes = await fetch('/api/leaderboard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              streak,
+              points,
+              difficulty,
+              accuracy: 0, // Will be calculated server-side
+            }),
+          });
 
-            // Update user stats
+          // Only update profile stats if leaderboard save succeeded (meaning user is authenticated)
+          if (leaderboardRes.ok) {
             await fetch('/api/profile/stats', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -464,9 +464,9 @@ export const useGameStore = create<GameState>()(
                 newStreak: streak,
               }),
             });
-          } catch (error) {
-            console.error('Failed to sync with server:', error);
           }
+        } catch (error) {
+          console.error('Failed to sync with server:', error);
         }
       },
 
