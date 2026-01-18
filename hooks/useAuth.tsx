@@ -237,6 +237,7 @@ export interface LeaderboardEntry {
   level: number;
   accuracy: number;
   date: string;
+  lastPlayedAt: string;
   rank: number;
 }
 

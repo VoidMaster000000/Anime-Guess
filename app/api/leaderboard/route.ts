@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
       level: entry.level,
       accuracy: entry.accuracy,
       date: entry.createdAt.toISOString(),
+      lastPlayedAt: entry.lastPlayedAt?.toISOString() || entry.createdAt.toISOString(),
       rank: offset + index + 1,
     }));
 
@@ -88,6 +89,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Calculate accuracy: use provided session accuracy if valid, otherwise calculate from profile
+    const sessionAccuracy = accuracy && accuracy > 0
+      ? accuracy
+      : Math.round((user.profile.correctGuesses / Math.max(user.profile.totalGuesses, 1)) * 100);
+
     // Create leaderboard entry
     const entry = await addLeaderboardEntry({
       odId: user.id,
@@ -98,7 +104,7 @@ export async function POST(request: NextRequest) {
       points,
       difficulty,
       level: user.profile.level,
-      accuracy: accuracy || Math.round((user.profile.correctGuesses / Math.max(user.profile.totalGuesses, 1)) * 100),
+      accuracy: sessionAccuracy,
       isSuspicious: isSuspicious || false,
       tabSwitches: tabSwitches || 0,
     });

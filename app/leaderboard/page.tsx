@@ -160,7 +160,9 @@ export default function LeaderboardPage() {
       const data = await fetchGlobalLeaderboard({ timeFrame: timeFilter, difficulty: difficultyFilter, limit: 100 });
       const transformedEntries: LeaderboardEntry[] = data.entries.map((entry, index) => ({
         id: entry.id, username: entry.username, streak: entry.streak, points: entry.points,
-        difficulty: entry.difficulty as GameDifficulty, date: entry.date, timestamp: new Date(entry.date).getTime(),
+        difficulty: entry.difficulty as GameDifficulty,
+        date: entry.lastPlayedAt || entry.date, // Use lastPlayedAt for display (when they last played)
+        timestamp: new Date(entry.lastPlayedAt || entry.date).getTime(),
         avatar: entry.avatar, avatarImage: entry.avatarImage,
         level: { current: entry.level, xp: 0, xpToNextLevel: 100, totalXp: 0, mode: 'infinite' as const },
         accuracy: entry.accuracy, userId: entry.odId, rank: entry.rank || index + 1,

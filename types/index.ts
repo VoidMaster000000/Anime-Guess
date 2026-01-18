@@ -161,6 +161,10 @@ export interface GameState {
   points: number;                      // Points in current game
   totalPoints: number;                 // All-time total points earned
 
+  // Session stats (for current game session)
+  sessionCorrectGuesses: number;       // Correct guesses in current session
+  sessionTotalGuesses: number;         // Total guesses in current session
+
   // Game settings
   difficulty: GameDifficulty;
   gameStatus: GameStatus;

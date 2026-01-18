@@ -92,6 +92,10 @@ export const useGameStore = create<GameState>()(
       points: 0,
       totalPoints: 0,
 
+      // Session stats (for current game session)
+      sessionCorrectGuesses: 0,
+      sessionTotalGuesses: 0,
+
       // Game settings
       difficulty: GameDifficulty.MEDIUM,
       gameStatus: 'menu',
@@ -138,6 +142,9 @@ export const useGameStore = create<GameState>()(
           maxHints: maxAllowedHints,
           timeRemaining: config.timeLimit ?? null,
           isGuest: !isAuthenticated,
+          // Reset session stats
+          sessionCorrectGuesses: 0,
+          sessionTotalGuesses: 0,
         });
 
         // Fetch the first character
@@ -210,12 +217,17 @@ export const useGameStore = create<GameState>()(
           highStreak,
           points,
           totalPoints,
+          sessionCorrectGuesses,
+          sessionTotalGuesses,
           _checkAnswer,
           _calculatePoints,
         } = get();
 
         // Check if the answer is correct
         const isCorrect = _checkAnswer(guess, correctAnime);
+
+        // Always increment total guesses for the session
+        const newSessionTotalGuesses = sessionTotalGuesses + 1;
 
         if (isCorrect) {
           // Calculate points for this round
@@ -232,6 +244,8 @@ export const useGameStore = create<GameState>()(
             points: newPoints,
             totalPoints: newTotalPoints,
             timeRemaining: null, // Stop timer
+            sessionCorrectGuesses: sessionCorrectGuesses + 1,
+            sessionTotalGuesses: newSessionTotalGuesses,
           });
 
           return true;
@@ -245,9 +259,13 @@ export const useGameStore = create<GameState>()(
               lives: 0,
               gameStatus: 'gameover',
               timeRemaining: null,
+              sessionTotalGuesses: newSessionTotalGuesses,
             });
           } else {
-            set({ lives: newLives });
+            set({
+              lives: newLives,
+              sessionTotalGuesses: newSessionTotalGuesses,
+            });
           }
 
           return false;
@@ -398,6 +416,9 @@ export const useGameStore = create<GameState>()(
           gameStatus: 'menu',
           isLoading: false,
           timeRemaining: null,
+          // Reset session stats
+          sessionCorrectGuesses: 0,
+          sessionTotalGuesses: 0,
           // Preserve persistent data
           highStreak,
           totalPoints,
@@ -410,9 +431,14 @@ export const useGameStore = create<GameState>()(
        * Save current game to leaderboard (local + global if authenticated)
        */
       saveToLeaderboard: async (username: string) => {
-        const { streak, points, difficulty, leaderboard } = get();
+        const { streak, points, difficulty, leaderboard, sessionCorrectGuesses, sessionTotalGuesses } = get();
 
         if (streak === 0) return; // Don't save if no progress made
+
+        // Calculate session accuracy
+        const sessionAccuracy = sessionTotalGuesses > 0
+          ? Math.round((sessionCorrectGuesses / sessionTotalGuesses) * 100)
+          : 0;
 
         // Local leaderboard entry (for guests and as backup)
         const entry: LeaderboardEntry = {
@@ -423,6 +449,7 @@ export const useGameStore = create<GameState>()(
           difficulty,
           date: new Date().toISOString(),
           timestamp: Date.now(),
+          accuracy: sessionAccuracy,
         };
 
         // Add to local leaderboard and sort by streak (descending), then points
@@ -440,7 +467,7 @@ export const useGameStore = create<GameState>()(
 
         // Always try to save to global MongoDB leaderboard (API checks auth via cookies)
         try {
-          // Submit score to global leaderboard
+          // Submit score to global leaderboard with actual session accuracy
           const leaderboardRes = await fetch('/api/leaderboard', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -448,7 +475,7 @@ export const useGameStore = create<GameState>()(
               streak,
               points,
               difficulty,
-              accuracy: 0, // Will be calculated server-side
+              accuracy: sessionAccuracy, // Actual session accuracy
             }),
           });
 

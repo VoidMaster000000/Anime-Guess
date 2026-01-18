@@ -25,17 +25,21 @@ export interface LeaderboardFilters {
   difficulty?: 'all' | 'easy' | 'medium' | 'hard' | 'timed';
   limit?: number;
   offset?: number;
+  filterByLastPlayed?: boolean; // If true, filter by lastPlayedAt instead of createdAt
 }
 
 /**
  * Add or update leaderboard entry (keeps only the best score per player PER DIFFICULTY)
  * This allows users to have separate best scores for each difficulty mode
+ * Always updates lastPlayedAt to track recent activity
  */
 export async function addLeaderboardEntry(
   entry: LeaderboardEntryInput
 ): Promise<DBLeaderboardEntry> {
   const db = await getDatabase();
   const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
+
+  const now = new Date();
 
   // Check if player already has an entry for THIS SPECIFIC DIFFICULTY
   const existingEntry = await leaderboard.findOne({
@@ -53,7 +57,8 @@ export async function addLeaderboardEntry(
     difficulty: entry.difficulty,
     level: entry.level,
     accuracy: entry.accuracy,
-    createdAt: new Date(),
+    createdAt: now,
+    lastPlayedAt: now,
     isSuspicious: entry.isSuspicious || false,
     tabSwitches: entry.tabSwitches || 0,
   };
@@ -65,6 +70,7 @@ export async function addLeaderboardEntry(
       (entry.streak === existingEntry.streak && entry.points > existingEntry.points);
 
     if (isBetterScore) {
+      // New high score - update everything including createdAt
       await leaderboard.updateOne(
         { _id: existingEntry._id },
         {
@@ -76,17 +82,40 @@ export async function addLeaderboardEntry(
             points: entry.points,
             level: entry.level,
             accuracy: entry.accuracy,
-            createdAt: new Date(),
+            createdAt: now,
+            lastPlayedAt: now,
             isSuspicious: entry.isSuspicious || false,
             tabSwitches: entry.tabSwitches || 0,
           },
         }
       );
       return { ...newEntryData, _id: existingEntry._id };
+    } else {
+      // Not a better score - still update lastPlayedAt, level, accuracy, and profile info
+      await leaderboard.updateOne(
+        { _id: existingEntry._id },
+        {
+          $set: {
+            username: entry.username,
+            avatar: entry.avatar,
+            avatarImage: entry.avatarImage,
+            level: entry.level,
+            accuracy: entry.accuracy,
+            lastPlayedAt: now,
+          },
+        }
+      );
+      // Return the existing entry with updated lastPlayedAt
+      return {
+        ...existingEntry,
+        lastPlayedAt: now,
+        level: entry.level,
+        accuracy: entry.accuracy,
+        username: entry.username,
+        avatar: entry.avatar,
+        avatarImage: entry.avatarImage,
+      };
     }
-
-    // Return existing entry if new score is not better
-    return existingEntry;
   }
 
   // Create new entry if player doesn't have one for this difficulty
@@ -96,6 +125,7 @@ export async function addLeaderboardEntry(
 
 /**
  * Get global leaderboard
+ * By default, filters by lastPlayedAt for time-based filters to show recently active players
  */
 export async function getLeaderboard(
   filters: LeaderboardFilters = {}
@@ -103,7 +133,7 @@ export async function getLeaderboard(
   const db = await getDatabase();
   const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
 
-  const { timeFrame = 'all', difficulty = 'all', limit = 100, offset = 0 } = filters;
+  const { timeFrame = 'all', difficulty = 'all', limit = 100, offset = 0, filterByLastPlayed = true } = filters;
 
   // Build query
   const query: any = {
@@ -111,6 +141,8 @@ export async function getLeaderboard(
   };
 
   // Time filter (using UTC for consistency)
+  // Use lastPlayedAt by default to show recently active players
+  // Use createdAt only if filterByLastPlayed is explicitly false
   if (timeFrame !== 'all') {
     const now = new Date();
     let startDate: Date;
@@ -132,7 +164,9 @@ export async function getLeaderboard(
         startDate = new Date(0);
     }
 
-    query.createdAt = { $gte: startDate };
+    // Filter by lastPlayedAt for recent activity, or createdAt for when high score was achieved
+    const timeField = filterByLastPlayed ? 'lastPlayedAt' : 'createdAt';
+    query[timeField] = { $gte: startDate };
   }
 
   // Difficulty filter
@@ -146,7 +180,7 @@ export async function getLeaderboard(
   // Get entries sorted by streak, then points
   const entries = await leaderboard
     .find(query)
-    .sort({ streak: -1, points: -1, createdAt: -1 })
+    .sort({ streak: -1, points: -1, lastPlayedAt: -1 })
     .skip(offset)
     .limit(limit)
     .toArray();
@@ -404,6 +438,25 @@ export async function cleanupOrphanedEntries(): Promise<{ removed: number }> {
   }
 
   return { removed };
+}
+
+/**
+ * Migrate existing entries to have lastPlayedAt field
+ * Sets lastPlayedAt to createdAt for entries that don't have it
+ */
+export async function migrateLastPlayedAt(): Promise<{ migrated: number }> {
+  const db = await getDatabase();
+  const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
+
+  // Find all entries without lastPlayedAt and set it to createdAt
+  const result = await leaderboard.updateMany(
+    { lastPlayedAt: { $exists: false } },
+    [
+      { $set: { lastPlayedAt: '$createdAt' } }
+    ]
+  );
+
+  return { migrated: result.modifiedCount };
 }
 
 /**

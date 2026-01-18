@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { cleanupDuplicateEntries, cleanupOrphanedEntries, syncAllLeaderboardProfiles } from '@/lib/db/leaderboard';
+import { cleanupDuplicateEntries, cleanupOrphanedEntries, syncAllLeaderboardProfiles, migrateLastPlayedAt } from '@/lib/db/leaderboard';
 
 // Clean up and sync leaderboard entries
 export async function POST() {
   try {
-    // First, sync all profiles with current user data
+    // First, migrate lastPlayedAt for existing entries
+    const migrateResult = await migrateLastPlayedAt();
+
+    // Then, sync all profiles with current user data
     const syncResult = await syncAllLeaderboardProfiles();
 
     // Then, remove orphaned entries (users that no longer exist)
@@ -15,7 +18,8 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Synced ${syncResult.synced} profiles, removed ${orphanedResult.removed} orphaned and ${duplicateResult.removed} duplicate entries`,
+      message: `Migrated ${migrateResult.migrated} entries, synced ${syncResult.synced} profiles, removed ${orphanedResult.removed} orphaned and ${duplicateResult.removed} duplicate entries`,
+      entriesMigrated: migrateResult.migrated,
       profilesSynced: syncResult.synced,
       orphanedRemoved: orphanedResult.removed,
       duplicatesRemoved: duplicateResult.removed,

@@ -75,7 +75,8 @@ export interface DBLeaderboardEntry {
   accuracy: number;
 
   // Timestamps
-  createdAt: Date;
+  createdAt: Date;        // When best score was achieved
+  lastPlayedAt: Date;     // When user last played (updates every game)
 
   // Anti-cheat
   isSuspicious: boolean;
