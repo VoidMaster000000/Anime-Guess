@@ -96,6 +96,9 @@ export const useGameStore = create<GameState>()(
       sessionCorrectGuesses: 0,
       sessionTotalGuesses: 0,
 
+      // Track seen characters to avoid repeats
+      seenCharacterIds: [],
+
       // Game settings
       difficulty: GameDifficulty.MEDIUM,
       gameStatus: 'menu',
@@ -145,6 +148,8 @@ export const useGameStore = create<GameState>()(
           // Reset session stats
           sessionCorrectGuesses: 0,
           sessionTotalGuesses: 0,
+          // Reset seen characters for new game
+          seenCharacterIds: [],
         });
 
         // Fetch the first character
@@ -153,21 +158,31 @@ export const useGameStore = create<GameState>()(
 
       /**
        * Fetch a new character from the API
+       * Passes seen character IDs to avoid repeats
        */
       fetchNewCharacter: async () => {
         set({ isLoading: true });
 
         try {
-          const { difficulty } = get();
-          const response = await fetch(`/api/character?difficulty=${difficulty}`);
+          const { difficulty, seenCharacterIds } = get();
+
+          // Pass seen character IDs to avoid repeats
+          const excludeParam = seenCharacterIds.length > 0
+            ? `&exclude=${seenCharacterIds.join(',')}`
+            : '';
+
+          const response = await fetch(`/api/character?difficulty=${difficulty}${excludeParam}`);
           const data: FetchCharacterResponse = await response.json();
 
           if (data.success && data.character && data.correctAnime) {
-            const { difficulty, extraHintsOwned } = get();
+            const { difficulty, extraHintsOwned, seenCharacterIds } = get();
             const config = DIFFICULTY_CONFIGS[difficulty];
 
             // Max hints = free hints from difficulty + extra hints owned (capped at 4)
             const maxAllowedHints = Math.min(config.maxFreeHints + extraHintsOwned, 4);
+
+            // Add this character to seen list
+            const newSeenIds = [...seenCharacterIds, data.character.id];
 
             set({
               currentCharacter: data.character,
@@ -177,6 +192,7 @@ export const useGameStore = create<GameState>()(
               timeRemaining: config.timeLimit ?? null,
               isLoading: false,
               gameStatus: 'playing', // Reset to playing state for next round
+              seenCharacterIds: newSeenIds,
             });
           } else {
             console.error('Failed to fetch character:', data.error);
@@ -419,6 +435,8 @@ export const useGameStore = create<GameState>()(
           // Reset session stats
           sessionCorrectGuesses: 0,
           sessionTotalGuesses: 0,
+          // Reset seen characters
+          seenCharacterIds: [],
           // Preserve persistent data
           highStreak,
           totalPoints,

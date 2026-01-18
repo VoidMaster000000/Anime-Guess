@@ -165,6 +165,9 @@ export interface GameState {
   sessionCorrectGuesses: number;       // Correct guesses in current session
   sessionTotalGuesses: number;         // Total guesses in current session
 
+  // Track seen characters to avoid repeats
+  seenCharacterIds: number[];          // Character IDs already seen this session
+
   // Game settings
   difficulty: GameDifficulty;
   gameStatus: GameStatus;

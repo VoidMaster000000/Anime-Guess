@@ -59,6 +59,7 @@ function normalizeCharacterData(character: Character): NormalizedCharacter {
  * GET /api/character
  * Fetches a random anime character for the guessing game
  * @query difficulty - Game difficulty (EASY, MEDIUM, HARD, TIMED)
+ * @query exclude - Comma-separated list of character IDs to exclude (already seen)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -66,34 +67,38 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const difficulty = searchParams.get('difficulty') || 'MEDIUM';
 
-    // Fetch random character from AniList based on difficulty
-    const character = await fetchRandomCharacter(difficulty);
+    // Get excluded character IDs (already seen in this session)
+    const excludeParam = searchParams.get('exclude') || '';
+    const excludedIds = excludeParam
+      ? excludeParam.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id))
+      : [];
 
-    // Ensure character has at least one anime appearance
-    if (!character.media?.nodes || character.media.nodes.length === 0) {
-      // Retry once if no anime found
-      const retryCharacter = await fetchRandomCharacter(difficulty);
-      if (!retryCharacter.media?.nodes || retryCharacter.media.nodes.length === 0) {
-        return NextResponse.json(
-          { error: 'Character has no anime appearances' },
-          { status: 404 }
-        );
+    // Maximum retry attempts to find a non-duplicate character
+    const MAX_RETRIES = 10;
+    let character: Character | null = null;
+    let attempts = 0;
+
+    // Keep trying until we find a character not in the excluded list
+    while (attempts < MAX_RETRIES) {
+      attempts++;
+      const fetchedCharacter = await fetchRandomCharacter(difficulty);
+
+      // Check if this character was already seen
+      if (!excludedIds.includes(fetchedCharacter.id)) {
+        // Also verify the character has anime appearances
+        if (fetchedCharacter.media?.nodes && fetchedCharacter.media.nodes.length > 0) {
+          character = fetchedCharacter;
+          break;
+        }
       }
-      const normalizedData = normalizeCharacterData(retryCharacter);
-      return NextResponse.json({
-        success: true,
-        character: {
-          id: normalizedData.id,
-          name: normalizedData.name,
-          image: { large: normalizedData.imageUrl },
-          media: normalizedData.animeAppearances.map((a, i) => ({
-            id: i,
-            title: { romaji: a.romaji, english: a.english },
-            type: 'ANIME' as const,
-          })),
-        },
-        correctAnime: normalizedData.validTitles,
-      });
+    }
+
+    // If we couldn't find a new character after max retries, return error
+    if (!character) {
+      return NextResponse.json(
+        { error: 'Could not find a new character. Try starting a new game.' },
+        { status: 404 }
+      );
     }
 
     // Normalize and return character data
