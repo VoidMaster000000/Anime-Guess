@@ -207,6 +207,7 @@ export async function getUserBestScores(
 
 /**
  * Get user's rank on leaderboard
+ * Uses lastPlayedAt for time filtering to match the main leaderboard query
  */
 export async function getUserRank(
   odId: string,
@@ -229,6 +230,7 @@ export async function getUserRank(
   const best = userBest[0];
 
   // Build time query (using UTC for consistency)
+  // Use lastPlayedAt to match the main leaderboard filtering
   const query: any = { isSuspicious: false };
   if (timeFrame !== 'all') {
     const now = new Date();
@@ -250,7 +252,7 @@ export async function getUserRank(
       default:
         startDate = new Date(0);
     }
-    query.createdAt = { $gte: startDate };
+    query.lastPlayedAt = { $gte: startDate };
   }
 
   // Count players with higher scores
