@@ -18,8 +18,9 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Migrated ${migrateResult.migrated} entries, synced ${syncResult.synced} profiles, removed ${orphanedResult.removed} orphaned and ${duplicateResult.removed} duplicate entries`,
+      message: `Migrated ${migrateResult.migrated} entries, fixed ${migrateResult.fixed} date fields, synced ${syncResult.synced} profiles, removed ${orphanedResult.removed} orphaned and ${duplicateResult.removed} duplicate entries`,
       entriesMigrated: migrateResult.migrated,
+      dateFieldsFixed: migrateResult.fixed,
       profilesSynced: syncResult.synced,
       orphanedRemoved: orphanedResult.removed,
       duplicatesRemoved: duplicateResult.removed,

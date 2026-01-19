@@ -180,10 +180,10 @@ export async function getLeaderboard(
   // Get total count
   const total = await leaderboard.countDocuments(query);
 
-  // Get entries sorted by streak, then points
+  // Get entries sorted by streak, then points, then by when score was achieved
   const entries = await leaderboard
     .find(query)
-    .sort({ streak: -1, points: -1, lastPlayedAt: -1 })
+    .sort({ streak: -1, points: -1, createdAt: -1 })
     .skip(offset)
     .limit(limit)
     .toArray();
@@ -447,22 +447,85 @@ export async function cleanupOrphanedEntries(): Promise<{ removed: number }> {
 }
 
 /**
- * Migrate existing entries to have lastPlayedAt field
- * Sets lastPlayedAt to createdAt for entries that don't have it
+ * Migrate existing entries to have proper date fields
+ * - Sets lastPlayedAt to createdAt for entries that don't have it
+ * - Ensures createdAt and lastPlayedAt are proper Date objects (not strings)
  */
-export async function migrateLastPlayedAt(): Promise<{ migrated: number }> {
+export async function migrateLastPlayedAt(): Promise<{ migrated: number; fixed: number }> {
   const db = await getDatabase();
   const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
 
-  // Find all entries without lastPlayedAt and set it to createdAt
-  const result = await leaderboard.updateMany(
+  // First, fix entries without lastPlayedAt
+  const result1 = await leaderboard.updateMany(
     { lastPlayedAt: { $exists: false } },
     [
       { $set: { lastPlayedAt: '$createdAt' } }
     ]
   );
 
-  return { migrated: result.modifiedCount };
+  // Second, fix entries where dates might be stored as strings
+  // MongoDB $type: 2 = string, $type: 9 = date
+  const entries = await leaderboard.find({}).toArray();
+  let fixed = 0;
+
+  for (const entry of entries) {
+    const updates: Record<string, Date> = {};
+    let needsUpdate = false;
+
+    // Check if createdAt is a string and convert to Date
+    // MongoDB driver returns strings as strings, Dates as Date objects
+    const createdAtValue = entry.createdAt;
+    if (createdAtValue) {
+      if (typeof createdAtValue === 'string') {
+        updates.createdAt = new Date(createdAtValue);
+        needsUpdate = true;
+      } else if (!(createdAtValue instanceof Date)) {
+        // Handle case where it might be an object with $date property (EJSON format)
+        const dateStr = (createdAtValue as any).$date || String(createdAtValue);
+        updates.createdAt = new Date(dateStr);
+        needsUpdate = true;
+      }
+    } else {
+      // createdAt doesn't exist, set it to now
+      updates.createdAt = new Date();
+      needsUpdate = true;
+    }
+
+    // Check if lastPlayedAt is a string and convert to Date
+    const lastPlayedAtValue = entry.lastPlayedAt;
+    if (lastPlayedAtValue) {
+      if (typeof lastPlayedAtValue === 'string') {
+        updates.lastPlayedAt = new Date(lastPlayedAtValue);
+        needsUpdate = true;
+      } else if (!(lastPlayedAtValue instanceof Date)) {
+        const dateStr = (lastPlayedAtValue as any).$date || String(lastPlayedAtValue);
+        updates.lastPlayedAt = new Date(dateStr);
+        needsUpdate = true;
+      }
+    } else {
+      // lastPlayedAt doesn't exist, set it to createdAt or now
+      const baseDate = updates.createdAt || entry.createdAt;
+      updates.lastPlayedAt = baseDate instanceof Date ? baseDate : new Date(baseDate || Date.now());
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      await leaderboard.updateOne({ _id: entry._id }, { $set: updates });
+      fixed++;
+    }
+  }
+
+  // Create indexes for better query performance
+  try {
+    await leaderboard.createIndex({ createdAt: -1 });
+    await leaderboard.createIndex({ lastPlayedAt: -1 });
+    await leaderboard.createIndex({ isSuspicious: 1, createdAt: -1 });
+    await leaderboard.createIndex({ isSuspicious: 1, lastPlayedAt: -1 });
+  } catch {
+    // Indexes may already exist
+  }
+
+  return { migrated: result1.modifiedCount, fixed };
 }
 
 /**
