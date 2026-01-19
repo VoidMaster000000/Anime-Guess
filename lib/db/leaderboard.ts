@@ -125,7 +125,8 @@ export async function addLeaderboardEntry(
 
 /**
  * Get global leaderboard
- * By default, filters by lastPlayedAt for time-based filters to show recently active players
+ * By default, filters by createdAt (when high score was achieved) for time-based filters
+ * This shows scores SET in that time period, not just players who played recently
  */
 export async function getLeaderboard(
   filters: LeaderboardFilters = {}
@@ -133,7 +134,9 @@ export async function getLeaderboard(
   const db = await getDatabase();
   const leaderboard = db.collection<DBLeaderboardEntry>(COLLECTIONS.LEADERBOARD);
 
-  const { timeFrame = 'all', difficulty = 'all', limit = 100, offset = 0, filterByLastPlayed = true } = filters;
+  // filterByLastPlayed = false (default) means filter by createdAt (when high score was achieved)
+  // filterByLastPlayed = true means filter by lastPlayedAt (recent activity regardless of score)
+  const { timeFrame = 'all', difficulty = 'all', limit = 100, offset = 0, filterByLastPlayed = false } = filters;
 
   // Build query
   const query: any = {
@@ -141,8 +144,8 @@ export async function getLeaderboard(
   };
 
   // Time filter (using UTC for consistency)
-  // Use lastPlayedAt by default to show recently active players
-  // Use createdAt only if filterByLastPlayed is explicitly false
+  // Use createdAt by default to show scores achieved in that time period
+  // Use lastPlayedAt if filterByLastPlayed is explicitly true
   if (timeFrame !== 'all') {
     const now = new Date();
     let startDate: Date;
@@ -207,7 +210,8 @@ export async function getUserBestScores(
 
 /**
  * Get user's rank on leaderboard
- * Uses lastPlayedAt for time filtering to match the main leaderboard query
+ * Uses createdAt for time filtering to match the main leaderboard query
+ * This shows rank among scores ACHIEVED in that time period
  */
 export async function getUserRank(
   odId: string,
@@ -230,7 +234,7 @@ export async function getUserRank(
   const best = userBest[0];
 
   // Build time query (using UTC for consistency)
-  // Use lastPlayedAt to match the main leaderboard filtering
+  // Use createdAt to match the main leaderboard filtering (scores achieved in time period)
   const query: any = { isSuspicious: false };
   if (timeFrame !== 'all') {
     const now = new Date();
@@ -252,7 +256,7 @@ export async function getUserRank(
       default:
         startDate = new Date(0);
     }
-    query.lastPlayedAt = { $gte: startDate };
+    query.createdAt = { $gte: startDate };
   }
 
   // Count players with higher scores

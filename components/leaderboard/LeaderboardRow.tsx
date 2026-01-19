@@ -292,7 +292,7 @@ export default function LeaderboardRow({ entry, rank, isCurrentUser = false }: L
 
           {/* Date */}
           <div className="hidden lg:block text-right flex-shrink-0">
-            <div className="text-xs text-gray-500 mb-1">Last Played</div>
+            <div className="text-xs text-gray-500 mb-1">Achieved</div>
             <div className="text-sm text-gray-400 font-medium">
               {formatDate(entry.date)}
             </div>
