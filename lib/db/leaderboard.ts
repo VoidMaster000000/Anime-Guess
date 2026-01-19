@@ -127,6 +127,7 @@ export async function addLeaderboardEntry(
  * Get global leaderboard
  * By default, filters by createdAt (when high score was achieved) for time-based filters
  * This shows scores SET in that time period, not just players who played recently
+ * When difficulty='all', shows only the BEST score per player (not multiple entries per difficulty)
  */
 export async function getLeaderboard(
   filters: LeaderboardFilters = {}
@@ -138,8 +139,8 @@ export async function getLeaderboard(
   // filterByLastPlayed = true means filter by lastPlayedAt (recent activity regardless of score)
   const { timeFrame = 'all', difficulty = 'all', limit = 100, offset = 0, filterByLastPlayed = false } = filters;
 
-  // Build query
-  const query: any = {
+  // Build match query
+  const matchQuery: any = {
     isSuspicious: false, // Don't show suspicious entries
   };
 
@@ -169,24 +170,70 @@ export async function getLeaderboard(
 
     // Filter by lastPlayedAt for recent activity, or createdAt for when high score was achieved
     const timeField = filterByLastPlayed ? 'lastPlayedAt' : 'createdAt';
-    query[timeField] = { $gte: startDate };
+    matchQuery[timeField] = { $gte: startDate };
   }
 
   // Difficulty filter
   if (difficulty !== 'all') {
-    query.difficulty = difficulty;
+    matchQuery.difficulty = difficulty;
+
+    // When filtering by specific difficulty, show all entries for that difficulty
+    const total = await leaderboard.countDocuments(matchQuery);
+    const entries = await leaderboard
+      .find(matchQuery)
+      .sort({ streak: -1, points: -1, createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray();
+
+    return { entries, total };
   }
 
-  // Get total count
-  const total = await leaderboard.countDocuments(query);
+  // When difficulty='all', aggregate to show only the BEST score per player
+  // This prevents the same player from appearing multiple times with different difficulty scores
+  const pipeline = [
+    { $match: matchQuery },
+    // Sort first so $first picks the best score
+    { $sort: { streak: -1, points: -1, createdAt: -1 } },
+    // Group by player, keeping only their best score
+    {
+      $group: {
+        _id: '$odId',
+        odId: { $first: '$odId' },
+        username: { $first: '$username' },
+        avatar: { $first: '$avatar' },
+        avatarImage: { $first: '$avatarImage' },
+        streak: { $first: '$streak' },
+        points: { $first: '$points' },
+        difficulty: { $first: '$difficulty' },
+        level: { $first: '$level' },
+        accuracy: { $first: '$accuracy' },
+        createdAt: { $first: '$createdAt' },
+        lastPlayedAt: { $first: '$lastPlayedAt' },
+        isSuspicious: { $first: '$isSuspicious' },
+        tabSwitches: { $first: '$tabSwitches' },
+        docId: { $first: '$_id' },
+      },
+    },
+    // Restore _id field
+    { $addFields: { _id: '$docId' } },
+    // Sort again after grouping
+    { $sort: { streak: -1, points: -1, createdAt: -1 } },
+    // Pagination
+    { $skip: offset },
+    { $limit: limit },
+  ];
 
-  // Get entries sorted by streak, then points, then by when score was achieved
-  const entries = await leaderboard
-    .find(query)
-    .sort({ streak: -1, points: -1, createdAt: -1 })
-    .skip(offset)
-    .limit(limit)
-    .toArray();
+  const entries = await leaderboard.aggregate<DBLeaderboardEntry>(pipeline as any).toArray();
+
+  // Count unique players for total
+  const totalPipeline = [
+    { $match: matchQuery },
+    { $group: { _id: '$odId' } },
+    { $count: 'total' },
+  ];
+  const totalResult = await leaderboard.aggregate(totalPipeline).toArray();
+  const total = totalResult[0]?.total || 0;
 
   return { entries, total };
 }
