@@ -47,8 +47,13 @@ export default function Header() {
               variants={iconSpin}
               initial="rest"
               whileHover="hover"
+              className="relative"
             >
-              <Gamepad2 className="h-6 w-6 sm:h-7 sm:w-7 text-accent" />
+              <img
+                src="/logo.png"
+                alt="Anime Guess Logo"
+                className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+              />
             </motion.div>
             <span className="text-lg sm:text-2xl font-logo tracking-wide bg-gradient-to-r from-accent to-accent-purple bg-clip-text text-transparent">
               Anime Guess
