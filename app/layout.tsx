@@ -14,7 +14,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://anime-guess.vercel.app';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://animeguess-seven.vercel.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
