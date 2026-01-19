@@ -61,9 +61,7 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   verification: {
-    // Add your verification codes here when you have them
-    // google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
+    google: 'Gr5kydpfT3pWqf8Fr48VZnk8A_J-mgjiY7uMvFyt8Es',
   },
   alternates: {
     canonical: baseUrl,
