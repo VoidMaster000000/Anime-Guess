@@ -518,27 +518,33 @@ export const useGameStore = create<GameState>()(
       /**
        * Decrement timer for timed mode (called every second)
        */
-      decrementTimer: () => {
-        const { timeRemaining, gameStatus } = get();
+      decrementTimer: async () => {
+        const { timeRemaining, gameStatus, difficulty } = get();
 
         if (gameStatus !== 'playing' || timeRemaining === null) return;
 
         if (timeRemaining <= 1) {
           // Time's up - treat as incorrect guess
-          const { lives } = get();
+          const { lives, fetchNewCharacter } = get();
           const newLives = lives - 1;
 
           if (newLives <= 0) {
+            // Game over
             set({
               lives: 0,
               gameStatus: 'gameover',
               timeRemaining: 0,
             });
           } else {
+            // Still has lives - fetch new character and reset timer
+            const config = DIFFICULTY_CONFIGS[difficulty];
             set({
               lives: newLives,
-              timeRemaining: 0,
+              timeRemaining: config.timeLimit ?? 30,
+              hintsRevealed: config.initialHints,
             });
+            // Fetch new character
+            await fetchNewCharacter();
           }
         } else {
           set({ timeRemaining: timeRemaining - 1 });

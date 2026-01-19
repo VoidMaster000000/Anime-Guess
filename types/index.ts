@@ -193,7 +193,7 @@ export interface GameState {
   purchaseUpgrade: (item: ShopItem) => boolean;
   resetGame: () => void;
   saveToLeaderboard: (username: string) => Promise<void>;
-  decrementTimer: () => void;
+  decrementTimer: () => Promise<void>;
 
   // Internal helpers
   _calculatePoints: () => number;
