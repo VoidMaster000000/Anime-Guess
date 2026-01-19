@@ -529,6 +529,56 @@ export async function migrateLastPlayedAt(): Promise<{ migrated: number; fixed: 
 }
 
 /**
+ * Fix difficulty values - ensures all entries have lowercase difficulty values
+ * Fixes issues where difficulty might be stored as uppercase (EASY, HARD, etc.)
+ * or missing entirely
+ */
+export async function fixDifficultyValues(): Promise<{ fixed: number }> {
+  const db = await getDatabase();
+  // Use generic collection to allow querying non-standard difficulty values
+  const leaderboard = db.collection(COLLECTIONS.LEADERBOARD);
+
+  let fixed = 0;
+
+  // Fix uppercase difficulty values
+  const uppercaseMappings = [
+    { from: 'EASY', to: 'easy' },
+    { from: 'MEDIUM', to: 'medium' },
+    { from: 'HARD', to: 'hard' },
+    { from: 'TIMED', to: 'timed' },
+    { from: 'Easy', to: 'easy' },
+    { from: 'Medium', to: 'medium' },
+    { from: 'Hard', to: 'hard' },
+    { from: 'Timed', to: 'timed' },
+  ];
+
+  for (const mapping of uppercaseMappings) {
+    const result = await leaderboard.updateMany(
+      { difficulty: mapping.from },
+      { $set: { difficulty: mapping.to } }
+    );
+    fixed += result.modifiedCount;
+  }
+
+  // Fix entries with missing or null difficulty (default to 'medium')
+  const missingResult = await leaderboard.updateMany(
+    { $or: [{ difficulty: { $exists: false } }, { difficulty: null }, { difficulty: '' }] },
+    { $set: { difficulty: 'medium' } }
+  );
+  fixed += missingResult.modifiedCount;
+
+  // Create index on difficulty for faster filtering
+  try {
+    await leaderboard.createIndex({ difficulty: 1 });
+    await leaderboard.createIndex({ isSuspicious: 1, difficulty: 1, streak: -1, points: -1 });
+  } catch {
+    // Index may already exist
+  }
+
+  return { fixed };
+}
+
+/**
  * Clean up duplicate leaderboard entries - keeps only the best score per player PER DIFFICULTY
  * This should be run once to fix legacy data
  */

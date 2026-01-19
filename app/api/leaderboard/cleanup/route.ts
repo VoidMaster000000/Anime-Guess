@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
-import { cleanupDuplicateEntries, cleanupOrphanedEntries, syncAllLeaderboardProfiles, migrateLastPlayedAt } from '@/lib/db/leaderboard';
+import { cleanupDuplicateEntries, cleanupOrphanedEntries, syncAllLeaderboardProfiles, migrateLastPlayedAt, fixDifficultyValues } from '@/lib/db/leaderboard';
 
 // Clean up and sync leaderboard entries
 export async function POST() {
   try {
     // First, migrate lastPlayedAt for existing entries
     const migrateResult = await migrateLastPlayedAt();
+
+    // Fix difficulty values (uppercase to lowercase, missing values)
+    const difficultyResult = await fixDifficultyValues();
 
     // Then, sync all profiles with current user data
     const syncResult = await syncAllLeaderboardProfiles();
@@ -18,9 +21,10 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Migrated ${migrateResult.migrated} entries, fixed ${migrateResult.fixed} date fields, synced ${syncResult.synced} profiles, removed ${orphanedResult.removed} orphaned and ${duplicateResult.removed} duplicate entries`,
+      message: `Migrated ${migrateResult.migrated} entries, fixed ${migrateResult.fixed} date fields, fixed ${difficultyResult.fixed} difficulty values, synced ${syncResult.synced} profiles, removed ${orphanedResult.removed} orphaned and ${duplicateResult.removed} duplicate entries`,
       entriesMigrated: migrateResult.migrated,
       dateFieldsFixed: migrateResult.fixed,
+      difficultyValuesFixed: difficultyResult.fixed,
       profilesSynced: syncResult.synced,
       orphanedRemoved: orphanedResult.removed,
       duplicatesRemoved: duplicateResult.removed,
