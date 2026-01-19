@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import CustomContextMenu from "@/components/layout/CustomContextMenu";
 import ClientEffects from "@/components/layout/ClientEffects";
 import Providers from "@/components/Providers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -131,6 +132,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+          <SpeedInsights />
         </Providers>
       </body>
     </html>
