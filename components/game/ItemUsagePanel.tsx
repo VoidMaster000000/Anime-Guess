@@ -80,6 +80,7 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
   const lives = useGameStore((state) => state.lives);
   const maxLives = useGameStore((state) => state.maxLives);
   const fetchNewCharacter = useGameStore((state) => state.fetchNewCharacter);
+  const addLife = useGameStore((state) => state.addLife);
 
   const [usedItemAnimation, setUsedItemAnimation] = useState<string | null>(null);
 
@@ -161,10 +162,8 @@ export default function ItemUsagePanel({ onItemUse }: ItemUsagePanelProps) {
           revealHint();
           break;
         case 'life':
-          // Directly increment lives in game store
-          useGameStore.setState((state) => ({
-            lives: Math.min(state.lives + 1, state.maxLives),
-          }));
+          // Use the addLife action from game store
+          addLife();
           break;
         case 'skip':
           await fetchNewCharacter();

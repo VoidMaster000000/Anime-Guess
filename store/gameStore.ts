@@ -332,6 +332,18 @@ export const useGameStore = create<GameState>()(
       },
 
       /**
+       * Add a life (e.g., from using extra life item)
+       */
+      addLife: () => {
+        const { lives, maxLives } = get();
+        if (lives < maxLives) {
+          set({ lives: lives + 1 });
+          return true;
+        }
+        return false;
+      },
+
+      /**
        * Purchase an upgrade from the shop
        * Returns true if purchase successful, false otherwise
        */
